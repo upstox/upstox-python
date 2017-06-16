@@ -1,0 +1,28 @@
+{
+ "host" : "https://api.upstox.com",
+ "routes" : {
+    "authorize" : "/index/dialog/authorize",
+    "accessToken" : "/index/oauth/token",
+    "profile" : "/index/profile",
+    "masterContract":"/index/master-contract/{exchange}",
+    "logout" : "/index/logout",
+
+    "holdings" : "/live/profile/holdings",
+    "balance" : "/live/profile/balance",
+    "positions" : "/live/profile/positions",
+
+    "placeOrder" :"/live/orders",
+    "getOrders" : "/live/orders",
+    "getOrdersInfo" : "/live/orders/{order_id}",
+    "modifyOrder" :"/live/orders/{order_id}",
+    "cancelOrder" : "/live/orders/{order_id}",
+    "tradesInfo": "/live/orders/{order_id}/trades",
+
+
+    "liveFeed" : "/live/feed/now/{exchange}/{symbol}/{type}",
+    "liveFeedSubscribe": "/live/feed/sub/{type}/{exchange}?symbol={symbol}",
+    "liveFeedUnsubscribe": "/live/feed/unsub/{type}/{exchange}?symbol={symbol}",
+    "OHLC" : "/historical/ohlc/{exchange}/{symbol}?interval={interval}&start_date={start_date}&end_date={end_date}&format={format}"
+ },
+   "socketEndpoint": "wss://ws-api.upstox.com?apiKey={api_key}&token={access_token}"
+}
