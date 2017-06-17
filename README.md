@@ -34,7 +34,7 @@ The original REST API that this SDK is based on is available online.
 ### Get an access token
 1. Import Upstox
 ```python
-import upstox
+from upstox_api.api import *
 ```
 
 2. Create a Session object with your `api_key`, `redirect_uri` and `api_secret`

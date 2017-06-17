@@ -1,11 +1,18 @@
-import json, os, pycurl
-import urllib.parse
+import json, os, pycurl, future
 from collections import OrderedDict
 from io import BytesIO
 from upstox_api.utils import *
 import websocket, threading
 import logging
 from datetime import date
+
+# compatible import
+from future.standard_library import install_aliases
+install_aliases()
+
+from urllib.parse import urlparse, urlencode
+from urllib.request import urlopen, Request
+from urllib.error import HTTPError
 
 # master contracts by token
 master_contracts_by_token = dict()
@@ -51,7 +58,7 @@ class Session:
 
         params = {'apiKey' : self.api_key, 'redirect_uri' : self.redirect_uri, 'response_type' : 'code'}
 
-        return self.config['host'] + self.config['routes']['authorize'] + '?' + urllib.parse.urlencode(params);
+        return self.config['host'] + self.config['routes']['authorize'] + '?' + urlencode(params);
 
     def retrieve_access_token(self):
         """ once you have the authorization code, you can call this function to get
