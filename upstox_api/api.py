@@ -9,6 +9,12 @@ from datetime import date
 import requests
 from requests.auth import HTTPBasicAuth
 
+try:
+    from urllib.parse import urlencode
+except:
+    from urllib import urlencode
+
+
 # compatible import
 from future.standard_library import install_aliases
 install_aliases()
@@ -57,7 +63,7 @@ class Session:
 
         params = {'apiKey' : self.api_key, 'redirect_uri' : self.redirect_uri, 'response_type' : 'code'}
 
-        return self.config['host'] + self.config['routes']['authorize'] + '?' + urlencode(params);
+        return self.config['host'] + self.config['routes']['authorize'] + '?' + urlencode(params)
 
     def retrieve_access_token(self):
         """ once you have the authorization code, you can call this function to get
@@ -101,8 +107,8 @@ class Upstox:
     on_error = None
     on_disconnect = None
 
-    def _on_message (self, ws, message):
-        if isinstance(message, str):
+    def _on_data (self, ws, message, data_type, continue_flag):
+        if data_type == websocket.ABNF.OPCODE_TEXT:
             parsed_message = json.loads(message)
 
             if is_status_2xx(parsed_message['code']):
@@ -176,7 +182,7 @@ class Upstox:
                 else:
                     print("Unknown message: %s" % parsed_message)
 
-        if isinstance(message, bytes):
+        else:
             data = message.decode()
             quotes = data.split(';')
 
@@ -243,9 +249,9 @@ class Upstox:
     def start_websocket(self, run_in_background = False):
 
         url = self.config['socketEndpoint'].format(api_key=self.api_key, access_token=self.access_token)
-        self.websocket = websocket.WebSocketApp(url, on_message = self._on_message,
-                              on_error = self._on_error,
-                              on_close = self._on_close)
+        self.websocket = websocket.WebSocketApp(url, on_data = self._on_data,
+                                                on_error = self._on_error,
+                                                on_close = self._on_close)
         if run_in_background is True:
             self.ws_thread = threading.Thread(target=self.websocket.run_forever)
             self.ws_thread.daemon = True
@@ -655,7 +661,7 @@ class Upstox:
         response = self.api_call(url, http_method, data)
 
         if response.status_code != 200:
-            raise SystemError(response.text)
+            raise requests.HTTPError(response.text)
 
         body = json.loads(response.text)
 
@@ -663,13 +669,13 @@ class Upstox:
             # success
             return body['data']
         elif response.status_code == 400:
-            raise ValueError(response.reason)
+            raise requests.HTTPError(response.text)
         elif response.status_code == 500:
-            raise SystemError(response.reason)
+            raise requests.HTTPError(response.text)
         elif response.status_code == 503:
-            raise requests.HTTPError
+            raise requests.HTTPError(response.text)
         else:
-            raise SystemError(response.text)
+            raise requests.HTTPError(response.text)
 
         return
 
