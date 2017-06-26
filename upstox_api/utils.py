@@ -1,19 +1,30 @@
 from collections import namedtuple
-from enum import Enum
 import re
 
 Instrument = namedtuple('Instrument', ['exchange', 'token', 'parent_token', 'symbol',
                                        'name', 'closing_price', 'expiry', 'strike_price',
                                        'tick_size', 'lot_size', 'instrument_type', 'isin'])
 
-class PyCurlVerbs(Enum):
+
+class CustomEnum(set):
+    def __getattr__(self, name):
+        if name in self:
+            return name
+        raise AttributeError
+    def __setattr__(self, name, value):
+        raise RuntimeError("Cannot override values")
+    def __delattr__(self, name):
+        raise RuntimeError("Cannot delete values")
+
+
+class PyCurlVerbs(CustomEnum):
     PUT = 'PUT'
     DELETE = 'DELETE'
     GET = 'GET'
     POST = 'POST'
 
 
-class OHLCInterval(Enum):
+class OHLCInterval(CustomEnum):
     Minute_1 = '1MINUTE'
     Minute_5 = '5MINUTE'
     Minute_10 = '10MINUTE'
@@ -23,7 +34,7 @@ class OHLCInterval(Enum):
     Week_1 = '1WEEK'
     Month_1 = '1MONTH'
 
-class TransactionType(Enum):
+class TransactionType(CustomEnum):
     Buy = 'B'
     Sell = 'S'
 
@@ -36,7 +47,7 @@ class TransactionType(Enum):
             return TransactionType.Sell
 
 
-class OrderType(Enum):
+class OrderType(CustomEnum):
     Market = 'M'
     Limit = 'L'
     StopLossLimit = 'SL'
@@ -54,7 +65,7 @@ class OrderType(Enum):
         if str == 'SL-M':
             return OrderType.StopLossMarket
 
-class ProductType(Enum):
+class ProductType(CustomEnum):
     Intraday = 'I'
     Delivery = 'D'
     CoverOrder = 'CO'
@@ -73,7 +84,7 @@ class ProductType(Enum):
             return ProductType.OneCancelsOther
 
 
-class DurationType(Enum):
+class DurationType(CustomEnum):
     DAY = 'DAY'
     IOC = 'IOC'
 
@@ -86,7 +97,7 @@ class DurationType(Enum):
             return DurationType.IOC
 
 
-class LiveFeedType(Enum):
+class LiveFeedType(CustomEnum):
     LTP = 'LTP'
     Full = 'Full'
 
