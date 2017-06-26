@@ -1,18 +1,17 @@
-import json, os, pycurl, future
+import json, os, future
 from collections import OrderedDict
-from io import BytesIO
+
 from upstox_api.utils import *
 import websocket, threading
 import logging
 from datetime import date
 
+import requests
+from requests.auth import HTTPBasicAuth
+
 # compatible import
 from future.standard_library import install_aliases
 install_aliases()
-
-from urllib.parse import urlparse, urlencode
-from urllib.request import urlopen, Request
-from urllib.error import HTTPError
 
 # master contracts by token
 master_contracts_by_token = dict()
@@ -76,21 +75,10 @@ class Session:
 
         params = {'code': self.code, 'redirect_uri': self.redirect_uri, 'grant_type': 'authorization_code'}
 
-        buffer = BytesIO()
-        c = pycurl.Curl()
-        c.setopt(c.URL, self.config['host'] + self.config['routes']['accessToken'])
-        c.setopt(c.WRITEDATA, buffer)
-        c.setopt(pycurl.USERPWD, self.api_key + ':' + self.api_secret)
-        c.setopt(pycurl.HTTPHEADER, ["Content-Type: application/json", "x-api-key: " + self.api_key])
-        c.setopt(pycurl.POSTFIELDS, json.dumps(params))
-        c.perform()
-        c.close()
-
-        data = buffer.getvalue().decode('iso-8859-1')
-        # Body is a byte string.
-        # We have to know the encoding in order to print it to a text file
-        # such as standard output.
-        body = json.loads(data)
+        url = self.config['host'] + self.config['routes']['accessToken']
+        headers = {"Content-Type" : "application/json", "x-api-key" : self.api_key}
+        r = requests.post(url, auth=(self.api_key, self.api_secret), data=json.dumps(params), headers=headers)
+        body = json.loads(r.text)
         if 'access_token' not in body:
             raise SystemError(body);
         return body['access_token']
@@ -327,12 +315,12 @@ class Upstox:
         if not isinstance(instrument, Instrument):
             raise TypeError("Required parameter instrument not of type Instrument")
 
-        if not isinstance(live_feed_type, LiveFeedType):
+        if LiveFeedType.parse(live_feed_type) is None:
             raise TypeError("Required parameter live_feed_type not of type LiveFeedType")
 
         return self.api_call_helper('liveFeed', PyCurlVerbs.GET, {'exchange': instrument.exchange,
                                                                        'symbol' : instrument.symbol,
-                                                                       'type' : live_feed_type.value}
+                                                                       'type' : live_feed_type}
                                          , None)
 
     def get_ohlc(self, instrument, interval, start_date, end_date, download_as_csv = False):
@@ -341,7 +329,7 @@ class Upstox:
         if not isinstance(instrument, Instrument):
             raise TypeError("Required parameter instrument not of type Instrument")
 
-        if not isinstance(interval, OHLCInterval):
+        if OHLCInterval.parse(interval) is None:
             raise TypeError("Required parameter interval not of type OHLCInterval")
 
         if not isinstance(start_date, date):
@@ -357,7 +345,7 @@ class Upstox:
 
         ohlc = self.api_call_helper('OHLC', PyCurlVerbs.GET, {'exchange': instrument.exchange,
                                                                 'symbol' : instrument.symbol,
-                                                                'interval' : interval.value,
+                                                                'interval' : interval,
                                                                 'start_date' : start_date.strftime('%d-%m-%Y'),
                                                                 'end_date': end_date.strftime('%d-%m-%Y'),
                                                                 'format' : output_format
@@ -372,7 +360,7 @@ class Upstox:
         """ placing an order, many fields are optional and are not required
             for all order types
         """
-        if not isinstance(transaction_type, TransactionType):
+        if TransactionType.parse(transaction_type) is None:
             raise TypeError("Required parameter transaction_type not of type TransactionType")
 
         if not isinstance(instrument, Instrument):
@@ -381,16 +369,16 @@ class Upstox:
         if not isinstance(quantity, int):
             raise TypeError("Required parameter quantity not of type int")
 
-        if not isinstance(order_type, OrderType):
+        if OrderType.parse(order_type) is None:
             raise TypeError("Required parameter order_type not of type OrderType")
 
-        if not isinstance(product_type, ProductType):
+        if ProductType.parse(product_type) is None:
             raise TypeError("Required parameter product_type not of type ProductType")
 
         # construct order object after all required parameters are met
-        order = {'transaction_type': transaction_type.value, 'exchange': instrument.exchange,
+        order = {'transaction_type': transaction_type, 'exchange': instrument.exchange,
                  'symbol': instrument.symbol,
-                 'quantity': quantity, 'order_type': order_type.value, 'product': product_type.value}
+                 'quantity': quantity, 'order_type': order_type, 'product': product_type}
 
         if price is not None and not isinstance(price, float):
             raise TypeError("Optional parameter price not of type float")
@@ -407,10 +395,10 @@ class Upstox:
         elif disclosed_quantity is not None:
             order['disclosed_quantity'] = disclosed_quantity
 
-        if duration is not None and not isinstance(duration, DurationType):
-            raise TypeError("Optional duration product_type not of type DurationType")
+        if duration is not None and DurationType.parse(duration) is None:
+            raise TypeError("Optional parameter duration not of type DurationType")
         elif duration is not None:
-            order['duration'] = duration.value
+            order['duration'] = duration
 
         if stop_loss is not None and not isinstance(stop_loss, float):
             raise TypeError("Optional parameter stop_loss not of type float")
@@ -456,10 +444,10 @@ class Upstox:
         elif quantity is not None:
             order['quantity'] = quantity
 
-        if order_type is not None and not isinstance(order_type, OrderType):
-            raise TypeError("Optional duration order_type not of type OrderType")
+        if order_type is not None and OrderType.parse(order_type) is None:
+            raise TypeError("Optional parameter order_type not of type OrderType")
         elif order_type is not None:
-            order['order_type'] = order_type.value
+            order['order_type'] = order_type
 
         if price is not None and not isinstance(price, float):
             raise TypeError("Optional parameter price not of type float")
@@ -476,10 +464,10 @@ class Upstox:
         elif disclosed_quantity is not None:
             order['disclosed_quantity'] = disclosed_quantity
 
-        if duration is not None and not isinstance(duration, DurationType):
-            raise TypeError("Optional duration product_type not of type DurationType")
+        if duration is not None and DurationType.parse(duration) is None:
+            raise TypeError("Optional parameter duration not of type DurationType")
         elif duration is not None:
-            order['duration'] = duration.value
+            order['duration'] = duration
 
         return self.api_call_helper('modifyOrder', PyCurlVerbs.PUT, {'order_id' : order_id}, order)
 
@@ -491,17 +479,31 @@ class Upstox:
         return self.api_call_helper('cancelOrder', PyCurlVerbs.DELETE, {'order_id' : order_id}, None)
 
     def subscribe(self, instrument, live_feed_type):
-        """ get the current feed of an instrument """
+        """ subscribe to the current feed of an instrument """
 
         if not isinstance(instrument, Instrument):
             raise TypeError("Required parameter instrument not of type Instrument")
 
-        if not isinstance(live_feed_type, LiveFeedType):
+        if LiveFeedType.parse(live_feed_type) is None:
             raise TypeError("Required parameter live_feed_type not of type LiveFeedType")
 
         return self.api_call_helper('liveFeedSubscribe', PyCurlVerbs.GET, {'exchange': instrument.exchange,
                                                                        'symbol' : instrument.symbol,
-                                                                       'type' : live_feed_type.value}
+                                                                       'type' : live_feed_type}
+                                          , None);
+
+    def unsubscribe(self, instrument, live_feed_type):
+        """ unsubscribe to the current feed of an instrument """
+
+        if not isinstance(instrument, Instrument):
+            raise TypeError("Required parameter instrument not of type Instrument")
+
+        if LiveFeedType.parse(live_feed_type) is None:
+            raise TypeError("Required parameter live_feed_type not of type LiveFeedType")
+
+        return self.api_call_helper('liveFeedUnsubscribe', PyCurlVerbs.GET, {'exchange': instrument.exchange,
+                                                                       'symbol' : instrument.symbol,
+                                                                       'type' : live_feed_type}
                                           , None);
 
     def get_instrument_by_symbol(self, exchange, symbol):
@@ -582,11 +584,11 @@ class Upstox:
             item = line.split(',')
 
             # convert token
-            if item[1] is not '':
+            if item[1] is not u'':
                 item[1] = int(item[1])
 
             # convert parent token
-            if item[2] is not '':
+            if item[2] is not u'':
                 item[2] = int(item[2])
             else:
                 item[2] = None;
@@ -595,39 +597,39 @@ class Upstox:
             item[3] = item[3].lower()
 
             # convert closing price to float
-            if item[5] is not '':
+            if item[5] is not u'':
                 item[5] = float(item[5])
             else:
                 item[5] = None;
 
             # convert expiry to none if it's non-existent
-            if item[6] is '':
+            if item[6] is u'':
                 item[6] = None;
 
             # convert strike price to float
-            if item[7] is not '' and item[7] is not '0':
+            if item[7] is not u'' and item[7] is not u'0':
                 item[7] = float(item[7])
             else:
                 item[7] = None;
 
             # convert tick size to int
-            if item[8] is not '':
+            if item[8] is not u'':
                 item[8] = float(item[8])
             else:
                 item[8] = None;
 
             # convert lot size to int
-            if item[9] is not '':
+            if item[9] is not u'':
                 item[9] = int(item[9])
             else:
                 item[9] = None
 
             # convert instrument_type to none if it's non-existent
-            if item[10] is '':
+            if item[10] is u'':
                 item[10] = None;
 
             # convert isin to none if it's non-existent
-            if item[11] is '':
+            if item[11] is u'':
                 item[11] = None;
 
             instrument = Instrument(item[0], item[1], item[2], item[3], item[4],
@@ -650,50 +652,41 @@ class Upstox:
         if params is not None:
             url = url.format(**params)
 
-        value = self.api_call(url, http_method, data)
+        response = self.api_call(url, http_method, data)
 
-        api_call = json.loads(value)
+        if response.status_code != 200:
+            raise SystemError(response.text)
 
-        if 'code' not in api_call:
-            raise ValueError(api_call);
+        body = json.loads(response.text)
 
-        if is_status_2xx(api_call['code']):
+        if is_status_2xx(body['code']):
             # success
-            return api_call["data"];
-        elif api_call['code'] == 400:
-            raise ValueError(api_call['error']['reason'])
-        elif api_call['code'] == 500:
-            raise SystemError(api_call['error']['reason'])
-        elif api_call['code'] == 503:
-            raise urllib.error.HTTPError()
+            return body['data']
+        elif response.status_code == 400:
+            raise ValueError(response.reason)
+        elif response.status_code == 500:
+            raise SystemError(response.reason)
+        elif response.status_code == 503:
+            raise requests.HTTPError
         else:
-            raise SystemError(api_call)
+            raise SystemError(response.text)
 
         return
 
     def api_call(self, url, http_method, data):
-        # makes a rest call
-        buffer = BytesIO()
-        c = pycurl.Curl()
-        c.setopt(c.URL, url)
-        c.setopt(c.WRITEDATA, buffer)
-        c.setopt(pycurl.HTTPHEADER, ["Content-Type: application/json", "x-api-key: " + self.api_key, \
-                                     "authorization: Bearer " + self.access_token])
+
+        headers = {"Content-Type" : "application/json", "x-api-key" : self.api_key,
+                   "authorization" : "Bearer " + self.access_token}
+
+        r = None
 
         if http_method is PyCurlVerbs.POST:
-            if data is not None:
-                c.setopt(pycurl.POSTFIELDS, json.dumps(data))
+            r = requests.post(url, data=json.dumps(data), headers=headers)
         elif http_method is PyCurlVerbs.DELETE:
-            c.setopt(pycurl.CUSTOMREQUEST, "DELETE")
+            r = requests.delete(url, headers=headers)
         elif http_method is PyCurlVerbs.PUT:
-            c.setopt(pycurl.CUSTOMREQUEST, "PUT")
-            if data is not None:
-                c.setopt(pycurl.POSTFIELDS, json.dumps(data))
-        c.perform()
-        c.close()
+            r = requests.put(url, data=json.dumps(data), headers=headers)
+        elif http_method is PyCurlVerbs.GET:
+            r = requests.get(url, headers=headers)
 
-        body = buffer.getvalue()
-        # Body is a byte string.
-        # We have to know the encoding in order to print it to a text file
-        # such as standard output.
-        return body.decode('iso-8859-1')
+        return r

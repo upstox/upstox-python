@@ -34,6 +34,7 @@ class OHLCInterval(CustomEnum):
     Week_1 = '1WEEK'
     Month_1 = '1MONTH'
 
+
 class TransactionType(CustomEnum):
     Buy = 'B'
     Sell = 'S'
@@ -45,6 +46,7 @@ class TransactionType(CustomEnum):
             return TransactionType.Buy
         if str == 'S':
             return TransactionType.Sell
+        return None
 
 
 class OrderType(CustomEnum):
@@ -64,6 +66,7 @@ class OrderType(CustomEnum):
             return OrderType.StopLossLimit
         if str == 'SL-M':
             return OrderType.StopLossMarket
+        return None
 
 class ProductType(CustomEnum):
     Intraday = 'I'
@@ -82,6 +85,7 @@ class ProductType(CustomEnum):
             return ProductType.CoverOrder
         if str == 'OCO':
             return ProductType.OneCancelsOther
+        return None
 
 
 class DurationType(CustomEnum):
@@ -95,11 +99,21 @@ class DurationType(CustomEnum):
             return DurationType.DAY
         if str == 'IOC':
             return DurationType.IOC
+        return None
 
 
 class LiveFeedType(CustomEnum):
     LTP = 'LTP'
     Full = 'Full'
+
+    @staticmethod
+    def parse(str):
+        str = str.upper()
+        if str == 'LTP':
+            return LiveFeedType.LTP
+        if str == 'FULL':
+            return LiveFeedType.Full
+        return None
 
 
 def is_status_2xx(code):
