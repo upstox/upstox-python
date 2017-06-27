@@ -2,12 +2,13 @@ from setuptools import setup
 setup(
   name = 'upstox',
   packages = ['upstox_api'],
-  version = '0.7',
+  version = '1.2',
+  include_package_data=True,
   description = 'Official Python library for Upstox APIs',
   author = 'Upstox Development Team',
   author_email = 'support@upstox.com',
   url = 'https://github.com/upstox/upstox-python',
-  install_requires=['future', 'enum', 'websocket_client', 'pycurl'],
+  install_requires=['future', 'requests', 'websocket_client'],
   keywords = ['upstox', 'python', 'sdk', 'trading', 'stock markets'],
   classifiers=[
     'Intended Audience :: Developers',

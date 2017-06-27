@@ -12,10 +12,19 @@ Websocket connections are handled automatically with the library
 
 This module is installed via pip:
 
-	pip install upstox
+`pip install upstox`
 
 ### Prerequisites
-    Python 2.x or 3.x
+
+Python 2.x or 3.x
+
+Also, you need the following modules:
+
+* `future`
+* `websocket_client`
+* `requests` 
+
+The modules can also be installed using `pip`
 
 ## Getting started with API
 
@@ -70,6 +79,8 @@ u = Upstox ('your_api_key', access_token)
 ```python
 print (u.get_balance()) # get balance / margin limits
 print (u.get_profile()) # get profile
+print (u.get_holdings()) # get holdings
+print (u.get_positions()) # get positions
 ```
 
 ### Get master contracts

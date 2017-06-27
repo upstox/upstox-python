@@ -1,5 +1,3 @@
 # Include the license file
 include LICENSE
-
-# Include the data files
-recursive-include data *
+include upstox_api/*.json
