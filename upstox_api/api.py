@@ -520,12 +520,16 @@ class Upstox:
         symbol = symbol.lower()
         # check if master contract exists
         if exchange not in master_contracts_by_symbol:
+            logging.warning("Cannot find exchange [%s] in master contract. "
+                            "Please ensure you have called get_master_contract function first" % exchange)
             return None
 
         master_contract = master_contracts_by_symbol[exchange]
 
         if symbol not in master_contract:
+            logging.warning("Cannot find symbol [%s:%s] in master contract" % (exchange, symbol))
             return None
+
         return master_contract[symbol]
 
     def search_instruments(self, exchange, symbol):
@@ -539,6 +543,9 @@ class Upstox:
 
         # check if master contract exists
         if exchange not in master_contracts_by_token:
+            logging.warning(
+                "Cannot find exchange [%s] in master contract. "
+                "Please ensure you have called get_master_contract function first" % exchange)
             return None
 
         master_contract = master_contracts_by_token[exchange]
@@ -557,11 +564,15 @@ class Upstox:
 
         # check if master contract exists
         if exchange not in master_contracts_by_token:
+            logging.warning(
+                "Cannot find exchange [%s] in master contract. "
+                "Please ensure you have called get_master_contract function first" % exchange)
             return None
 
         master_contract = master_contracts_by_token[exchange]
 
         if token not in master_contract:
+            logging.warning("Cannot find token [%s:%s] in master contracts" % (exchange, token))
             return None
         return master_contract[token]
 

@@ -20,7 +20,6 @@ This module is installed via pip:
 ## Getting started with API
 
 ### Overview
-
 There are two classes in the library: Session, and Upstox. The Session class is used to retrieve an access token from the server. An access token is valid for 24 hours.
 With an access token, you can instantiate an Upstox object. Ideally you only need to create a Session object once every day. After you have the access token, you can store it
 separately for re-use.
@@ -79,17 +78,73 @@ Master contracts are stored as an OrderedDict by token number and by symbol name
 
 ```python
 u.get_master_contract('NSE_EQ') # get contracts for NSE EQ
+u.get_master_contract('BSE_EQ') # get contracts for NSE EQ
 u.get_master_contract('NSE_FO') # get contracts for NSE FO
-tatasteel_eq = u.get_instrument_by_symbol('NSE_EQ', 'TATASTEEL') # search by symbol name
-reliance_eq = u.get_instrument_by_token('NSE_EQ', 2885) # search by exchange token
 ```
 
-### Subscribe to feeds
-Once you have master contracts loaded, you can easily subscribe to quote updates. You can either subscribe for a full quote update or an LTP quote update.
+### Search for symbols
+Symbols can be retrieved in multiple ways. Once you have the master contract loaded for an exchange, you can search for an instrument in many ways.
 
+Search for a single instrument by it's name:
 ```python
+tatasteel_nse_eq = u.get_instrument_by_symbol('NSE_EQ', 'TATASTEEL')
+reliance_nse_eq = u.get_instrument_by_symbol('NSE_EQ', 'RELIANCE')
+ongc_bse_eq = u.get_instrument_by_symbol('BSE_EQ', 'ONGC')
+```
+
+Search for a single instrument by it's token number (generally useful only for BSE Equities):
+```python
+ongc_bse_eq = u.get_instrument_by_token('BSE_EQ', 500312)
+reliance_bse_eq = u.get_instrument_by_token('BSE_EQ', 500325)
+acc_nse_eq = u.get_instrument_by_token('NSE_EQ', 22)
+```
+
+Search for multiple instruments by matching the name
+```python
+all_tata_companies_on_bse = u.search_instruments('BSE_EQ', 'tata')
+```
+
+#### Instrument object
+Instruments are represented by instrument objects. These are named-tuples that are created by the `get_master_contract` function. They are used when placing an order and searching for an instrument. The structure of an instrument tuple is as follows:
+```python
+Instrument = namedtuple('Instrument', ['exchange', 'token', 'parent_token', 'symbol',
+                                       'name', 'closing_price', 'expiry', 'strike_price',
+                                       'tick_size', 'lot_size', 'instrument_type', 'isin'])
+```
+
+All instruments have the fields mentioned above. Wherever a field is not applicable for an instrument (for example, equity instruments don't have strike prices), that value will be `None`
+
+### Quote update
+Once you have master contracts loaded, you can easily subscribe to quote updates.
+
+#### Two types of feed data available
+You can either subscribe for a full quote update or an LTP quote update. Using the `LiveFeedType` object, you can specify whether you want the full feed (`LiveFeedType.Full`) or just the LTP feed (`LiveFeedType.LTP`)
+
+#### Get current market price
+```python
+u.get_live_feed(u.get_instrument_by_symbol('NSE_EQ', 'ACC'), LiveFeedType.Full)
+u.get_live_feed(u.get_instrument_by_symbol('BSE_EQ', 'RELIANCE'), LiveFeedType.LTP)
+```
+
+#### Subscribe to a live feed
+Start getting live feed via socket
+```python
+def event_handler_quote_update(message):
+    print("Quote Update: %s" % str(message))
+
+u.set_on_quote_update(event_handler_quote_update)
+
 u.subscribe(u.get_instrument_by_symbol('NSE_EQ', 'TATASTEEL'), LiveFeedType.Full)
-u.subscribe(u.get_instrument_by_symbol('NSE_EQ', 'RELIANCE'), LiveFeedType.LTP)
+u.subscribe(u.get_instrument_by_symbol('BSE_EQ', 'RELIANCE'), LiveFeedType.LTP)
+
+u.start_websocket(True)
+```
+
+#### Unsubscribe to a live feed
+Unsubscribe to an existing live feed
+```python
+u.unsubscribe(u.get_instrument_by_symbol('NSE_EQ', 'TATASTEEL'), LiveFeedType.Full)
+u.unsubscribe(u.get_instrument_by_symbol('BSE_EQ', 'RELIANCE'), LiveFeedType.LTP)
 ```
 
 ### Place an order
@@ -107,6 +162,36 @@ u.place_order(TransactionType.Buy, u.get_instrument_by_symbol('NSE_FO', 'BANKNIF
 u.place_order(TransactionType.Sell, u.get_instrument_by_symbol('NSE_FO', 'BANKNIFTY17JUN15FUT'), 40, OrderType.Limit, ProductType.OneCancelsOther, 23001.0, None, None, DurationType.DAY, 10.0, 10.0)
 ```
 
+### Order properties as objects
+Order properties such as TransactionType, OrderType, and others have been safely classified as objects so you don't have to write them out as strings
+
+#### TransactionType
+Transaction types indicate whether you want to buy or sell. Valid transaction types are of the following:
+
+* `TransactionType.Buy` - buy
+* `TransactionType.Sell` - sell
+
+#### OrderType
+Order type specifies the type of order you want to send. Valid order types include:
+
+* `OrderType.Market` - Place the order with a market price
+* `OrderType.Limit` - Place the order with a limit price (limit price parameter is mandatory)
+* `OrderType.StopLossLimit` - Place as a stop loss limit order
+* `OrderType.StopLossMarket` - Place as a stop loss market order
+
+#### ProductType
+Product types indicate the complexity of the order you want to place. Valid product types are:
+
+* `ProductType.Intraday` - Intraday order that will get squared off before market close
+* `ProductType.Delivery` - Delivery order that will be held with you after market close
+* `ProductType.CoverOrder` - Cover order
+* `ProductType.OneCancelsOther` - One cancels other order. Also known as bracket order
+
+#### DurationType
+Duration types specify how long your order will stay on the market. Valid duration types include:
+
+* `DurationType.DAY` - Day order
+* `DurationType.IOC` - Immediate or cancel order
 
 ### Listen to live events
 You can attach handlers to the following market events:

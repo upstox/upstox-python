@@ -34,6 +34,27 @@ class OHLCInterval(CustomEnum):
     Week_1 = '1WEEK'
     Month_1 = '1MONTH'
 
+    @staticmethod
+    def parse(str):
+        str = str.upper()
+        if str == '1MINUTE':
+            return OHLCInterval.Minute_1
+        if str == '5MINUTE':
+            return OHLCInterval.Minute_5
+        if str == '10MINUTE':
+            return OHLCInterval.Minute_10
+        if str == '30MINUTE':
+            return OHLCInterval.Minute_30
+        if str == '60MINUTE':
+            return OHLCInterval.Minute_60
+        if str == '1DAY':
+            return OHLCInterval.Day_1
+        if str == '1WEEK':
+            return OHLCInterval.Week_1
+        if str == '1MONTH':
+            return OHLCInterval.Month_1
+        return None
+
 
 class TransactionType(CustomEnum):
     Buy = 'B'
