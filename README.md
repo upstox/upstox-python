@@ -223,6 +223,17 @@ u.set_on_quote_update (my_generic_event_handler)
 ```
 
 2. Start the websocket library. The first parameter, `run_in_background`, controls whether the socket will run as a daemon or not
+
+To run it in the current thread
+```python
+u.start_websocket (False)
+```
+
+
+To run it in the background
 ```python
 u.start_websocket (True)
+condition = threading.Condition()
+condition.acquire()
+condition.wait()
 ```
