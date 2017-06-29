@@ -216,14 +216,15 @@ class Upstox:
                         i += 3
                         j += 3
 
-                # append instrument object
-                quote_object["instrument"] = self.get_instrument_by_symbol(fields[1], fields[2])
-
-
                 if quote_object is None:
-                    logging.warning('Quote object was not mapped to any subscription. Length: %s, Values: %s' % (str(len(fields)), str(fields)))
+                    logging.warning('Quote object was not mapped to any subscription. Length: %s, Values: %s' % (str(len(fields)), quote))
                     continue
-                elif self.on_quote_update:
+                else:
+                    # append instrument object
+                    if self.get_instrument_by_symbol(fields[1], fields[2]) is not None:
+                        quote_object["instrument"] = self.get_instrument_by_symbol(fields[1], fields[2])
+
+                if self.on_quote_update:
                     self.on_quote_update(quote_object)
 
     def _on_error (self, ws, error):
