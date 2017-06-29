@@ -230,7 +230,7 @@ u.start_websocket (False)
 ```
 
 
-To run it in the background
+To run it in the background, please ensure that your program doesn't exit. Here's an example of
 ```python
 u.start_websocket (True)
 condition = threading.Condition()
