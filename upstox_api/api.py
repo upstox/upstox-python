@@ -209,10 +209,11 @@ class Upstox:
                     quote_object["bids"] = []
                     quote_object["asks"] = []
                     i = 18
-                    j = 32
+                    j = 33
                     for h in range(1, 6):
-                        quote_object["bids"].append({"orders" : fields[i], "quantity" : fields[i + 1], "price" : fields[i + 2]})
-                        quote_object["asks"].append({"orders" : fields[j], "quantity" : fields[j + 1], "price" : fields[j + 2]})
+                        quote_object["bids"].append({"quantity" : fields[i], "price" : fields[i + 1], "orders" : fields[i + 2]})
+                        quote_object["asks"].append({"quantity" : fields[j], "price" : fields[j + 1], "orders" : fields[j + 2]})
+
                         i += 3
                         j += 3
 
