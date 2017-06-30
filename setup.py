@@ -2,7 +2,7 @@ from setuptools import setup
 setup(
   name = 'upstox',
   packages = ['upstox_api'],
-  version = '1.4',
+  version = '1.5',
   include_package_data=True,
   description = 'Official Python library for Upstox APIs',
   author = 'Upstox Development Team',
