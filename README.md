@@ -12,7 +12,15 @@ Websocket connections are handled automatically with the library
 
 This module is installed via pip:
 
-`pip install upstox`
+```
+pip install upstox
+```
+
+To force upgrade existing installations:
+```
+pip uninstall upstox
+pip --no-cache-dir install --upgrade upstox
+```
 
 ### Prerequisites
 
