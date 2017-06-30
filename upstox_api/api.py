@@ -251,7 +251,9 @@ class Upstox:
     def start_websocket(self, run_in_background = False):
 
         url = self.config['socketEndpoint'].format(api_key=self.api_key, access_token=self.access_token)
-        self.websocket = websocket.WebSocketApp(url, on_data = self._on_data,
+        self.websocket = websocket.WebSocketApp(url,
+                                                header={'Authorization: Bearer' + self.access_token},
+                                                on_data = self._on_data,
                                                 on_error = self._on_error,
                                                 on_close = self._on_close)
         if run_in_background is True:
