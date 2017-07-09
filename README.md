@@ -45,6 +45,9 @@ separately for re-use.
 The original REST API that this SDK is based on is available online.
    [Upstox API REST documentation](https://upstox.com/developer/api/v1/docs/)
 
+### Sample Program
+An interactive Python program to test your connectivity and show functionality is available on [Gist](https://gist.github.com/svishi/ba0ee4e08f1e2364addfe76c5b2ef7d7).
+
 ## Using the API
 
 ### Get an access token
