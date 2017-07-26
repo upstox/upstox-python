@@ -195,7 +195,6 @@ class Upstox:
                                          "live_yearly_low"]
 
             for quote in quotes:
-                obj = dict()
                 quote_object = None
                 fields = quote.split(',')
                 for index, field in enumerate(fields):
@@ -714,12 +713,6 @@ class Upstox:
         if is_status_2xx(body['code']):
             # success
             return body['data']
-        elif response.status_code == 400:
-            raise requests.HTTPError(response.text)
-        elif response.status_code == 500:
-            raise requests.HTTPError(response.text)
-        elif response.status_code == 503:
-            raise requests.HTTPError(response.text)
         else:
             raise requests.HTTPError(response.text)
 
