@@ -190,6 +190,9 @@ class Upstox:
             full_quote_fields = ["timestamp", "exchange", "symbol", "ltp", "close", "open", "high", "low", "vtt",
                                  "atp", "oi", "spot_price", "total_buy_qty", "total_sell_qty", "lower_circuit",
                                  "upper_circuit", "yearly_low", "yearly_high"]
+            full_quote_fields_indices = ["timestamp", "exchange", "symbol", "live_ltp", "live_open",
+                                         "live_high", "live_low", "live_close", "live_yearly_high",
+                                         "live_yearly_low"]
 
             for quote in quotes:
                 obj = dict()
@@ -212,6 +215,10 @@ class Upstox:
                 # check if LTP subscription
                 if len(fields) == 5:
                     quote_object = dict(zip(ltp_quote_fields, fields))
+
+                # check if full quote subscription for indices
+                elif len(fields) == 10:
+                    quote_object = dict(zip(full_quote_fields_indices, fields))
 
                 # check if full quote subscription
                 elif len(fields) == 48:
