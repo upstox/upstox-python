@@ -17,6 +17,7 @@
     "modifyOrder" :"/live/orders/{order_id}",
     "cancelOrder" : "/live/orders/{order_id}",
     "tradesInfo": "/live/orders/{order_id}/trades",
+    "tradeBook": "/live/trade-book",
 
 
     "liveFeed" : "/live/feed/now/{exchange}/{symbol}/{type}",

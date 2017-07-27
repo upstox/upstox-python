@@ -320,6 +320,19 @@ class Upstox:
     def get_positions(self):
         return self.api_call_helper('positions', PyCurlVerbs.GET, None, None)
 
+    def get_trade_book(self):
+        """ returns trade_book of a user """
+        trade_book = self.api_call_helper('tradeBook', PyCurlVerbs.GET, None, None)
+
+        for trade in trade_book:
+            try:
+                instrument = self.get_instrument_by_token(trade['exchange'], trade['token'])
+                trade['instrument'] = instrument
+            except ValueError:
+                pass
+
+        return trade_book
+
     def get_order_history(self, order_id=None):
         """ leave order_id as None to get all entire order history """
         if order_id is None:
