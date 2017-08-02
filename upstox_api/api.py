@@ -8,6 +8,7 @@ from datetime import date, datetime
 
 import requests
 from requests.auth import HTTPBasicAuth
+from builtins import int
 
 try:
     from urllib.parse import urlencode
