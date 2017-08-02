@@ -139,3 +139,67 @@ class LiveFeedType(CustomEnum):
 
 def is_status_2xx(code):
     return re.search('^2', str(code)) is not None
+
+
+class SchemaConverter:
+    @staticmethod
+    def convert_to_long(str):
+        try:
+            return long(str)
+        except:
+            return str
+
+    @staticmethod
+    def convert_to_original(str):
+        return str
+
+    @staticmethod
+    def convert_to_bool(str):
+        if str == "true":
+            return True
+        elif str == "false":
+            return False
+        return str
+
+
+class Schema(object):
+    schema_trade_book = {};
+
+    schema_trade_book['exchange'] = SchemaConverter.convert_to_original
+    schema_trade_book['token'] = SchemaConverter.convert_to_original
+    schema_trade_book['symbol'] = SchemaConverter.convert_to_original
+    schema_trade_book['product'] = ProductType.parse
+    schema_trade_book['order_type'] = OrderType.parse
+    schema_trade_book['transaction_type'] = SchemaConverter.convert_to_original
+    schema_trade_book['traded_quantity'] = SchemaConverter.convert_to_original
+    schema_trade_book['exchange_order_id'] = SchemaConverter.convert_to_long
+    schema_trade_book['order_id'] = SchemaConverter.convert_to_long
+    schema_trade_book['exchange_time'] = SchemaConverter.convert_to_original
+    schema_trade_book['time_in_micro'] = SchemaConverter.convert_to_long
+    schema_trade_book['trade_id'] = SchemaConverter.convert_to_long
+
+    schema_order_history = {};
+
+    schema_order_history["exchange"] = SchemaConverter.convert_to_original
+    schema_order_history["token"] = SchemaConverter.convert_to_original
+    schema_order_history["symbol"] = SchemaConverter.convert_to_original
+    schema_order_history["product"] = ProductType.parse
+    schema_order_history["order_type"] = OrderType.parse
+    schema_order_history["duration"] = SchemaConverter.convert_to_original
+    schema_order_history["price"] = SchemaConverter.convert_to_original
+    schema_order_history["trigger_price"] = SchemaConverter.convert_to_original
+    schema_order_history["quantity"] = SchemaConverter.convert_to_original
+    schema_order_history["disclosed_quantity"] = SchemaConverter.convert_to_original
+    schema_order_history["transaction_type"] = SchemaConverter.convert_to_original
+    schema_order_history["average_price"] = SchemaConverter.convert_to_original
+    schema_order_history["traded_quantity"] = SchemaConverter.convert_to_original
+    schema_order_history["message"] = SchemaConverter.convert_to_original
+    schema_order_history["exchange_order_id"] = SchemaConverter.convert_to_long
+    schema_order_history["parent_order_id"] = SchemaConverter.convert_to_long
+    schema_order_history["order_id"] = SchemaConverter.convert_to_long
+    schema_order_history["exchange_time"] = SchemaConverter.convert_to_original
+    schema_order_history["time_in_micro"] = SchemaConverter.convert_to_long
+    schema_order_history["status"] = SchemaConverter.convert_to_original
+    schema_order_history["is_amo"] = SchemaConverter.convert_to_bool
+    schema_order_history["valid_date"] = SchemaConverter.convert_to_original
+    schema_order_history["order_request_id"] = SchemaConverter.convert_to_long
