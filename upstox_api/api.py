@@ -4,10 +4,11 @@ from collections import OrderedDict
 from upstox_api.utils import *
 import websocket, threading
 import logging
-from datetime import date
+from datetime import date, datetime
 
 import requests
 from requests.auth import HTTPBasicAuth
+from builtins import int
 
 try:
     from urllib.parse import urlencode
@@ -118,20 +119,20 @@ class Upstox:
 
                 if message.lower() == 'order_update':
                     order_update = {
-                        'quantity' : data['quantity'],
+                        'quantity' : int(data['quantity']),
                         'exchange_order_id': data['exchange_order_id'],
                         'order_type': OrderType.parse(data['order_type']),
                         'status' : data['status'],
                         'transaction_type' : TransactionType.parse(data['transaction_type']),
                         'exchange' : data['exchange'],
-                        'trigger_price' : data['trigger_price'],
+                        'trigger_price' : float(data['trigger_price']),
                         'symbol' : data['symbol'],
-                        'traded_quantity' : data['traded_quantity'],
+                        'traded_quantity' : int(data['traded_quantity']),
                         'is_amo' : data['is_amo'],
                         'product' : ProductType.parse(data['product']),
                         'order_request_id' : data['order_request_id'],
                         'duration' : DurationType.parse(data['valid_date']),
-                        'price' : data['price'],
+                        'price' : float(data['price']),
                         'time_in_micro' : data['time_in_micro'],
                         'parent_order_id' : data['parent_order_id'],
                         'order_id' : data['order_id'],
@@ -139,7 +140,7 @@ class Upstox:
                         'exchange_time' : data['exchange_time'],
                         'disclosed_quantity' : data['disclosed_quantity'],
                         'token' : data['token'],
-                        'average_price' : data['average_price'],
+                        'average_price' : float(data['average_price']),
                         'instrument' : None
                     }
                     try:
@@ -159,10 +160,10 @@ class Upstox:
                     trade_update = {
                         'exchange_time': data['exchange_time'],
                         'token': data['token'],
-                        'traded_quantity': data['traded_quantity'],
+                        'traded_quantity': int(data['traded_quantity']),
                         'order_id': data['order_id'],
                         'order_type': OrderType.parse(data['order_type']),
-                        'traded_price': data['traded_price'],
+                        'traded_price': float(data['traded_price']),
                         'trade_id': data['trade_id'],
                         'transaction_type': TransactionType.parse(data['transaction_type']),
                         'exchange_order_id': data['exchange_order_id'],
@@ -190,29 +191,59 @@ class Upstox:
             full_quote_fields = ["timestamp", "exchange", "symbol", "ltp", "close", "open", "high", "low", "vtt",
                                  "atp", "oi", "spot_price", "total_buy_qty", "total_sell_qty", "lower_circuit",
                                  "upper_circuit", "yearly_low", "yearly_high"]
+            full_quote_fields_indices = ["timestamp", "exchange", "symbol", "live_ltp", "live_open",
+                                         "live_high", "live_low", "live_close", "live_yearly_high",
+                                         "live_yearly_low"]
 
             for quote in quotes:
-                obj = dict()
                 quote_object = None
                 fields = quote.split(',')
                 for index, field in enumerate(fields):
                     if field == 'NaN' or field == '':
                         fields[index] = None
 
+                # convert timestamp to DateTime object
+                #fields[0] = datetime.fromtimestamp(float(fields[0])/1000.0)
+
+                # convert LTP and close to floats from string
+                try:
+                    fields[3] = float(fields[3])
+                    fields[4] = float(fields[4])
+                except ValueError:
+                    pass
+
                 # check if LTP subscription
                 if len(fields) == 5:
                     quote_object = dict(zip(ltp_quote_fields, fields))
 
+                # check if full quote subscription for indices
+                elif len(fields) == 10:
+                    quote_object = dict(zip(full_quote_fields_indices, fields))
+
                 # check if full quote subscription
                 elif len(fields) == 48:
+
+                    # convert other string fields to floats or ints
+                    for m in range (5, 12):
+                        if fields[m] is not None:
+                            fields[m] = float(fields[m])
+
+                    for m in range (12, 14):
+                        if fields[m] is not None:
+                            fields[m] = int(fields[m])
+
+                    for m in range (14, 18):
+                        if fields[m] is not None:
+                            fields[m] = float(fields[m])
+
                     quote_object = dict(zip(full_quote_fields, fields[:17]))
                     quote_object["bids"] = []
                     quote_object["asks"] = []
                     i = 18
                     j = 33
                     for h in range(1, 6):
-                        quote_object["bids"].append({"quantity" : fields[i], "price" : fields[i + 1], "orders" : fields[i + 2]})
-                        quote_object["asks"].append({"quantity" : fields[j], "price" : fields[j + 1], "orders" : fields[j + 2]})
+                        quote_object["bids"].append({"quantity" : int(fields[i]), "price" : float(fields[i + 1]), "orders" : int(fields[i + 2])})
+                        quote_object["asks"].append({"quantity" : int(fields[j]), "price" : float(fields[j + 1]), "orders" : int(fields[j + 2])})
 
                         i += 3
                         j += 3
@@ -290,6 +321,22 @@ class Upstox:
     def get_positions(self):
         return self.api_call_helper('positions', PyCurlVerbs.GET, None, None)
 
+    def get_trade_book(self):
+        """ returns trade_book of a user """
+        trade_book = self.api_call_helper('tradeBook', PyCurlVerbs.GET, None, None)
+
+        for trade in trade_book:
+            for key in trade:
+                if key in Schema.schema_trade_book:
+                    trade[key] = Schema.schema_trade_book[key](trade[key])
+            try:
+                instrument = self.get_instrument_by_token(trade['exchange'], trade['token'])
+                trade['instrument'] = instrument
+            except ValueError:
+                pass
+
+        return trade_book
+
     def get_order_history(self, order_id=None):
         """ leave order_id as None to get all entire order history """
         if order_id is None:
@@ -298,6 +345,9 @@ class Upstox:
             order_history = self.api_call_helper('getOrdersInfo', PyCurlVerbs.GET, {'order_id' : order_id}, None);
 
         for order in order_history:
+            for key in order:
+                if key in Schema.schema_order_history:
+                    order[key] = Schema.schema_order_history[key](order[key])
             try:
                 instrument = self.get_instrument_by_token(order['exchange'], order['token'])
                 order['instrument'] = instrument
@@ -683,12 +733,6 @@ class Upstox:
         if is_status_2xx(body['code']):
             # success
             return body['data']
-        elif response.status_code == 400:
-            raise requests.HTTPError(response.text)
-        elif response.status_code == 500:
-            raise requests.HTTPError(response.text)
-        elif response.status_code == 503:
-            raise requests.HTTPError(response.text)
         else:
             raise requests.HTTPError(response.text)
 
