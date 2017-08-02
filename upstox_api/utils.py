@@ -145,7 +145,7 @@ class SchemaConverter:
     @staticmethod
     def convert_to_long(str):
         try:
-            return long(str)
+            return int(str)
         except:
             return str
 
