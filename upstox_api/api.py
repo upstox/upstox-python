@@ -325,6 +325,9 @@ class Upstox:
         trade_book = self.api_call_helper('tradeBook', PyCurlVerbs.GET, None, None)
 
         for trade in trade_book:
+            for key in trade:
+                if key in Schema.schema_trade_book:
+                    trade[key] = Schema.schema_trade_book[key](trade[key])
             try:
                 instrument = self.get_instrument_by_token(trade['exchange'], trade['token'])
                 trade['instrument'] = instrument
@@ -341,6 +344,9 @@ class Upstox:
             order_history = self.api_call_helper('getOrdersInfo', PyCurlVerbs.GET, {'order_id' : order_id}, None);
 
         for order in order_history:
+            for key in order:
+                if key in Schema.schema_order_history:
+                    order[key] = Schema.schema_order_history[key](order[key])
             try:
                 instrument = self.get_instrument_by_token(order['exchange'], order['token'])
                 order['instrument'] = instrument
