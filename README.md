@@ -117,7 +117,7 @@ Search for a single instrument by it's name:
 tatasteel_nse_eq = u.get_instrument_by_symbol('NSE_EQ', 'TATASTEEL')
 reliance_nse_eq = u.get_instrument_by_symbol('NSE_EQ', 'RELIANCE')
 ongc_bse_eq = u.get_instrument_by_symbol('BSE_EQ', 'ONGC')
-mcxagri_mcs_index = u.get_instrument_by_symbol('MCX_INDEX', 'MCXAGRI')
+mcxagri_mcx_index = u.get_instrument_by_symbol('MCX_INDEX', 'MCXAGRI')
 india_vix_nse_index = u.get_instrument_by_symbol('NSE_INDEX', 'INDIA_VIX')
 sensex_nse_index = u.get_instrument_by_symbol('BSE_INDEX', 'SENSEX')
 ```
