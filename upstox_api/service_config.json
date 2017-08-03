@@ -1,5 +1,5 @@
 {
- "host" : "https://uat-test-api.upstox.com",
+ "host" : "https://api.upstox.com",
  "routes" : {
     "authorize" : "/index/dialog/authorize",
     "accessToken" : "/index/oauth/token",
@@ -25,5 +25,5 @@
     "liveFeedUnsubscribe": "/live/feed/unsub/{type}/{exchange}?symbol={symbol}",
     "OHLC" : "/historical/ohlc/{exchange}/{symbol}?interval={interval}&start_date={start_date}&end_date={end_date}&format={format}"
  },
-   "socketEndpoint": "wss://uat-test-ws-api.upstox.com?apiKey={api_key}&token={access_token}"
+   "socketEndpoint": "wss://ws-api.upstox.com?apiKey={api_key}&token={access_token}"
 }
