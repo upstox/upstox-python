@@ -100,8 +100,13 @@ Master contracts are stored as an OrderedDict by token number and by symbol name
 
 ```python
 u.get_master_contract('NSE_EQ') # get contracts for NSE EQ
-u.get_master_contract('BSE_EQ') # get contracts for NSE EQ
 u.get_master_contract('NSE_FO') # get contracts for NSE FO
+u.get_master_contract('NSE_INDEX') # get contracts for NSE EQ
+u.get_master_contract('BSE_EQ') # get contracts for NSE EQ
+u.get_master_contract('BCD_FO') # get contracts for NSE EQ
+u.get_master_contract('BSE_INDEX') # get contracts for NSE EQ
+u.get_master_contract('MCX_INDEX') # get contracts for NSE EQ
+u.get_master_contract('MCX_FO') # get contracts for NSE EQ
 ```
 
 ### Search for symbols
@@ -112,6 +117,9 @@ Search for a single instrument by it's name:
 tatasteel_nse_eq = u.get_instrument_by_symbol('NSE_EQ', 'TATASTEEL')
 reliance_nse_eq = u.get_instrument_by_symbol('NSE_EQ', 'RELIANCE')
 ongc_bse_eq = u.get_instrument_by_symbol('BSE_EQ', 'ONGC')
+mcxagri_mcs_index = u.get_instrument_by_symbol('MCX_INDEX', 'MCXAGRI')
+india_vix_nse_index = u.get_instrument_by_symbol('NSE_INDEX', 'INDIA_VIX')
+sensex_nse_index = u.get_instrument_by_symbol('BSE_INDEX', 'SENSEX')
 ```
 
 Search for a single instrument by it's token number (generally useful only for BSE Equities):
