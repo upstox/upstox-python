@@ -275,7 +275,16 @@ class Upstox:
             self.config = json.load(data_file)
         profile = self.api_call_helper('profile', PyCurlVerbs.GET, None, None)
 
-        self.enabled_exchanges = [x.lower() for x in profile['exchanges_enabled']]
+        self.enabled_exchanges = []
+        for x in profile['exchanges_enabled']:
+            if x.lower() == 'nse_eq':
+                self.enabled_exchanges.add('nse_index')
+            if x.lower() == 'bse_eq':
+                self.enabled_exchanges.add('bse_index')
+            if x.lower() == 'mcx_fo':
+                self.enabled_exchanges.add('mcx_index')
+            self.enabled_exchanges.add(x.lower())
+
         self.enabled_products = [x.lower() for x in profile['products_enabled']]
         self.ws_thread = None
 
