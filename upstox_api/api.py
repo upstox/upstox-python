@@ -278,12 +278,12 @@ class Upstox:
         self.enabled_exchanges = []
         for x in profile['exchanges_enabled']:
             if x.lower() == 'nse_eq':
-                self.enabled_exchanges.add('nse_index')
+                self.enabled_exchanges.append('nse_index')
             if x.lower() == 'bse_eq':
-                self.enabled_exchanges.add('bse_index')
+                self.enabled_exchanges.append('bse_index')
             if x.lower() == 'mcx_fo':
-                self.enabled_exchanges.add('mcx_index')
-            self.enabled_exchanges.add(x.lower())
+                self.enabled_exchanges.append('mcx_index')
+            self.enabled_exchanges.append(x.lower())
 
         self.enabled_products = [x.lower() for x in profile['products_enabled']]
         self.ws_thread = None
