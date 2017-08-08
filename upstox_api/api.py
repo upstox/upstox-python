@@ -221,7 +221,7 @@ class Upstox:
                     quote_object = dict(zip(full_quote_fields_indices, fields))
 
                 # check if full quote subscription
-                elif len(fields) == 48:
+                elif len(fields) == 49:
 
                     # convert other string fields to floats or ints
                     for m in range (5, 12):
@@ -237,6 +237,8 @@ class Upstox:
                             fields[m] = float(fields[m])
 
                     quote_object = dict(zip(full_quote_fields, fields[:17]))
+                    # Adding ltt or last traded time which comes as last field in full quote subscription
+                    quote_object["ltt"] = int(fields[48])
                     quote_object["bids"] = []
                     quote_object["asks"] = []
                     i = 18
