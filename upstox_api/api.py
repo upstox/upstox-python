@@ -291,20 +291,36 @@ class Upstox:
         self.enabled_products = [x.lower() for x in profile['products_enabled']]
         self.ws_thread = None
 
-    def start_websocket(self, run_in_background = False):
+    def get_socket_params(self):
+        return self.api_call_helper('socketParams', PyCurlVerbs.GET, None, None)
+
+    def start_websocket(self, run_in_background=False):
+        socket_params = {}
+        try:
+            socket_params = self.get_socket_params()
+        except requests.exceptions.HTTPError:
+            print ("Can't Access Socket Params")
+        ping_interval = 60
+        ping_timeout = 10
+
+        if 'pythonPingInterval' in socket_params.keys():
+            ping_interval = socket_params['pythonPingInterval']
+
+        if 'pythonPingTimeout' in socket_params.keys():
+            ping_timeout = socket_params['pythonPingTimeout']
 
         url = self.config['socketEndpoint'].format(api_key=self.api_key, access_token=self.access_token)
         self.websocket = websocket.WebSocketApp(url,
                                                 header={'Authorization: Bearer' + self.access_token},
-                                                on_data = self._on_data,
-                                                on_error = self._on_error,
-                                                on_close = self._on_close)
+                                                on_data=self._on_data,
+                                                on_error=self._on_error,
+                                                on_close=self._on_close)
         if run_in_background is True:
             self.ws_thread = threading.Thread(target=self.websocket.run_forever)
             self.ws_thread.daemon = True
             self.ws_thread.start()
         else:
-            self.websocket.run_forever()
+            self.websocket.run_forever(ping_interval=ping_interval, ping_timeout=ping_timeout)
 
     def set_on_order_update(self, event_handler):
         self.on_order_update = event_handler
