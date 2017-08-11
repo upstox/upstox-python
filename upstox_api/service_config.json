@@ -18,6 +18,7 @@
     "cancelOrder" : "/live/orders/{order_id}",
     "tradesInfo": "/live/orders/{order_id}/trades",
     "tradeBook": "/live/trade-book",
+    "socketParams": "/live/socket-params",
 
 
     "liveFeed" : "/live/feed/now/{exchange}/{symbol}/{type}",
