@@ -198,6 +198,14 @@ u.place_order(TransactionType.Buy, u.get_instrument_by_symbol('NSE_FO', 'BANKNIF
 u.place_order(TransactionType.Sell, u.get_instrument_by_symbol('NSE_FO', 'BANKNIFTY17JUN15FUT'), 40, OrderType.Limit, ProductType.OneCancelsOther, 23001.0, None, None, DurationType.DAY, 10.0, 10.0)
 ```
 
+### Cancel an order
+
+```python
+u.cancel_order('170713000075481') #Cancel an open order (Should be a string not an int)
+u.cancel_order('170713000075481,170713000075482') #Cancel multiple open orders (No spaces between varous orders)
+u.cancel_all_orders() #Cancel all open orders
+```
+
 ### Order properties as objects
 Order properties such as TransactionType, OrderType, and others have been safely classified as objects so you don't have to write them out as strings
 

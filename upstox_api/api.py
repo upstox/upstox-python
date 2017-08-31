@@ -561,10 +561,17 @@ class Upstox:
 
     def cancel_order(self, order_id):
 
-        if not isinstance(order_id, int):
-            raise TypeError("Required parameter order_id not of type int")
+        # if not isinstance(order_id, int):
+        #     raise TypeError("Required parameter order_id not of type int")
 
         return self.api_call_helper('cancelOrder', PyCurlVerbs.DELETE, {'order_id' : order_id}, None)
+
+    def cancel_all_orders(self):
+
+        # if not isinstance(order_id, int):
+        #     raise TypeError("Required parameter order_id not of type int")
+
+        return self.api_call_helper('cancelAllOrders', PyCurlVerbs.DELETE, None, None)
 
     def subscribe(self, instrument, live_feed_type):
         """ subscribe to the current feed of an instrument """
