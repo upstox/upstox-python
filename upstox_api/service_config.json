@@ -16,6 +16,7 @@
     "getOrdersInfo" : "/live/orders/{order_id}",
     "modifyOrder" :"/live/orders/{order_id}",
     "cancelOrder" : "/live/orders/{order_id}",
+    "cancelAllOrders" : "/live/orders/",
     "tradesInfo": "/live/orders/{order_id}/trades",
     "tradeBook": "/live/trade-book",
     "socketParams": "/live/socket-params",
