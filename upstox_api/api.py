@@ -564,6 +564,13 @@ class Upstox:
         # if not isinstance(order_id, int):
         #     raise TypeError("Required parameter order_id not of type int")
 
+        print(type(order_id));
+        if type(order_id) is list:
+            for order_no in order_id:
+                if not isinstance(order_no, int):
+                    raise TypeError("Required parameter order_id not of type int")
+            order_id = ",".join(str(x) for x in order_id)
+
         return self.api_call_helper('cancelOrder', PyCurlVerbs.DELETE, {'order_id' : order_id}, None)
 
     def cancel_all_orders(self):
