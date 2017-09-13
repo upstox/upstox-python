@@ -748,8 +748,9 @@ class Upstox:
             master_contract_by_symbol[symbol] = instrument
         master_contracts_by_token[exchange] = master_contract_by_token
         master_contracts_by_symbol[exchange] = master_contract_by_symbol
-        logging.debug('Downloading master contracts for exchange: %s... done' % (exchange))
-        return master_contracts_by_token[exchange]
+        if "INDEX" in exchange.upper():
+            return master_contracts_by_symbol[exchange]
+        return master_contract_by_token[exchange]
 
     def api_call_helper(self, name, http_method, params, data):
         # helper formats the url and reads error codes nicely
