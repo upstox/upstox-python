@@ -202,7 +202,7 @@ u.place_order(TransactionType.Sell, u.get_instrument_by_symbol('NSE_FO', 'BANKNI
 
 ```python
 u.cancel_order('170713000075481') #Cancel an open order (Should be a string not an int)
-u.cancel_order('170713000075481,170713000075482') #Cancel multiple open orders (No spaces between varous orders)
+u.cancel_order('170713000075481,170713000075482') #Cancel multiple open orders (No spaces between various orders)
 u.cancel_all_orders() #Cancel all open orders
 ```
 
