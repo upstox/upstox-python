@@ -187,15 +187,253 @@ u.get_ohlc(u.get_instrument_by_symbol('NSE_EQ', 'RELIANCE'), OHLCInterval.Minute
 Place limit, market, SL, SL-M, AMO, OCO/BO, CO orders
 
 ```python
-# Limit and Market on Intraday
-u.place_order(TransactionType.Buy, u.get_instrument_by_symbol('NCD_FO', 'USDINR17JUNFUT'), 1, OrderType.Limit, ProductType.Intraday, 65.0)
-u.place_order(TransactionType.Sell, u.get_instrument_by_symbol('NCD_FO', 'USDINR17JUNFUT'), 1, OrderType.Market, ProductType.Intraday, 0.0)
+print (u.get_profile())
+u.get_master_contract('nse_eq') # get contracts for NSE EQ
 
-# CO
-u.place_order(TransactionType.Buy, u.get_instrument_by_symbol('NSE_FO', 'BANKNIFTY17JUN15FUT'), 40, OrderType.Limit, ProductType.CoverOrder, 23001.0, 22995.00, None, DurationType.DAY)
+# TransactionType.Buy, OrderType.Market, ProductType.Delivery
 
-# OCO
-u.place_order(TransactionType.Sell, u.get_instrument_by_symbol('NSE_FO', 'BANKNIFTY17JUN15FUT'), 40, OrderType.Limit, ProductType.OneCancelsOther, 23001.0, None, None, DurationType.DAY, 10.0, 10.0)
+print ("%%%%%%%%%%%%%%%%%%%%%%%%%%%%1%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+print(
+   u.place_order(TransactionType.Buy,  #transaction_type
+              u.get_instrument_by_symbol('NSE_EQ', 'UNITECH'),  #instrument
+              1,  # quantity
+              OrderType.Market,  # order_type
+              ProductType.Delivery,  # product_type
+              0.0,  # price
+              None,  # trigger_price
+              0,  # disclosed_quantity
+              DurationType.DAY, # duration
+              None, # stop_loss
+              None, # square_off
+              None )# trailing_ticks
+   )
+
+# TransactionType.Buy, OrderType.Market, ProductType.Intraday
+
+print ("%%%%%%%%%%%%%%%%%%%%%%%%%%%%2%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+print(
+u.place_order(TransactionType.Buy,  # transaction_type
+              u.get_instrument_by_symbol('NSE_EQ', 'UNITECH'),  # instrument
+              1,  # quantity
+              OrderType.Market,  # order_type
+              ProductType.Intraday,  # product_type
+              0.0,  # price
+              None,  # trigger_price
+              0,  # disclosed_quantity
+              DurationType.DAY,  # duration
+              None,  # stop_loss
+              None,  # square_off
+              None  )# trailing_ticks
+)
+
+# TransactionType.Buy, OrderType.Market, ProductType.CoverOrder
+
+print ("%%%%%%%%%%%%%%%%%%%%%%%%%%%%3%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+print(
+u.place_order(TransactionType.Buy,  # transaction_type
+              u.get_instrument_by_symbol('NSE_EQ', 'UNITECH'),  # instrument
+              1,  # quantity
+              OrderType.Market,  # order_type
+              ProductType.CoverOrder,  # product_type
+              0.0,  # price
+              7.5,  # trigger_price Here the trigger_price is taken as stop loss (provide stop loss in actual amount)
+              0,  # disclosed_quantity
+              DurationType.DAY,  # duration
+              None,  # stop_loss
+              None,  # square_off
+              None)  # trailing_ticks
+)
+
+
+# TransactionType.Buy, OrderType.Market, ProductType.OneCancelsOther
+# OCO Order can't be of type market
+
+# TransactionType.Buy, OrderType.Limit, ProductType.Delivery
+
+print ("%%%%%%%%%%%%%%%%%%%%%%%%%%%%4%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+print(
+u.place_order(TransactionType.Buy,  # transaction_type
+              u.get_instrument_by_symbol('NSE_EQ', 'UNITECH'),  # instrument
+              1,  # quantity
+              OrderType.Limit,  # order_type
+              ProductType.Delivery,  # product_type
+              8.0,  # price
+              None,  # trigger_price
+              0,  # disclosed_quantity
+              DurationType.DAY,  # duration
+              None,  # stop_loss
+              None,  # square_off
+              None)  # trailing_ticks
+)
+
+# TransactionType.Buy, OrderType.Limit, ProductType.Intraday
+
+print ("%%%%%%%%%%%%%%%%%%%%%%%%%%%%5%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+print(
+   u.place_order(TransactionType.Buy,  # transaction_type
+                 u.get_instrument_by_symbol('NSE_EQ', 'UNITECH'),  # instrument
+                 1,  # quantity
+                 OrderType.Limit,  # order_type
+                 ProductType.Intraday,  # product_type
+                 8.0,  # price
+                 None,  # trigger_price
+                 0,  # disclosed_quantity
+                 DurationType.DAY,  # duration
+                 None,  # stop_loss
+                 None,  # square_off
+                 None)  # trailing_ticks
+
+)
+
+
+# TransactionType.Buy, OrderType.Limit, ProductType.CoverOrder
+
+print ("%%%%%%%%%%%%%%%%%%%%%%%%%%%%6%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+print(
+   u.place_order(TransactionType.Buy,  # transaction_type
+                 u.get_instrument_by_symbol('NSE_EQ', 'UNITECH'),  # instrument
+                 1,  # quantity
+                 OrderType.Limit,  # order_type
+                 ProductType.CoverOrder,  # product_type
+                 8.0,  # price
+                 8.0,  # trigger_price Here the trigger_price is taken as stop loss (provide stop loss in actual amount)
+                 0,  # disclosed_quantity
+                 DurationType.DAY,  # duration
+                 None,  # stop_loss
+                 None,  # square_off
+                 None)  # trailing_ticks 20 * 0.05
+)
+
+
+# TransactionType.Buy, OrderType.Limit, ProductType.OneCancelsOther
+
+print ("%%%%%%%%%%%%%%%%%%%%%%%%%%%%7%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+print(
+   u.place_order(TransactionType.Buy,  # transaction_type
+                 u.get_instrument_by_symbol('NSE_EQ', 'UNITECH'),  # instrument
+                 1,  # quantity
+                 OrderType.Limit,  # order_type
+                 ProductType.OneCancelsOther,  # product_type
+                 8.0,  # price
+                 None,  # trigger_price
+                 0,  # disclosed_quantity
+                 DurationType.DAY,  # duration
+                 1.0,  # stop_loss
+                 1.0,  # square_off
+                 20)  # trailing_ticks 20 * 0.05
+)
+
+
+###############################
+
+# TransactionType.Buy, OrderType.StopLossMarket, ProductType.Delivery
+
+print ("%%%%%%%%%%%%%%%%%%%%%%%%%%%%8%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+print(
+   u.place_order(TransactionType.Buy,  # transaction_type
+                 u.get_instrument_by_symbol('NSE_EQ', 'UNITECH'),  # instrument
+                 1,  # quantity
+                 OrderType.StopLossMarket,  # order_type
+                 ProductType.Delivery,  # product_type
+                 0.0,  # price
+                 8.0,  # trigger_price
+                 0,  # disclosed_quantity
+                 DurationType.DAY,  # duration
+                 None,  # stop_loss
+                 None,  # square_off
+                 None)  # trailing_ticks
+)
+
+
+# TransactionType.Buy, OrderType.StopLossMarket, ProductType.Intraday
+
+print ("%%%%%%%%%%%%%%%%%%%%%%%%%%%%9%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+print(
+   u.place_order(TransactionType.Buy,  # transaction_type
+                 u.get_instrument_by_symbol('NSE_EQ', 'UNITECH'),  # instrument
+                 1,  # quantity
+                 OrderType.StopLossMarket,  # order_type
+                 ProductType.Intraday,  # product_type
+                 0.0,  # price
+                 8.0,  # trigger_price
+                 0,  # disclosed_quantity
+                 DurationType.DAY,  # duration
+                 None,  # stop_loss
+                 None,  # square_off
+                 None)  # trailing_ticks
+)
+
+
+
+# TransactionType.Buy, OrderType.StopLossMarket, ProductType.CoverOrder
+# CO order is of type Limit and And Market Only
+
+# TransactionType.Buy, OrderType.StopLossMarket, ProductType.OneCancelsOther
+# CO order is of type Limit and And Market Only
+
+###################################
+
+# TransactionType.Buy, OrderType.StopLossLimit, ProductType.Delivery
+
+print ("%%%%%%%%%%%%%%%%%%%%%%%%%%%%10%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+print(
+   u.place_order(TransactionType.Buy,  # transaction_type
+                 u.get_instrument_by_symbol('NSE_EQ', 'UNITECH'),  # instrument
+                 1,  # quantity
+                 OrderType.StopLossLimit,  # order_type
+                 ProductType.Delivery,  # product_type
+                 8.0,  # price
+                 8.0,  # trigger_price
+                 0,  # disclosed_quantity
+                 DurationType.DAY,  # duration
+                 None,  # stop_loss
+                 None,  # square_off
+                 None)  # trailing_ticks
+)
+
+
+# TransactionType.Buy, OrderType.StopLossLimit, ProductType.Intraday
+
+print ("%%%%%%%%%%%%%%%%%%%%%%%%%%%%11%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+print(
+   u.place_order(TransactionType.Buy,  # transaction_type
+                 u.get_instrument_by_symbol('NSE_EQ', 'UNITECH'),  # instrument
+                 1,  # quantity
+                 OrderType.StopLossLimit,  # order_type
+                 ProductType.Intraday,  # product_type
+                 8.0,  # price
+                 8.0,  # trigger_price
+                 0,  # disclosed_quantity
+                 DurationType.DAY,  # duration
+                 None,  # stop_loss
+                 None,  # square_off
+                 None)  # trailing_ticks
+)
+
+
+
+# TransactionType.Buy, OrderType.StopLossLimit, ProductType.CoverOrder
+# CO order is of type Limit and And Market Only
+
+
+# TransactionType.Buy, OrderType.StopLossLimit, ProductType.OneCancelsOther
+
+print ("%%%%%%%%%%%%%%%%%%%%%%%%%%%%12%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+print(
+   u.place_order(TransactionType.Buy,  # transaction_type
+                 u.get_instrument_by_symbol('NSE_EQ', 'UNITECH'),  # instrument
+                 1,  # quantity
+                 OrderType.StopLossLimit,  # order_type
+                 ProductType.OneCancelsOther,  # product_type
+                 8.0,  # price
+                 8.0,  # trigger_price
+                 0,  # disclosed_quantity
+                 DurationType.DAY,  # duration
+                 1.0,  # stop_loss
+                 1.0,  # square_off
+                 20)  # trailing_ticks 20 * 0.05
+)
+
 ```
 
 ### Cancel an order
