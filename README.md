@@ -159,15 +159,58 @@ u.get_live_feed(u.get_instrument_by_symbol('BSE_EQ', 'RELIANCE'), LiveFeedType.L
 #### Subscribe to a live feed
 Start getting live feed via socket
 ```python
-def event_handler_quote_update(message):
-    print("Quote Update: %s" % str(message))
+def socket_connect():
 
-u.set_on_quote_update(event_handler_quote_update)
 
-u.subscribe(u.get_instrument_by_symbol('NSE_EQ', 'TATASTEEL'), LiveFeedType.Full)
-u.subscribe(u.get_instrument_by_symbol('BSE_EQ', 'RELIANCE'), LiveFeedType.LTP)
+    u.get_master_contract('NSE_FO')
+    print ("Socket connect code executed")
 
-u.start_websocket(True)
+    def event_handler_socket_open():
+        print("********SOCKET OPEN****************")
+        print("\n\n")
+
+    u.set_on_open(event_handler_socket_open)
+
+    def event_handler_quote_update(message):
+        print("********QUOTE UPDATE****************")
+        # print(message)
+        print("\n\n")
+
+    u.set_on_quote_update(event_handler_quote_update)
+
+    def event_handler_order_update(message):
+        print("********ORDER UPDATE****************")
+        print(message)
+        print("\n\n")
+
+    u.set_on_order_update(event_handler_order_update)
+
+    def event_handler_trade_update(message):
+        print("********TRADE UPDATE****************")
+        print(message)
+        print("\n\n")
+
+    u.set_on_trade_update(event_handler_trade_update)
+
+    def event_handler_error(err):
+        print("********ERROR HANDLER****************")
+        print(err)
+        print("\n\n")
+
+    u.set_on_error(event_handler_error)
+
+    def event_handler_socket_disconnect():
+        print("********SOCKET DISCONNECTED****************")
+        print("\n\n")
+        # Uncomment For Reconnection Logic
+        u.start_websocket(False)
+
+    u.set_on_disconnect(event_handler_socket_disconnect)
+
+    # u.unsubscribe(u.get_instrument_by_symbol('NSE_EQ', 'ONGC'), LiveFeedType.LTP)
+    # u.subscribe(u.get_instrument_by_symbol('NSE_EQ', 'ONGC'), LiveFeedType.LTP)
+
+    u.start_websocket(False)
 ```
 
 #### Unsubscribe to a live feed
