@@ -573,19 +573,53 @@ class Upstox:
 
         return self.api_call_helper('cancelAllOrders', PyCurlVerbs.DELETE, None, None)
 
-    def subscribe(self, instrument, live_feed_type):
+    # Contributor: Zeeshan M (codezed@icloud.com)
+    # - https://upstox.com/forum/topic/300/live-websocket-subscription-to-multiple-instruments
+    # - https://upstox.com/forum/topic/771/how-to-get-ltp-of-multiple-instruments-in-one-api-with-comma-separated
+    # - https://upstox.com/forum/topic/1364/subscribe-multiple-tickers-in-1subscribe-code/2
+    #
+    # The following update allows a developer to subscribe to multiple instruments in one go
+    #
+    # Sample code: 
+    # kws = Upstox ('', '')
+    # def tick(msg):
+    #     print(msg)
+    #
+    # kws.set_on_quote_update(tick)
+    # kws.get_master_contract('NSE_EQ')
+    # instruments=[kws.get_instrument_by_symbol('NSE_EQ','BHEL'),kws.get_instrument_by_symbol('NSE_EQ','SBIN')]
+    # kws.subscribe(instruments,LiveFeedType.Full)
+    def subscribe(self, instruments, live_feed_type):
         """ subscribe to the current feed of an instrument """
+        instrument_list = ''
+        exchange = ''
+        if type(instruments) is list:
+            for instrument in instruments:
+                if not isinstance(instrument, Instrument):
+                    raise TypeError("Required parameter instrument not of type Instrument")
+                if LiveFeedType.parse(live_feed_type) is None:
+                    raise TypeError("Required parameter live_feed_type not of type LiveFeedType")
+                if instrument_list == '':
+                    instrument_list = instrument.symbol
+                else:
+                    instrument_list = instrument_list + ',' + instrument.symbol
+                if exchange == '':
+                    exchange = instrument.exchange
+            return self.api_call_helper('liveFeedSubscribe', PyCurlVerbs.GET, {'exchange': exchange,
+                                                                           'symbol' : instrument_list,
+                                                                           'type' : live_feed_type}
+                                              , None);
+        else:
+            if not isinstance(instruments, Instrument):
+                raise TypeError("Required parameter instrument not of type Instrument")
 
-        if not isinstance(instrument, Instrument):
-            raise TypeError("Required parameter instrument not of type Instrument")
+            if LiveFeedType.parse(live_feed_type) is None:
+                raise TypeError("Required parameter live_feed_type not of type LiveFeedType")
 
-        if LiveFeedType.parse(live_feed_type) is None:
-            raise TypeError("Required parameter live_feed_type not of type LiveFeedType")
-
-        return self.api_call_helper('liveFeedSubscribe', PyCurlVerbs.GET, {'exchange': instrument.exchange,
-                                                                       'symbol' : instrument.symbol,
-                                                                       'type' : live_feed_type}
-                                          , None);
+            return self.api_call_helper('liveFeedSubscribe', PyCurlVerbs.GET, {'exchange': instruments.exchange,
+                                                                           'symbol' : instruments.symbol,
+                                                                           'type' : live_feed_type}
+                                              , None);
 
     def unsubscribe(self, instrument, live_feed_type):
         """ unsubscribe to the current feed of an instrument """
