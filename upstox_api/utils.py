@@ -26,8 +26,10 @@ class PyCurlVerbs(CustomEnum):
 
 class OHLCInterval(CustomEnum):
     Minute_1 = '1MINUTE'
+    Minute_3 = '3MINUTE'
     Minute_5 = '5MINUTE'
     Minute_10 = '10MINUTE'
+    Minute_15 = '15MINUTE'
     Minute_30 = '30MINUTE'
     Minute_60 = '60MINUTE'
     Day_1 = '1DAY'
@@ -39,10 +41,14 @@ class OHLCInterval(CustomEnum):
         str = str.upper()
         if str == '1MINUTE':
             return OHLCInterval.Minute_1
+        if str == '3MINUTE':
+            return OHLCInterval.Minute_3
         if str == '5MINUTE':
             return OHLCInterval.Minute_5
         if str == '10MINUTE':
             return OHLCInterval.Minute_10
+        if str == '15MINUTE':
+            return OHLCInterval.Minute_15
         if str == '30MINUTE':
             return OHLCInterval.Minute_30
         if str == '60MINUTE':
@@ -53,6 +59,31 @@ class OHLCInterval(CustomEnum):
             return OHLCInterval.Week_1
         if str == '1MONTH':
             return OHLCInterval.Month_1
+        return None
+
+    @staticmethod
+    def parseNew(str):
+        str = str.upper()
+        if str == '1MINUTE':
+            return 1
+        if str == '3MINUTE':
+            return 3
+        if str == '5MINUTE':
+            return 5
+        if str == '10MINUTE':
+            return 10
+        if str == '15MINUTE':
+            return 15
+        if str == '30MINUTE':
+            return 30
+        if str == '60MINUTE':
+            return 60
+        if str == '1DAY':
+            return "day"
+        if str == '1WEEK':
+            return "week"
+        if str == '1MONTH':
+            return "month"
         return None
 
 

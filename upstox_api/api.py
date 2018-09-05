@@ -1,23 +1,29 @@
-import json, os, future
-from collections import OrderedDict
 
+
+from upstox_api.constants.versions import *
 from upstox_api.utils import *
-import websocket, threading
-import logging
-from datetime import date, datetime
+
+import json
+import os
+from builtins import int
+from collections import OrderedDict
+from datetime import date
 
 import requests
-from requests.auth import HTTPBasicAuth
-from builtins import int
+import threading
+import websocket
+
+import logging
+logger = logging.getLogger(__name__)
 
 try:
     from urllib.parse import urlencode
 except:
     from urllib import urlencode
 
-
 # compatible import
 from future.standard_library import install_aliases
+
 install_aliases()
 
 # master contracts by token
@@ -62,9 +68,9 @@ class Session:
         if self.redirect_uri is None:
             raise (TypeError, 'Value redirect_uri cannot be None. Please go to the Developer Console to get this value')
 
-        params = {'apiKey' : self.api_key, 'redirect_uri' : self.redirect_uri, 'response_type' : 'code'}
+        params = {'apiKey': self.api_key, 'redirect_uri': self.redirect_uri, 'response_type': 'code'}
 
-        return self.config['host'] + self.config['routes']['authorize'] + '?' + urlencode(params)
+        return self.config['host'] + self.config['routes']['DEFAULT']['authorize'] + '?' + urlencode(params)
 
     def retrieve_access_token(self):
         """ once you have the authorization code, you can call this function to get
@@ -82,8 +88,8 @@ class Session:
 
         params = {'code': self.code, 'redirect_uri': self.redirect_uri, 'grant_type': 'authorization_code'}
 
-        url = self.config['host'] + self.config['routes']['accessToken']
-        headers = {"Content-Type" : "application/json", "x-api-key" : self.api_key}
+        url = self.config['host'] + self.config['routes']['DEFAULT']['accessToken']
+        headers = {"Content-Type": "application/json", "x-api-key": self.api_key}
         r = requests.post(url, auth=(self.api_key, self.api_secret), data=json.dumps(params), headers=headers)
         body = json.loads(r.text)
         if 'access_token' not in body:
@@ -92,7 +98,6 @@ class Session:
 
 
 class Upstox:
-
     api_key = None
     access_token = None
 
@@ -107,8 +112,17 @@ class Upstox:
     on_quote_update = None
     on_error = None
     on_disconnect = None
+    # version_number
+    current_version = None
 
-    def _on_data (self, ws, message, data_type, continue_flag):
+    def set_api_version(self, version):
+        logger.debug("Setting version to %s", version)
+        # Type checking
+        if not isinstance(version, Versions):
+            raise TypeError("Version value should be one of the enumeration type defined in Enum 'Versions'")
+        self.current_version = version
+
+    def _on_data(self, ws, message, data_type, continue_flag):
         if data_type == websocket.ABNF.OPCODE_TEXT:
             parsed_message = json.loads(message)
 
@@ -119,29 +133,29 @@ class Upstox:
 
                 if message.lower() == 'order_update':
                     order_update = {
-                        'quantity' : int(data['quantity']),
+                        'quantity': int(data['quantity']),
                         'exchange_order_id': data['exchange_order_id'],
                         'order_type': OrderType.parse(data['order_type']),
-                        'status' : data['status'],
-                        'transaction_type' : TransactionType.parse(data['transaction_type']),
-                        'exchange' : data['exchange'],
-                        'trigger_price' : float(data['trigger_price']),
-                        'symbol' : data['symbol'],
-                        'traded_quantity' : int(data['traded_quantity']),
-                        'is_amo' : data['is_amo'],
-                        'product' : ProductType.parse(data['product']),
-                        'order_request_id' : data['order_request_id'],
-                        'duration' : DurationType.parse(data['valid_date']),
-                        'price' : float(data['price']),
-                        'time_in_micro' : data['time_in_micro'],
-                        'parent_order_id' : data['parent_order_id'],
-                        'order_id' : data['order_id'],
-                        'message' : data['message'],
-                        'exchange_time' : data['exchange_time'],
-                        'disclosed_quantity' : data['disclosed_quantity'],
-                        'token' : data['token'],
-                        'average_price' : float(data['average_price']),
-                        'instrument' : None
+                        'status': data['status'],
+                        'transaction_type': TransactionType.parse(data['transaction_type']),
+                        'exchange': data['exchange'],
+                        'trigger_price': float(data['trigger_price']),
+                        'symbol': data['symbol'],
+                        'traded_quantity': int(data['traded_quantity']),
+                        'is_amo': data['is_amo'],
+                        'product': ProductType.parse(data['product']),
+                        'order_request_id': data['order_request_id'],
+                        'duration': DurationType.parse(data['valid_date']),
+                        'price': float(data['price']),
+                        'time_in_micro': data['time_in_micro'],
+                        'parent_order_id': data['parent_order_id'],
+                        'order_id': data['order_id'],
+                        'message': data['message'],
+                        'exchange_time': data['exchange_time'],
+                        'disclosed_quantity': data['disclosed_quantity'],
+                        'token': data['token'],
+                        'average_price': float(data['average_price']),
+                        'instrument': None
                     }
                     try:
                         instrument = self.get_instrument_by_token(data['exchange'], data['token'])
@@ -203,7 +217,7 @@ class Upstox:
                         fields[index] = None
 
                 # convert timestamp to DateTime object
-                #fields[0] = datetime.fromtimestamp(float(fields[0])/1000.0)
+                # fields[0] = datetime.fromtimestamp(float(fields[0])/1000.0)
 
                 # convert LTP and close to floats from string
                 try:
@@ -224,15 +238,15 @@ class Upstox:
                 elif len(fields) == 49 or len(fields) == 48:
 
                     # convert other string fields to floats or ints
-                    for m in range (5, 12):
+                    for m in range(5, 12):
                         if fields[m] is not None:
                             fields[m] = float(fields[m])
 
-                    for m in range (12, 14):
+                    for m in range(12, 14):
                         if fields[m] is not None:
                             fields[m] = int(fields[m])
 
-                    for m in range (14, 18):
+                    for m in range(14, 18):
                         if fields[m] is not None:
                             fields[m] = float(fields[m])
 
@@ -245,14 +259,17 @@ class Upstox:
                     i = 18
                     j = 33
                     for h in range(1, 6):
-                        quote_object["bids"].append({"quantity" : int(fields[i]), "price" : float(fields[i + 1]), "orders" : int(fields[i + 2])})
-                        quote_object["asks"].append({"quantity" : int(fields[j]), "price" : float(fields[j + 1]), "orders" : int(fields[j + 2])})
+                        quote_object["bids"].append(
+                            {"quantity": int(fields[i]), "price": float(fields[i + 1]), "orders": int(fields[i + 2])})
+                        quote_object["asks"].append(
+                            {"quantity": int(fields[j]), "price": float(fields[j + 1]), "orders": int(fields[j + 2])})
 
                         i += 3
                         j += 3
 
                 if quote_object is None:
-                    logging.warning('Quote object was not mapped to any subscription. Length: %s, Values: %s' % (str(len(fields)), quote))
+                    logger.warning('Quote object was not mapped to any subscription. Length: %s, Values: %s' % (
+                    str(len(fields)), quote))
                     continue
                 else:
                     # append instrument object
@@ -262,19 +279,17 @@ class Upstox:
                 if self.on_quote_update:
                     self.on_quote_update(quote_object)
 
-    def _on_error (self, ws, error):
+    def _on_error(self, ws, error):
         if self.on_error:
             self.on_error(ws, error)
 
-    def _on_close (self, ws):
+    def _on_close(self, ws):
         if self.on_disconnect:
             self.on_disconnect(ws)
 
-    def _on_open (self, ws):
+    def _on_open(self, ws):
         if self.on_open:
             self.on_open(ws)
-
-
 
     def __init__(self, api_key, access_token):
         """ logs in and gets enabled exchanges and products for user """
@@ -305,7 +320,7 @@ class Upstox:
         try:
             socket_params = self.get_socket_params()
         except requests.exceptions.HTTPError:
-            print ("Can't Access Socket Params")
+            print("Can't Access Socket Params")
         ping_interval = 60
         ping_timeout = 10
 
@@ -380,7 +395,7 @@ class Upstox:
         if order_id is None:
             order_history = self.api_call_helper('getOrders', PyCurlVerbs.GET, None, None);
         else:
-            order_history = self.api_call_helper('getOrdersInfo', PyCurlVerbs.GET, {'order_id' : order_id}, None);
+            order_history = self.api_call_helper('getOrdersInfo', PyCurlVerbs.GET, {'order_id': order_id}, None);
 
         for order in order_history:
             for key in order:
@@ -399,7 +414,7 @@ class Upstox:
         if not isinstance(order_id, int):
             raise TypeError("Required parameter order_id not of type int")
 
-        return self.api_call_helper('tradesInfo', PyCurlVerbs.GET, {'order_id' : order_id}, None)
+        return self.api_call_helper('tradesInfo', PyCurlVerbs.GET, {'order_id': order_id}, None)
 
     def logout(self):
         return self.api_call_helper('logout', PyCurlVerbs.GET, None, None)
@@ -417,18 +432,23 @@ class Upstox:
             raise TypeError("Required parameter live_feed_type not of type LiveFeedType")
 
         return self.api_call_helper('liveFeed', PyCurlVerbs.GET, {'exchange': instrument.exchange,
-                                                                       'symbol' : instrument.symbol,
-                                                                       'type' : live_feed_type}
-                                         , None)
+                                                                  'symbol': instrument.symbol,
+                                                                  'type': live_feed_type}
+                                    , None)
 
-    def get_ohlc(self, instrument, interval, start_date, end_date, download_as_csv = False):
+    def get_ohlc(self, instrument, interval, start_date, end_date, download_as_csv=False):
         """ get OHLC for an instrument """
+
+        if self.current_version is None or self.current_version == Versions.DEFAULT:
+            if OHLCInterval.parse(interval) is None:
+                raise TypeError("Required parameter interval not of type OHLCInterval")
+        elif self.current_version == Versions.Version_1_5_6:
+            if OHLCInterval.parseNew(interval) is None:
+                raise TypeError("Required parameter interval not of type OHLCInterval")
+            interval = OHLCInterval.parseNew(interval)
 
         if not isinstance(instrument, Instrument):
             raise TypeError("Required parameter instrument not of type Instrument")
-
-        if OHLCInterval.parse(interval) is None:
-            raise TypeError("Required parameter interval not of type OHLCInterval")
 
         if not isinstance(start_date, date):
             raise TypeError("Required parameter start_date not of type date")
@@ -442,19 +462,20 @@ class Upstox:
             output_format = 'csv'
 
         ohlc = self.api_call_helper('OHLC', PyCurlVerbs.GET, {'exchange': instrument.exchange,
-                                                                'symbol' : instrument.symbol,
-                                                                'interval' : interval,
-                                                                'start_date' : start_date.strftime('%d-%m-%Y'),
-                                                                'end_date': end_date.strftime('%d-%m-%Y'),
-                                                                'format' : output_format
-                                                                 }, None
-                                                                )
+                                                              'symbol': instrument.symbol,
+                                                              'interval': interval,
+                                                              'start_date': start_date.strftime('%d-%m-%Y'),
+                                                              'end_date': end_date.strftime('%d-%m-%Y'),
+                                                              'format': output_format
+                                                              }, None
+                                    )
+
         return ohlc;
 
     def place_order(self, transaction_type, instrument, quantity, order_type,
-                    product_type, price = None, trigger_price = None,
-                    disclosed_quantity = None, duration = None, stop_loss = None,
-                    square_off = None, trailing_ticks = None):
+                    product_type, price=None, trigger_price=None,
+                    disclosed_quantity=None, duration=None, stop_loss=None,
+                    square_off=None, trailing_ticks=None):
         """ placing an order, many fields are optional and are not required
             for all order types
         """
@@ -526,8 +547,8 @@ class Upstox:
 
         return self.api_call_helper('placeOrder', PyCurlVerbs.POST, None, order)
 
-    def modify_order(self, order_id, quantity = None, order_type = None, price = None,
-                     trigger_price = None, disclosed_quantity = None, duration = None):
+    def modify_order(self, order_id, quantity=None, order_type=None, price=None,
+                     trigger_price=None, disclosed_quantity=None, duration=None):
         """ modify an order, only order id is required, rest are optional, use only when
             when you want to change that attribute
         """
@@ -567,7 +588,7 @@ class Upstox:
         elif duration is not None:
             order['duration'] = duration
 
-        return self.api_call_helper('modifyOrder', PyCurlVerbs.PUT, {'order_id' : order_id}, order)
+        return self.api_call_helper('modifyOrder', PyCurlVerbs.PUT, {'order_id': order_id}, order)
 
     def cancel_order(self, order_id):
 
@@ -581,7 +602,7 @@ class Upstox:
                     raise TypeError("Required parameter order_id not of type int")
             order_id = ",".join(str(x) for x in order_id)
 
-        return self.api_call_helper('cancelOrder', PyCurlVerbs.DELETE, {'order_id' : order_id}, None)
+        return self.api_call_helper('cancelOrder', PyCurlVerbs.DELETE, {'order_id': order_id}, None)
 
     def cancel_all_orders(self):
 
@@ -600,9 +621,9 @@ class Upstox:
             raise TypeError("Required parameter live_feed_type not of type LiveFeedType")
 
         return self.api_call_helper('liveFeedSubscribe', PyCurlVerbs.GET, {'exchange': instrument.exchange,
-                                                                       'symbol' : instrument.symbol,
-                                                                       'type' : live_feed_type}
-                                          , None);
+                                                                           'symbol': instrument.symbol,
+                                                                           'type': live_feed_type}
+                                    , None);
 
     def unsubscribe(self, instrument, live_feed_type):
         """ unsubscribe to the current feed of an instrument """
@@ -614,9 +635,9 @@ class Upstox:
             raise TypeError("Required parameter live_feed_type not of type LiveFeedType")
 
         return self.api_call_helper('liveFeedUnsubscribe', PyCurlVerbs.GET, {'exchange': instrument.exchange,
-                                                                       'symbol' : instrument.symbol,
-                                                                       'type' : live_feed_type}
-                                          , None);
+                                                                             'symbol': instrument.symbol,
+                                                                             'type': live_feed_type}
+                                    , None);
 
     def get_instrument_by_symbol(self, exchange, symbol):
         # get instrument given exchange and symbol
@@ -626,14 +647,14 @@ class Upstox:
         symbol = symbol.lower()
         # check if master contract exists
         if exchange not in master_contracts_by_symbol:
-            logging.warning("Cannot find exchange [%s] in master contract. "
+            logger.warning("Cannot find exchange [%s] in master contract. "
                             "Please ensure you have called get_master_contract function first" % exchange)
             return None
 
         master_contract = master_contracts_by_symbol[exchange]
 
         if symbol not in master_contract:
-            logging.warning("Cannot find symbol [%s:%s] in master contract" % (exchange, symbol))
+            logger.warning("Cannot find symbol [%s:%s] in master contract" % (exchange, symbol))
             return None
 
         return master_contract[symbol]
@@ -649,7 +670,7 @@ class Upstox:
 
         # check if master contract exists
         if exchange not in master_contracts_by_token:
-            logging.warning(
+            logger.warning(
                 "Cannot find exchange [%s] in master contract. "
                 "Please ensure you have called get_master_contract function first" % exchange)
             return None
@@ -670,7 +691,7 @@ class Upstox:
 
         # check if master contract exists
         if exchange not in master_contracts_by_token:
-            logging.warning(
+            logger.warning(
                 "Cannot find exchange [%s] in master contract. "
                 "Please ensure you have called get_master_contract function first" % exchange)
             return None
@@ -678,7 +699,7 @@ class Upstox:
         master_contract = master_contracts_by_token[exchange]
 
         if token not in master_contract:
-            logging.warning("Cannot find token [%s:%s] in master contracts" % (exchange, token))
+            logger.warning("Cannot find token [%s:%s] in master contracts" % (exchange, token))
             return None
         return master_contract[token]
 
@@ -692,11 +713,11 @@ class Upstox:
             return master_contracts_by_token[exchange]
 
         if exchange not in self.enabled_exchanges:
-            logging.warning('Invalid exchange value provided: [%s]' % (exchange))
+            logger.warning('Invalid exchange value provided: [%s]' % (exchange))
             raise ValueError("Please provide a valid exchange [%s]" % ",".join(self.enabled_exchanges))
 
-        logging.debug('Downloading master contracts for exchange: %s' % (exchange))
-        body = self.api_call_helper('masterContract', PyCurlVerbs.GET, {'exchange' : exchange}, None)
+        logger.debug('Downloading master contracts for exchange: %s' % (exchange))
+        body = self.api_call_helper('masterContract', PyCurlVerbs.GET, {'exchange': exchange}, None)
         count = 0
         master_contract_by_token = OrderedDict()
         master_contract_by_symbol = OrderedDict()
@@ -771,7 +792,10 @@ class Upstox:
 
     def api_call_helper(self, name, http_method, params, data):
         # helper formats the url and reads error codes nicely
-        url = self.config['host'] + self.config['routes'][name]
+        if self.current_version is None:
+            url = self.config['host'] + self.config['routes'][Versions.DEFAULT.value][name]
+        else:
+            url = self.config['host'] + self.config['routes'][self.current_version.value][name]
 
         if params is not None:
             url = url.format(**params)
@@ -793,8 +817,10 @@ class Upstox:
 
     def api_call(self, url, http_method, data):
 
-        headers = {"Content-Type" : "application/json", "x-api-key" : self.api_key,
-                   "authorization" : "Bearer " + self.access_token}
+        headers = {"Content-Type": "application/json", "x-api-key": self.api_key,
+                   "authorization": "Bearer " + self.access_token}
+
+        logger.debug('url:: %s http_method:: %s data:: %s headers:: %s', url, http_method, data, headers)
 
         r = None
 
