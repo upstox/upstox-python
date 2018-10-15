@@ -436,6 +436,17 @@ class Upstox:
                                                                   'type': live_feed_type}
                                     , None)
 
+    def get_subscriptions(self, **kwargs):
+        """ get the current feed of an instrument """
+
+        live_feed_type = kwargs.get("live_feed_type", "ALL")
+
+        if live_feed_type != "ALL" and LiveFeedType.parse(live_feed_type) is None:
+            raise TypeError("Required parameter live_feed_type not of type LiveFeedType")
+
+        return self.api_call_helper('getSubscriptions', PyCurlVerbs.GET, {'type': live_feed_type}
+                                    , None)
+
     def get_ohlc(self, instrument, interval, start_date, end_date, download_as_csv=False):
         """ get OHLC for an instrument """
 

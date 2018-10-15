@@ -1,10 +1,10 @@
 from setuptools import setup
 setup(
   name = 'upstox',
-  packages = ['upstox_api'],
-  version = '1.5.84',
+  packages = ['upstox_api', 'upstox_api.constants'],
+  version = '1.5.90',
   include_package_data=True,
-  description = 'Official Python library for Upstox APIs',
+  description = 'Official Python library for Upstox APIs Staging Environment',
   author = 'Upstox Development Team',
   author_email = 'support@upstox.com',
   url = 'https://github.com/upstox/upstox-python',

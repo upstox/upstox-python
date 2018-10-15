@@ -235,6 +235,13 @@ u.unsubscribe(u.get_instrument_by_symbol('NSE_EQ', 'TATASTEEL'), LiveFeedType.Fu
 u.unsubscribe(u.get_instrument_by_symbol('BSE_EQ', 'RELIANCE'), LiveFeedType.LTP)
 ```
 
+#### Get All Subscribed Symbols
+```python
+u.get_subscriptions(live_feed_type=LiveFeedType.Full)  # Full
+u.get_subscriptions(live_feed_type=LiveFeedType.LTP)  # LTP
+u.get_subscriptions() # All
+```
+
 ### Get historical data
 Get historical OHLC data for any symbol
 ```python
