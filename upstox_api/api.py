@@ -250,7 +250,7 @@ class Upstox:
                         if fields[m] is not None:
                             fields[m] = float(fields[m])
 
-                    quote_object = dict(zip(full_quote_fields, fields[:17]))
+                    quote_object = dict(zip(full_quote_fields, fields[:18]))
                     # Adding ltt or last traded time which comes as last field in full quote subscription
                     if len(fields) == 49:
                         quote_object["ltt"] = int(fields[48])
