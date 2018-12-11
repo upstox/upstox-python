@@ -624,29 +624,68 @@ class Upstox:
 
     def subscribe(self, instrument, live_feed_type):
         """ subscribe to the current feed of an instrument """
+        symbol = ""
+        exchange = ""
+        if (isinstance(instrument, list)):
+            exchange = instrument[0].exchange
+            for _instrument in instrument:
+                if not isinstance(_instrument, Instrument):
+                    raise TypeError("Required parameter instrument not of type Instrument")
 
-        if not isinstance(instrument, Instrument):
-            raise TypeError("Required parameter instrument not of type Instrument")
+                if(_instrument.exchange != exchange):
+                    continue
 
-        if LiveFeedType.parse(live_feed_type) is None:
-            raise TypeError("Required parameter live_feed_type not of type LiveFeedType")
+                if LiveFeedType.parse(live_feed_type) is None:
+                    raise TypeError("Required parameter live_feed_type not of type LiveFeedType")
 
-        return self.api_call_helper('liveFeedSubscribe', PyCurlVerbs.GET, {'exchange': instrument.exchange,
-                                                                           'symbol': instrument.symbol,
+                symbol += _instrument.symbol + ","
+
+            symbol = symbol[:-1]
+        else:
+            if not isinstance(instrument, Instrument):
+                raise TypeError("Required parameter instrument not of type Instrument")
+
+            if LiveFeedType.parse(live_feed_type) is None:
+                raise TypeError("Required parameter live_feed_type not of type LiveFeedType")
+            exchange = instrument.exchange
+            symbol = instrument.symbol
+
+        return self.api_call_helper('liveFeedSubscribe', PyCurlVerbs.GET, {'exchange': exchange,
+                                                                           'symbol': symbol,
                                                                            'type': live_feed_type}
                                     , None);
 
     def unsubscribe(self, instrument, live_feed_type):
         """ unsubscribe to the current feed of an instrument """
+        symbol = ""
+        exchange = ""
+        if (isinstance(instrument, list)):
+            exchange = instrument[0].exchange
+            for _instrument in instrument:
+                if not isinstance(_instrument, Instrument):
+                    raise TypeError("Required parameter instrument not of type Instrument")
 
-        if not isinstance(instrument, Instrument):
-            raise TypeError("Required parameter instrument not of type Instrument")
+                if (_instrument.exchange != exchange):
+                    continue
 
-        if LiveFeedType.parse(live_feed_type) is None:
-            raise TypeError("Required parameter live_feed_type not of type LiveFeedType")
+                if LiveFeedType.parse(live_feed_type) is None:
+                    raise TypeError("Required parameter live_feed_type not of type LiveFeedType")
 
-        return self.api_call_helper('liveFeedUnsubscribe', PyCurlVerbs.GET, {'exchange': instrument.exchange,
-                                                                             'symbol': instrument.symbol,
+                symbol += _instrument.symbol + ","
+
+            symbol = symbol[:-1]
+
+        else:
+            if not isinstance(instrument, Instrument):
+                raise TypeError("Required parameter instrument not of type Instrument")
+
+            if LiveFeedType.parse(live_feed_type) is None:
+                raise TypeError("Required parameter live_feed_type not of type LiveFeedType")
+            exchange = instrument.exchange
+            symbol = instrument.symbol
+
+        return self.api_call_helper('liveFeedUnsubscribe', PyCurlVerbs.GET, {'exchange': exchange,
+                                                                             'symbol': symbol,
                                                                              'type': live_feed_type}
                                     , None);
 
