@@ -622,18 +622,26 @@ class Upstox:
 
         return self.api_call_helper('cancelAllOrders', PyCurlVerbs.DELETE, None, None)
 
-    def subscribe(self, instrument, live_feed_type):
+    def subscribe(self, instrument, live_feed_type, exchange = None):
         """ subscribe to the current feed of an instrument """
         symbol = ""
-        exchange = ""
         if (isinstance(instrument, list)):
-            exchange = instrument[0].exchange
             for _instrument in instrument:
                 if not isinstance(_instrument, Instrument):
                     raise TypeError("Required parameter instrument not of type Instrument")
 
-                if(_instrument.exchange != exchange):
-                    continue
+                if exchange == None:
+                    logger.warning('Invalid exchange value provided: [%s]' % (exchange))
+                    raise ValueError("Please provide a valid exchange [%s]" % ",".join(self.enabled_exchanges))
+
+                exchange = exchange.lower()
+
+                if exchange not in self.enabled_exchanges:
+                    logger.warning('Invalid exchange value provided: [%s]' % (exchange))
+                    raise TypeError("Please provide a valid exchange [%s]" % ",".join(self.enabled_exchanges))
+
+                if(_instrument.exchange.lower() != exchange):
+                    raise ValueError("Given instrument is not of the same exchange provided [%s]" % (exchange))
 
                 if LiveFeedType.parse(live_feed_type) is None:
                     raise TypeError("Required parameter live_feed_type not of type LiveFeedType")
@@ -655,18 +663,26 @@ class Upstox:
                                                                            'type': live_feed_type}
                                     , None);
 
-    def unsubscribe(self, instrument, live_feed_type):
+    def unsubscribe(self, instrument, live_feed_type, exchange = None):
         """ unsubscribe to the current feed of an instrument """
         symbol = ""
-        exchange = ""
         if (isinstance(instrument, list)):
-            exchange = instrument[0].exchange
             for _instrument in instrument:
                 if not isinstance(_instrument, Instrument):
                     raise TypeError("Required parameter instrument not of type Instrument")
 
-                if (_instrument.exchange != exchange):
-                    continue
+                if exchange == None:
+                    logger.warning('Invalid exchange value provided: [%s]' % (exchange))
+                    raise ValueError("Please provide a valid exchange [%s]" % ",".join(self.enabled_exchanges))
+
+                exchange = exchange.lower()
+
+                if exchange not in self.enabled_exchanges:
+                    logger.warning('Invalid exchange value provided: [%s]' % (exchange))
+                    raise TypeError("Please provide a valid exchange [%s]" % ",".join(self.enabled_exchanges))
+
+                if(_instrument.exchange.lower() != exchange):
+                    raise ValueError("Given instrument is not of exchange provided exchange [%s]" % (exchange))
 
                 if LiveFeedType.parse(live_feed_type) is None:
                     raise TypeError("Required parameter live_feed_type not of type LiveFeedType")
