@@ -192,12 +192,6 @@ def socket_connect():
     u.get_master_contract('NSE_FO')
     print ("Socket connect code executed")
 
-    def event_handler_socket_open():
-        print("********SOCKET OPEN****************")
-        print("\n\n")
-
-    u.set_on_open(event_handler_socket_open)
-
     def event_handler_quote_update(message):
         print("********QUOTE UPDATE****************")
         # print(message)
