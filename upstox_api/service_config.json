@@ -1,5 +1,5 @@
 {
-  "host": "https://staging-api.upstox.com",
+  "host": "https://api.upstox.com",
   "routes": {
     "DEFAULT": {
       "authorize": "/index/dialog/authorize",
@@ -50,5 +50,5 @@
       "getSubscriptions": "/live/feed/{type}"
     }
   },
-  "socketEndpoint": "wss://staging-ws-api.upstox.com?apiKey={api_key}&token={access_token}"
+  "socketEndpoint": "wss://ws-api.upstox.com?apiKey={api_key}&token={access_token}"
 }
