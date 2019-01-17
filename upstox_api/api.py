@@ -453,7 +453,7 @@ class Upstox:
         if self.current_version is None or self.current_version == Versions.DEFAULT:
             if OHLCInterval.parse(interval) is None:
                 raise TypeError("Required parameter interval not of type OHLCInterval")
-        elif self.current_version == Versions.Version_1_5_6:
+        elif self.current_version == Versions.Version_2_0_0:
             if OHLCInterval.parseNew(interval) is None:
                 raise TypeError("Required parameter interval not of type OHLCInterval")
             interval = OHLCInterval.parseNew(interval)

@@ -87,7 +87,7 @@ u = Upstox ('your_api_key', access_token)
 ```
 
 ### Setting the version
-2. Starting from python Version 1.5.6 we have started creating maintaining version of our API endpoints which can be configured iva the SDK.
+2. Starting from python Version 2.0.0 we have started creating maintaining version of our API endpoints which can be configured iva the SDK.
    Advantages of API versions are:
    1. Updating an API endpoint won't break the existing user of the API since both the versions of the API will be maintained until one become stable.
    2. A new stable API will be moved from any version "Version_*" to "DEFAULT" once the API becomes stable, the old version will also be maintained for a specific period of time.
@@ -98,7 +98,7 @@ u = Upstox ('your_api_key', access_token)
 from upstox_api.api import Upstox
 from upstox_api.constants.versions import Versions
 # u.set_api_version(Versions.DEFAULT)
-u.set_api_version(Versions.Version_1_5_6)
+u.set_api_version(Versions.Version_2_0_0)
 ```
 
 2. You can run commands here to check your connectivity

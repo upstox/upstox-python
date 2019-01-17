@@ -2,7 +2,7 @@ from enum import Enum
 
 class Versions(Enum):
     DEFAULT = "DEFAULT"
-    Version_1_5_6 = "1.5.6"
+    Version_2_0_0 = "2.0.0"
 
     @classmethod
     def has_value(cls, value):

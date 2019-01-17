@@ -25,7 +25,7 @@
       "OHLC": "/historical/ohlc/{exchange}/{symbol}?interval={interval}&start_date={start_date}&end_date={end_date}&format={format}",
       "getSubscriptions": "/live/feed/{type}"
     },
-    "1.5.6": {
+    "2.0.0": {
       "authorize": "/index/dialog/authorize",
       "accessToken": "/index/oauth/token",
       "profile": "/index/profile",
