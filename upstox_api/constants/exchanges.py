@@ -4,7 +4,7 @@ from enum import Enum
 class Exchanges(Enum):
     NSE_INDEX = "NSE_INDEX"
     NSE_EQ = "NSE_EQ"
-    NCD_FO = "2.0.0"
+    NCD_FO = "NCD_FO"
     NSE_FO = "NSE_FO"
 
     BSE_INDEX = "BSE_INDEX"
