@@ -172,19 +172,25 @@ u.get_live_feed(u.get_instrument_by_symbol('BSE_EQ', 'RELIANCE'), LiveFeedType.L
 ```
 
 #### Subscribe to a live feed
+```python
+u.subscribe(u.get_instrument_by_symbol('NSE_EQ', 'TATASTEEL'), LiveFeedType.Full)
+u.subscribe(u.get_instrument_by_symbol('BSE_EQ', 'RELIANCE'), LiveFeedType.LTP)
+```
+Subscribe to multiple instruments in a single call. Give an array of instruments of same exchange to be subscribed.
+Provide additional parameter exchange to define instrument of which exchange you want to subscribe
+```python
+u.subscribe([u.get_instrument_by_symbol('NSE_EQ', 'TATASTEEL'), u.get_instrument_by_symbol('NSE_EQ', 'ACC')], LiveFeedType.Full, "NSE_EQ")
+```
+
 Start getting live feed via socket
+
+
 ```python
 def socket_connect():
 
 
     u.get_master_contract('NSE_FO')
     print ("Socket connect code executed")
-
-    def event_handler_socket_open():
-        print("********SOCKET OPEN****************")
-        print("\n\n")
-
-    u.set_on_open(event_handler_socket_open)
 
     def event_handler_quote_update(message):
         print("********QUOTE UPDATE****************")
@@ -233,6 +239,10 @@ Unsubscribe to an existing live feed
 ```python
 u.unsubscribe(u.get_instrument_by_symbol('NSE_EQ', 'TATASTEEL'), LiveFeedType.Full)
 u.unsubscribe(u.get_instrument_by_symbol('BSE_EQ', 'RELIANCE'), LiveFeedType.LTP)
+```
+Unsubscribe to multiple instruments in a single call. Give an array of instruments of same exchange to be subscribed also provide additional parameter exchange to define instrument of which exchange you want to unsubscribe
+```python
+u.unsubscribe([u.get_instrument_by_symbol('NSE_EQ', 'TATASTEEL'), u.get_instrument_by_symbol('NSE_EQ', 'ACC')], LiveFeedType.Full, "NSE_EQ")
 ```
 
 #### Get All Subscribed Symbols

@@ -287,9 +287,9 @@ class Upstox:
         if self.on_disconnect:
             self.on_disconnect(ws)
 
-    def _on_open(self, ws):
-        if self.on_open:
-            self.on_open(ws)
+    # def _on_open(self, ws):
+    #     if self.on_open:
+    #         self.on_open(ws)
 
     def __init__(self, api_key, access_token):
         """ logs in and gets enabled exchanges and products for user """
@@ -335,8 +335,8 @@ class Upstox:
                                                 header={'Authorization: Bearer' + self.access_token},
                                                 on_data=self._on_data,
                                                 on_error=self._on_error,
-                                                on_close=self._on_close,
-                                                on_open=self._on_open)
+                                                on_close=self._on_close)
+                                                # on_open=self._on_open)
         if run_in_background is True:
             self.ws_thread = threading.Thread(target=self.websocket.run_forever)
             self.ws_thread.daemon = True
@@ -359,8 +359,8 @@ class Upstox:
     def set_on_error(self, event_handler):
         self.on_error = event_handler
 
-    def set_on_open(self, event_handler):
-        self.on_open = event_handler
+    # def set_on_open(self, event_handler):
+    #     self.on_open = event_handler
 
     def get_profile(self):
         return self.api_call_helper('profile', PyCurlVerbs.GET, None, None)
@@ -622,31 +622,86 @@ class Upstox:
 
         return self.api_call_helper('cancelAllOrders', PyCurlVerbs.DELETE, None, None)
 
-    def subscribe(self, instrument, live_feed_type):
+    def subscribe(self, instrument, live_feed_type, exchange = None):
         """ subscribe to the current feed of an instrument """
+        symbol = ""
+        if (isinstance(instrument, list)):
+            for _instrument in instrument:
+                if not isinstance(_instrument, Instrument):
+                    raise TypeError("Required parameter instrument not of type Instrument")
 
-        if not isinstance(instrument, Instrument):
-            raise TypeError("Required parameter instrument not of type Instrument")
+                if exchange == None:
+                    logger.warning('Invalid exchange value provided: [%s]' % (exchange))
+                    raise ValueError("Please provide a valid exchange [%s]" % ",".join(self.enabled_exchanges))
 
-        if LiveFeedType.parse(live_feed_type) is None:
-            raise TypeError("Required parameter live_feed_type not of type LiveFeedType")
+                exchange = exchange.lower()
 
-        return self.api_call_helper('liveFeedSubscribe', PyCurlVerbs.GET, {'exchange': instrument.exchange,
-                                                                           'symbol': instrument.symbol,
+                if exchange not in self.enabled_exchanges:
+                    logger.warning('Invalid exchange value provided: [%s]' % (exchange))
+                    raise TypeError("Please provide a valid exchange [%s]" % ",".join(self.enabled_exchanges))
+
+                if(_instrument.exchange.lower() != exchange):
+                    raise ValueError("Given instrument is not of the same exchange provided [%s]" % (exchange))
+
+                if LiveFeedType.parse(live_feed_type) is None:
+                    raise TypeError("Required parameter live_feed_type not of type LiveFeedType")
+
+                symbol += _instrument.symbol + ","
+
+            symbol = symbol[:-1]
+        else:
+            if not isinstance(instrument, Instrument):
+                raise TypeError("Required parameter instrument not of type Instrument")
+
+            if LiveFeedType.parse(live_feed_type) is None:
+                raise TypeError("Required parameter live_feed_type not of type LiveFeedType")
+            exchange = instrument.exchange
+            symbol = instrument.symbol
+
+        return self.api_call_helper('liveFeedSubscribe', PyCurlVerbs.GET, {'exchange': exchange,
+                                                                           'symbol': symbol,
                                                                            'type': live_feed_type}
                                     , None);
 
-    def unsubscribe(self, instrument, live_feed_type):
+    def unsubscribe(self, instrument, live_feed_type, exchange = None):
         """ unsubscribe to the current feed of an instrument """
+        symbol = ""
+        if (isinstance(instrument, list)):
+            for _instrument in instrument:
+                if not isinstance(_instrument, Instrument):
+                    raise TypeError("Required parameter instrument not of type Instrument")
 
-        if not isinstance(instrument, Instrument):
-            raise TypeError("Required parameter instrument not of type Instrument")
+                if exchange == None:
+                    logger.warning('Invalid exchange value provided: [%s]' % (exchange))
+                    raise ValueError("Please provide a valid exchange [%s]" % ",".join(self.enabled_exchanges))
 
-        if LiveFeedType.parse(live_feed_type) is None:
-            raise TypeError("Required parameter live_feed_type not of type LiveFeedType")
+                exchange = exchange.lower()
 
-        return self.api_call_helper('liveFeedUnsubscribe', PyCurlVerbs.GET, {'exchange': instrument.exchange,
-                                                                             'symbol': instrument.symbol,
+                if exchange not in self.enabled_exchanges:
+                    logger.warning('Invalid exchange value provided: [%s]' % (exchange))
+                    raise TypeError("Please provide a valid exchange [%s]" % ",".join(self.enabled_exchanges))
+
+                if(_instrument.exchange.lower() != exchange):
+                    raise ValueError("Given instrument is not of exchange provided exchange [%s]" % (exchange))
+
+                if LiveFeedType.parse(live_feed_type) is None:
+                    raise TypeError("Required parameter live_feed_type not of type LiveFeedType")
+
+                symbol += _instrument.symbol + ","
+
+            symbol = symbol[:-1]
+
+        else:
+            if not isinstance(instrument, Instrument):
+                raise TypeError("Required parameter instrument not of type Instrument")
+
+            if LiveFeedType.parse(live_feed_type) is None:
+                raise TypeError("Required parameter live_feed_type not of type LiveFeedType")
+            exchange = instrument.exchange
+            symbol = instrument.symbol
+
+        return self.api_call_helper('liveFeedUnsubscribe', PyCurlVerbs.GET, {'exchange': exchange,
+                                                                             'symbol': symbol,
                                                                              'type': live_feed_type}
                                     , None);
 
