@@ -441,8 +441,9 @@ class Upstox:
         """ get OHLC for an instrument """
 
         if OHLCInterval.parseNew(interval) is None:
-                raise TypeError("Required parameter interval not of type OHLCInterval")
-            interval = OHLCInterval.parseNew(interval)
+            raise TypeError("Required parameter interval not of type OHLCInterval")
+        
+        interval = OHLCInterval.parseNew(interval)
 
         if not isinstance(instrument, Instrument):
             raise TypeError("Required parameter instrument not of type Instrument")
