@@ -1,6 +1,4 @@
 
-
-from upstox_api.constants.versions import *
 from upstox_api.utils import *
 
 import json
@@ -70,7 +68,7 @@ class Session:
 
         params = {'apiKey': self.api_key, 'redirect_uri': self.redirect_uri, 'response_type': 'code'}
 
-        return self.config['host'] + self.config['routes']['DEFAULT']['authorize'] + '?' + urlencode(params)
+        return self.config['host'] + self.config['routes']['authorize'] + '?' + urlencode(params)
 
     def retrieve_access_token(self):
         """ once you have the authorization code, you can call this function to get
@@ -88,7 +86,7 @@ class Session:
 
         params = {'code': self.code, 'redirect_uri': self.redirect_uri, 'grant_type': 'authorization_code'}
 
-        url = self.config['host'] + self.config['routes']['DEFAULT']['accessToken']
+        url = self.config['host'] + self.config['routes']['accessToken']
         headers = {"Content-Type": "application/json", "x-api-key": self.api_key}
         r = requests.post(url, auth=(self.api_key, self.api_secret), data=json.dumps(params), headers=headers)
         body = json.loads(r.text)
@@ -112,15 +110,7 @@ class Upstox:
     on_quote_update = None
     on_error = None
     on_disconnect = None
-    # version_number
-    current_version = None
 
-    def set_api_version(self, version):
-        logger.debug("Setting version to %s", version)
-        # Type checking
-        if not isinstance(version, Versions):
-            raise TypeError("Version value should be one of the enumeration type defined in Enum 'Versions'")
-        self.current_version = version
 
     def _on_data(self, ws, message, data_type, continue_flag):
         if data_type == websocket.ABNF.OPCODE_TEXT:
@@ -450,11 +440,7 @@ class Upstox:
     def get_ohlc(self, instrument, interval, start_date, end_date, download_as_csv=False):
         """ get OHLC for an instrument """
 
-        if self.current_version is None or self.current_version == Versions.DEFAULT:
-            if OHLCInterval.parse(interval) is None:
-                raise TypeError("Required parameter interval not of type OHLCInterval")
-        elif self.current_version == Versions.Version_2_0_0:
-            if OHLCInterval.parseNew(interval) is None:
+        if OHLCInterval.parseNew(interval) is None:
                 raise TypeError("Required parameter interval not of type OHLCInterval")
             interval = OHLCInterval.parseNew(interval)
 
@@ -858,10 +844,7 @@ class Upstox:
 
     def api_call_helper(self, name, http_method, params, data):
         # helper formats the url and reads error codes nicely
-        if self.current_version is None:
-            url = self.config['host'] + self.config['routes'][Versions.DEFAULT.value][name]
-        else:
-            url = self.config['host'] + self.config['routes'][self.current_version.value][name]
+        url = self.config['host'] + self.config['routes'][name]
 
         if params is not None:
             url = url.format(**params)
