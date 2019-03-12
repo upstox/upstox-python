@@ -1,3 +1,4 @@
+
 # Python SDK for Upstox API
 
 The official Python library for communicating with the Upstox APIs.
@@ -29,10 +30,13 @@ Python 2.x or 3.x
 Also, you need the following modules:
 
 * `future`
-* `websocket_client`
+* `websocket_client (version 0.40.0)`
 * `requests` 
 
 The modules can also be installed using `pip`
+The specific version of websocket_client is needed for proper functioning of live feed.
+To install version 0.40.0 of websocket client use pip as follows:
+`pip install websocket_client=0.40.0`
 
 ## Getting started with API
 
