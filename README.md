@@ -29,7 +29,7 @@ Python 2.x or 3.x
 Also, you need the following modules:
 
 * `future`
-* `websocket_client`
+* `websocket_client==0.40.0`
 * `requests` 
 
 The modules can also be installed using `pip`
