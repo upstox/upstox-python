@@ -94,7 +94,7 @@ class Session:
         body = json.loads(r.text)
         if 'access_token' not in body:
             raise SystemError(body);
-        return body['access_token']
+        return body;
 
 
 class Upstox:
