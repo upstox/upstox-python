@@ -508,3 +508,5 @@ condition = threading.Condition()
 condition.acquire()
 condition.wait()
 ```
+
+This SDK is soon to be changed.
