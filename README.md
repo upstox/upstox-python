@@ -1,6 +1,6 @@
 # Upstox Python SDK for API v2
 
-![PyPI](https://img.shields.io/pypi/v/upstox-python-sdk?label=upstox-python-sdk)
+[![PyPI](https://img.shields.io/pypi/v/upstox-python-sdk?label=upstox-python-sdk)](https://pypi.python.org/pypi/upstox-python-sdk)
 
 ## Introduction
 
