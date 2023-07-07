@@ -1,5 +1,7 @@
 # Upstox Python SDK for API v2
 
+[![PyPI](https://img.shields.io/pypi/v/upstox-python-sdk?label=upstox-python-sdk)](https://pypi.python.org/pypi/upstox-python-sdk)
+
 ## Introduction
 
 The official Python client for communicating with the <a href="https://upstox.com/uplink/">Upstox API</a>.
@@ -26,9 +28,9 @@ Python 2.7 and 3.4+
 If the python package is hosted on Github, you can install directly from Github
 
 ```sh
-pip install upstox-python
+pip install upstox-python-sdk
 ```
-(you may need to run `pip` with root permission: `sudo pip install upstox-python`)
+(you may need to run `pip` with root permission: `sudo pip install upstox-python-sdk`)
 
 Then import the package:
 ```python
