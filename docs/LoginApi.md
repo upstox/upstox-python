@@ -1,4 +1,4 @@
-# swagger_client.LoginApi
+# upstox_client.LoginApi
 
 All URIs are relative to *https://api-v2.upstox.com*
 
@@ -19,12 +19,12 @@ This provides details on the login endpoint.
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import upstox_client
+from upstox_client.rest import ApiException
 from pprint import pprint
 
 # create an instance of the API class
-api_instance = swagger_client.LoginApi()
+api_instance = upstox_client.LoginApi()
 client_id = 'client_id_example' # str | 
 redirect_uri = 'redirect_uri_example' # str | 
 api_version = 'api_version_example' # str | API Version Header
@@ -74,16 +74,16 @@ Logout
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import upstox_client
+from upstox_client.rest import ApiException
 from pprint import pprint
 
 # Configure OAuth2 access token for authorization: OAUTH2
-configuration = swagger_client.Configuration()
+configuration = upstox_client.Configuration()
 configuration.access_token = 'YOUR_ACCESS_TOKEN'
 
 # create an instance of the API class
-api_instance = swagger_client.LoginApi(swagger_client.ApiClient(configuration))
+api_instance = upstox_client.LoginApi(upstox_client.ApiClient(configuration))
 api_version = 'api_version_example' # str | API Version Header
 
 try:
@@ -111,7 +111,7 @@ Name | Type | Description  | Notes
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: application/json, */*
+ - **Accept**: */*, application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -126,12 +126,12 @@ This API provides the functionality to obtain opaque token from authorization_co
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import upstox_client
+from upstox_client.rest import ApiException
 from pprint import pprint
 
 # create an instance of the API class
-api_instance = swagger_client.LoginApi()
+api_instance = upstox_client.LoginApi()
 api_version = 'api_version_example' # str | API Version Header
 code = 'code_example' # str |  (optional)
 client_id = 'client_id_example' # str |  (optional)

@@ -66,5 +66,5 @@ target/
 #Ignore swagger generated files
 .swagger-codegen/
 .vscode/
-swagger-codegen-ignore
+.swagger-codegen-ignore
 git_push.sh

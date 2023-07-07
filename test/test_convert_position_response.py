@@ -14,9 +14,9 @@ from __future__ import absolute_import
 
 import unittest
 
-import swagger_client
-from swagger_client.models.convert_position_response import ConvertPositionResponse  # noqa: E501
-from swagger_client.rest import ApiException
+import upstox_client
+from upstox_client.models.convert_position_response import ConvertPositionResponse  # noqa: E501
+from upstox_client.rest import ApiException
 
 
 class TestConvertPositionResponse(unittest.TestCase):
@@ -31,7 +31,7 @@ class TestConvertPositionResponse(unittest.TestCase):
     def testConvertPositionResponse(self):
         """Test ConvertPositionResponse"""
         # FIXME: construct object with mandatory attributes with example values
-        # model = swagger_client.models.convert_position_response.ConvertPositionResponse()  # noqa: E501
+        # model = upstox_client.models.convert_position_response.ConvertPositionResponse()  # noqa: E501
         pass
 
 

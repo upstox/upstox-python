@@ -12,8 +12,8 @@
 
 from setuptools import setup, find_packages  # noqa: H301
 
-NAME = "swagger-client"
-VERSION = "1.0.0"
+NAME = "upstox-python"
+VERSION = "2.0.0"
 # To install the library, run the following
 #
 # python setup.py install
@@ -26,10 +26,10 @@ REQUIRES = ["urllib3 >= 1.15", "six >= 1.10", "certifi", "python-dateutil"]
 setup(
     name=NAME,
     version=VERSION,
+    license='MIT',
     description="Upstox Developer API",
-    author_email="",
-    url="",
-    keywords=["Swagger", "Upstox Developer API"],
+    url="https://upstox.com/uplink/",
+    keywords=["Upstox Developer API"],
     install_requires=REQUIRES,
     packages=find_packages(),
     include_package_data=True,

@@ -14,9 +14,9 @@ from __future__ import absolute_import
 
 import unittest
 
-import swagger_client
-from swagger_client.models.websocket_auth_redirect_response import WebsocketAuthRedirectResponse  # noqa: E501
-from swagger_client.rest import ApiException
+import upstox_client
+from upstox_client.models.websocket_auth_redirect_response import WebsocketAuthRedirectResponse  # noqa: E501
+from upstox_client.rest import ApiException
 
 
 class TestWebsocketAuthRedirectResponse(unittest.TestCase):
@@ -31,7 +31,7 @@ class TestWebsocketAuthRedirectResponse(unittest.TestCase):
     def testWebsocketAuthRedirectResponse(self):
         """Test WebsocketAuthRedirectResponse"""
         # FIXME: construct object with mandatory attributes with example values
-        # model = swagger_client.models.websocket_auth_redirect_response.WebsocketAuthRedirectResponse()  # noqa: E501
+        # model = upstox_client.models.websocket_auth_redirect_response.WebsocketAuthRedirectResponse()  # noqa: E501
         pass
 
 

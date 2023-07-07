@@ -14,9 +14,9 @@ from __future__ import absolute_import
 
 import unittest
 
-import swagger_client
-from swagger_client.models.token_request import TokenRequest  # noqa: E501
-from swagger_client.rest import ApiException
+import upstox_client
+from upstox_client.models.token_request import TokenRequest  # noqa: E501
+from upstox_client.rest import ApiException
 
 
 class TestTokenRequest(unittest.TestCase):
@@ -31,7 +31,7 @@ class TestTokenRequest(unittest.TestCase):
     def testTokenRequest(self):
         """Test TokenRequest"""
         # FIXME: construct object with mandatory attributes with example values
-        # model = swagger_client.models.token_request.TokenRequest()  # noqa: E501
+        # model = upstox_client.models.token_request.TokenRequest()  # noqa: E501
         pass
 
 

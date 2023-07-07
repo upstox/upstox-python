@@ -14,9 +14,9 @@ from __future__ import absolute_import
 
 import unittest
 
-import swagger_client
-from swagger_client.models.o_auth_client_exception_cause_suppressed import OAuthClientExceptionCauseSuppressed  # noqa: E501
-from swagger_client.rest import ApiException
+import upstox_client
+from upstox_client.models.o_auth_client_exception_cause_suppressed import OAuthClientExceptionCauseSuppressed  # noqa: E501
+from upstox_client.rest import ApiException
 
 
 class TestOAuthClientExceptionCauseSuppressed(unittest.TestCase):
@@ -31,7 +31,7 @@ class TestOAuthClientExceptionCauseSuppressed(unittest.TestCase):
     def testOAuthClientExceptionCauseSuppressed(self):
         """Test OAuthClientExceptionCauseSuppressed"""
         # FIXME: construct object with mandatory attributes with example values
-        # model = swagger_client.models.o_auth_client_exception_cause_suppressed.OAuthClientExceptionCauseSuppressed()  # noqa: E501
+        # model = upstox_client.models.o_auth_client_exception_cause_suppressed.OAuthClientExceptionCauseSuppressed()  # noqa: E501
         pass
 
 

@@ -1,4 +1,4 @@
-# swagger_client.PortfolioApi
+# upstox_client.PortfolioApi
 
 All URIs are relative to *https://api-v2.upstox.com*
 
@@ -19,17 +19,17 @@ Convert the margin product of an open position
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import upstox_client
+from upstox_client.rest import ApiException
 from pprint import pprint
 
 # Configure OAuth2 access token for authorization: OAUTH2
-configuration = swagger_client.Configuration()
+configuration = upstox_client.Configuration()
 configuration.access_token = 'YOUR_ACCESS_TOKEN'
 
 # create an instance of the API class
-api_instance = swagger_client.PortfolioApi(swagger_client.ApiClient(configuration))
-body = swagger_client.ConvertPositionRequest() # ConvertPositionRequest | 
+api_instance = upstox_client.PortfolioApi(upstox_client.ApiClient(configuration))
+body = upstox_client.ConvertPositionRequest() # ConvertPositionRequest | 
 api_version = 'api_version_example' # str | API Version Header
 
 try:
@@ -58,7 +58,7 @@ Name | Type | Description  | Notes
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: application/json, */*
+ - **Accept**: */*, application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -73,16 +73,16 @@ Fetches the holdings which the user has bought/sold in previous trading sessions
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import upstox_client
+from upstox_client.rest import ApiException
 from pprint import pprint
 
 # Configure OAuth2 access token for authorization: OAUTH2
-configuration = swagger_client.Configuration()
+configuration = upstox_client.Configuration()
 configuration.access_token = 'YOUR_ACCESS_TOKEN'
 
 # create an instance of the API class
-api_instance = swagger_client.PortfolioApi(swagger_client.ApiClient(configuration))
+api_instance = upstox_client.PortfolioApi(upstox_client.ApiClient(configuration))
 api_version = 'api_version_example' # str | API Version Header
 
 try:
@@ -110,7 +110,7 @@ Name | Type | Description  | Notes
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: application/json, */*
+ - **Accept**: */*, application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -125,16 +125,16 @@ Fetches the current positions for the user for the current day.
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import upstox_client
+from upstox_client.rest import ApiException
 from pprint import pprint
 
 # Configure OAuth2 access token for authorization: OAUTH2
-configuration = swagger_client.Configuration()
+configuration = upstox_client.Configuration()
 configuration.access_token = 'YOUR_ACCESS_TOKEN'
 
 # create an instance of the API class
-api_instance = swagger_client.PortfolioApi(swagger_client.ApiClient(configuration))
+api_instance = upstox_client.PortfolioApi(upstox_client.ApiClient(configuration))
 api_version = 'api_version_example' # str | API Version Header
 
 try:
@@ -162,7 +162,7 @@ Name | Type | Description  | Notes
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: application/json, */*
+ - **Accept**: */*, application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

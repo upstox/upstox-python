@@ -14,9 +14,9 @@ from __future__ import absolute_import
 
 import unittest
 
-import swagger_client
-from swagger_client.api.charge_api import ChargeApi  # noqa: E501
-from swagger_client.rest import ApiException
+import upstox_client
+from upstox_client.api.charge_api import ChargeApi  # noqa: E501
+from upstox_client.rest import ApiException
 
 
 class TestChargeApi(unittest.TestCase):

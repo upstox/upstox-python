@@ -1,4 +1,4 @@
-# swagger_client.TradeProfitAndLossApi
+# upstox_client.TradeProfitAndLossApi
 
 All URIs are relative to *https://api-v2.upstox.com*
 
@@ -19,16 +19,16 @@ This API gives the charges incurred by users for their trades
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import upstox_client
+from upstox_client.rest import ApiException
 from pprint import pprint
 
 # Configure OAuth2 access token for authorization: OAUTH2
-configuration = swagger_client.Configuration()
+configuration = upstox_client.Configuration()
 configuration.access_token = 'YOUR_ACCESS_TOKEN'
 
 # create an instance of the API class
-api_instance = swagger_client.TradeProfitAndLossApi(swagger_client.ApiClient(configuration))
+api_instance = upstox_client.TradeProfitAndLossApi(upstox_client.ApiClient(configuration))
 segment = 'segment_example' # str | Segment for which data is requested can be from the following options EQ - Equity,   FO - Futures and Options,   COM  - Commodity,   CD - Currency Derivatives
 financial_year = 'financial_year_example' # str | Financial year for which data has been requested. Concatenation of last 2 digits of from year and to year Sample:for 2021-2022, financial_year will be 2122
 api_version = 'api_version_example' # str | API Version Header
@@ -79,16 +79,16 @@ This API gives the data of the realised Profit and Loss report requested by a us
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import upstox_client
+from upstox_client.rest import ApiException
 from pprint import pprint
 
 # Configure OAuth2 access token for authorization: OAUTH2
-configuration = swagger_client.Configuration()
+configuration = upstox_client.Configuration()
 configuration.access_token = 'YOUR_ACCESS_TOKEN'
 
 # create an instance of the API class
-api_instance = swagger_client.TradeProfitAndLossApi(swagger_client.ApiClient(configuration))
+api_instance = upstox_client.TradeProfitAndLossApi(upstox_client.ApiClient(configuration))
 segment = 'segment_example' # str | Segment for which data is requested can be from the following options EQ - Equity,   FO - Futures and Options,   COM  - Commodity,   CD - Currency Derivatives
 financial_year = 'financial_year_example' # str | Financial year for which data has been requested. Concatenation of last 2 digits of from year and to year Sample:for 2021-2022, financial_year will be 2122
 page_number = 56 # int | Page Number, the pages are starting from 1
@@ -143,16 +143,16 @@ This API gives the data of the realised Profit and Loss report requested by a us
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import upstox_client
+from upstox_client.rest import ApiException
 from pprint import pprint
 
 # Configure OAuth2 access token for authorization: OAUTH2
-configuration = swagger_client.Configuration()
+configuration = upstox_client.Configuration()
 configuration.access_token = 'YOUR_ACCESS_TOKEN'
 
 # create an instance of the API class
-api_instance = swagger_client.TradeProfitAndLossApi(swagger_client.ApiClient(configuration))
+api_instance = upstox_client.TradeProfitAndLossApi(upstox_client.ApiClient(configuration))
 segment = 'segment_example' # str | Segment for which data is requested can be from the following options EQ - Equity,   FO - Futures and Options,   COM  - Commodity,   CD - Currency Derivatives
 financial_year = 'financial_year_example' # str | Financial year for which data has been requested. Concatenation of last 2 digits of from year and to year Sample:for 2021-2022, financial_year will be 2122
 api_version = 'api_version_example' # str | API Version Header

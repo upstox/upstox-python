@@ -1,4 +1,4 @@
-# swagger_client.MarketQuoteApi
+# upstox_client.MarketQuoteApi
 
 All URIs are relative to *https://api-v2.upstox.com*
 
@@ -19,16 +19,16 @@ This API provides the functionality to retrieve the full market quotes for one o
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import upstox_client
+from upstox_client.rest import ApiException
 from pprint import pprint
 
 # Configure OAuth2 access token for authorization: OAUTH2
-configuration = swagger_client.Configuration()
+configuration = upstox_client.Configuration()
 configuration.access_token = 'YOUR_ACCESS_TOKEN'
 
 # create an instance of the API class
-api_instance = swagger_client.MarketQuoteApi(swagger_client.ApiClient(configuration))
+api_instance = upstox_client.MarketQuoteApi(upstox_client.ApiClient(configuration))
 symbol = 'symbol_example' # str | Comma separated list of symbols
 api_version = 'api_version_example' # str | API Version Header
 
@@ -73,16 +73,16 @@ This API provides the functionality to retrieve the OHLC quotes for one or more 
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import upstox_client
+from upstox_client.rest import ApiException
 from pprint import pprint
 
 # Configure OAuth2 access token for authorization: OAUTH2
-configuration = swagger_client.Configuration()
+configuration = upstox_client.Configuration()
 configuration.access_token = 'YOUR_ACCESS_TOKEN'
 
 # create an instance of the API class
-api_instance = swagger_client.MarketQuoteApi(swagger_client.ApiClient(configuration))
+api_instance = upstox_client.MarketQuoteApi(upstox_client.ApiClient(configuration))
 symbol = 'symbol_example' # str | Comma separated list of symbols
 interval = 'interval_example' # str | Interval to get ohlc data
 api_version = 'api_version_example' # str | API Version Header
@@ -129,16 +129,16 @@ This API provides the functionality to retrieve the LTP quotes for one or more i
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import upstox_client
+from upstox_client.rest import ApiException
 from pprint import pprint
 
 # Configure OAuth2 access token for authorization: OAUTH2
-configuration = swagger_client.Configuration()
+configuration = upstox_client.Configuration()
 configuration.access_token = 'YOUR_ACCESS_TOKEN'
 
 # create an instance of the API class
-api_instance = swagger_client.MarketQuoteApi(swagger_client.ApiClient(configuration))
+api_instance = upstox_client.MarketQuoteApi(upstox_client.ApiClient(configuration))
 symbol = 'symbol_example' # str | Comma separated list of symbols
 api_version = 'api_version_example' # str | API Version Header
 

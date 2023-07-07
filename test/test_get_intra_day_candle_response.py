@@ -14,9 +14,9 @@ from __future__ import absolute_import
 
 import unittest
 
-import swagger_client
-from swagger_client.models.get_intra_day_candle_response import GetIntraDayCandleResponse  # noqa: E501
-from swagger_client.rest import ApiException
+import upstox_client
+from upstox_client.models.get_intra_day_candle_response import GetIntraDayCandleResponse  # noqa: E501
+from upstox_client.rest import ApiException
 
 
 class TestGetIntraDayCandleResponse(unittest.TestCase):
@@ -31,7 +31,7 @@ class TestGetIntraDayCandleResponse(unittest.TestCase):
     def testGetIntraDayCandleResponse(self):
         """Test GetIntraDayCandleResponse"""
         # FIXME: construct object with mandatory attributes with example values
-        # model = swagger_client.models.get_intra_day_candle_response.GetIntraDayCandleResponse()  # noqa: E501
+        # model = upstox_client.models.get_intra_day_candle_response.GetIntraDayCandleResponse()  # noqa: E501
         pass
 
 

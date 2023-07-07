@@ -14,9 +14,9 @@ from __future__ import absolute_import
 
 import unittest
 
-import swagger_client
-from swagger_client.models.get_market_quote_last_traded_price_response import GetMarketQuoteLastTradedPriceResponse  # noqa: E501
-from swagger_client.rest import ApiException
+import upstox_client
+from upstox_client.models.get_market_quote_last_traded_price_response import GetMarketQuoteLastTradedPriceResponse  # noqa: E501
+from upstox_client.rest import ApiException
 
 
 class TestGetMarketQuoteLastTradedPriceResponse(unittest.TestCase):
@@ -31,7 +31,7 @@ class TestGetMarketQuoteLastTradedPriceResponse(unittest.TestCase):
     def testGetMarketQuoteLastTradedPriceResponse(self):
         """Test GetMarketQuoteLastTradedPriceResponse"""
         # FIXME: construct object with mandatory attributes with example values
-        # model = swagger_client.models.get_market_quote_last_traded_price_response.GetMarketQuoteLastTradedPriceResponse()  # noqa: E501
+        # model = upstox_client.models.get_market_quote_last_traded_price_response.GetMarketQuoteLastTradedPriceResponse()  # noqa: E501
         pass
 
 

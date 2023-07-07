@@ -14,9 +14,9 @@ from __future__ import absolute_import
 
 import unittest
 
-import swagger_client
-from swagger_client.models.trade_wise_meta_data import TradeWiseMetaData  # noqa: E501
-from swagger_client.rest import ApiException
+import upstox_client
+from upstox_client.models.trade_wise_meta_data import TradeWiseMetaData  # noqa: E501
+from upstox_client.rest import ApiException
 
 
 class TestTradeWiseMetaData(unittest.TestCase):
@@ -31,7 +31,7 @@ class TestTradeWiseMetaData(unittest.TestCase):
     def testTradeWiseMetaData(self):
         """Test TradeWiseMetaData"""
         # FIXME: construct object with mandatory attributes with example values
-        # model = swagger_client.models.trade_wise_meta_data.TradeWiseMetaData()  # noqa: E501
+        # model = upstox_client.models.trade_wise_meta_data.TradeWiseMetaData()  # noqa: E501
         pass
 
 

@@ -14,9 +14,9 @@ from __future__ import absolute_import
 
 import unittest
 
-import swagger_client
-from swagger_client.models.modify_order_request import ModifyOrderRequest  # noqa: E501
-from swagger_client.rest import ApiException
+import upstox_client
+from upstox_client.models.modify_order_request import ModifyOrderRequest  # noqa: E501
+from upstox_client.rest import ApiException
 
 
 class TestModifyOrderRequest(unittest.TestCase):
@@ -31,7 +31,7 @@ class TestModifyOrderRequest(unittest.TestCase):
     def testModifyOrderRequest(self):
         """Test ModifyOrderRequest"""
         # FIXME: construct object with mandatory attributes with example values
-        # model = swagger_client.models.modify_order_request.ModifyOrderRequest()  # noqa: E501
+        # model = upstox_client.models.modify_order_request.ModifyOrderRequest()  # noqa: E501
         pass
 
 

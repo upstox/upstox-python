@@ -1,4 +1,4 @@
-# swagger_client.UserApi
+# upstox_client.UserApi
 
 All URIs are relative to *https://api-v2.upstox.com*
 
@@ -18,16 +18,16 @@ This API allows to fetch the complete information of the user who is logged in i
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import upstox_client
+from upstox_client.rest import ApiException
 from pprint import pprint
 
 # Configure OAuth2 access token for authorization: OAUTH2
-configuration = swagger_client.Configuration()
+configuration = upstox_client.Configuration()
 configuration.access_token = 'YOUR_ACCESS_TOKEN'
 
 # create an instance of the API class
-api_instance = swagger_client.UserApi(swagger_client.ApiClient(configuration))
+api_instance = upstox_client.UserApi(upstox_client.ApiClient(configuration))
 api_version = 'api_version_example' # str | API Version Header
 
 try:
@@ -55,7 +55,7 @@ Name | Type | Description  | Notes
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: application/json, */*
+ - **Accept**: */*, application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -70,16 +70,16 @@ Shows the balance of the user in equity and commodity market.
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import upstox_client
+from upstox_client.rest import ApiException
 from pprint import pprint
 
 # Configure OAuth2 access token for authorization: OAUTH2
-configuration = swagger_client.Configuration()
+configuration = upstox_client.Configuration()
 configuration.access_token = 'YOUR_ACCESS_TOKEN'
 
 # create an instance of the API class
-api_instance = swagger_client.UserApi(swagger_client.ApiClient(configuration))
+api_instance = upstox_client.UserApi(upstox_client.ApiClient(configuration))
 api_version = 'api_version_example' # str | API Version Header
 segment = 'segment_example' # str |  (optional)
 
