@@ -1,4 +1,4 @@
-# swagger_client.OrderApi
+# upstox_client.OrderApi
 
 All URIs are relative to *https://api-v2.upstox.com*
 
@@ -23,16 +23,16 @@ Cancel order API can be used for two purposes: Cancelling an open order which co
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import upstox_client
+from upstox_client.rest import ApiException
 from pprint import pprint
 
 # Configure OAuth2 access token for authorization: OAUTH2
-configuration = swagger_client.Configuration()
+configuration = upstox_client.Configuration()
 configuration.access_token = 'YOUR_ACCESS_TOKEN'
 
 # create an instance of the API class
-api_instance = swagger_client.OrderApi(swagger_client.ApiClient(configuration))
+api_instance = upstox_client.OrderApi(upstox_client.ApiClient(configuration))
 order_id = 'order_id_example' # str | The order ID for which the order must be cancelled
 api_version = 'api_version_example' # str | API Version Header
 
@@ -77,16 +77,16 @@ This API provides the list of orders placed by the user. The orders placed by th
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import upstox_client
+from upstox_client.rest import ApiException
 from pprint import pprint
 
 # Configure OAuth2 access token for authorization: OAUTH2
-configuration = swagger_client.Configuration()
+configuration = upstox_client.Configuration()
 configuration.access_token = 'YOUR_ACCESS_TOKEN'
 
 # create an instance of the API class
-api_instance = swagger_client.OrderApi(swagger_client.ApiClient(configuration))
+api_instance = upstox_client.OrderApi(upstox_client.ApiClient(configuration))
 api_version = 'api_version_example' # str | API Version Header
 
 try:
@@ -114,7 +114,7 @@ Name | Type | Description  | Notes
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: application/json, */*
+ - **Accept**: */*, application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -129,16 +129,16 @@ This API provides the details of the particular order the user has placed. The o
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import upstox_client
+from upstox_client.rest import ApiException
 from pprint import pprint
 
 # Configure OAuth2 access token for authorization: OAUTH2
-configuration = swagger_client.Configuration()
+configuration = upstox_client.Configuration()
 configuration.access_token = 'YOUR_ACCESS_TOKEN'
 
 # create an instance of the API class
-api_instance = swagger_client.OrderApi(swagger_client.ApiClient(configuration))
+api_instance = upstox_client.OrderApi(upstox_client.ApiClient(configuration))
 api_version = 'api_version_example' # str | API Version Header
 order_id = 'order_id_example' # str | The order reference ID for which the order history is required (optional)
 tag = 'tag_example' # str | The unique tag of the order for which the order history is being requested (optional)
@@ -185,16 +185,16 @@ Retrieve the trades executed for the day
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import upstox_client
+from upstox_client.rest import ApiException
 from pprint import pprint
 
 # Configure OAuth2 access token for authorization: OAUTH2
-configuration = swagger_client.Configuration()
+configuration = upstox_client.Configuration()
 configuration.access_token = 'YOUR_ACCESS_TOKEN'
 
 # create an instance of the API class
-api_instance = swagger_client.OrderApi(swagger_client.ApiClient(configuration))
+api_instance = upstox_client.OrderApi(upstox_client.ApiClient(configuration))
 api_version = 'api_version_example' # str | API Version Header
 
 try:
@@ -222,7 +222,7 @@ Name | Type | Description  | Notes
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: application/json, */*
+ - **Accept**: */*, application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -237,16 +237,16 @@ Retrieve the trades executed for an order
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import upstox_client
+from upstox_client.rest import ApiException
 from pprint import pprint
 
 # Configure OAuth2 access token for authorization: OAUTH2
-configuration = swagger_client.Configuration()
+configuration = upstox_client.Configuration()
 configuration.access_token = 'YOUR_ACCESS_TOKEN'
 
 # create an instance of the API class
-api_instance = swagger_client.OrderApi(swagger_client.ApiClient(configuration))
+api_instance = upstox_client.OrderApi(upstox_client.ApiClient(configuration))
 order_id = 'order_id_example' # str | The order ID for which the order to get order trades
 api_version = 'api_version_example' # str | API Version Header
 
@@ -291,17 +291,17 @@ This API allows you to modify an order. For modification orderId is mandatory. W
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import upstox_client
+from upstox_client.rest import ApiException
 from pprint import pprint
 
 # Configure OAuth2 access token for authorization: OAUTH2
-configuration = swagger_client.Configuration()
+configuration = upstox_client.Configuration()
 configuration.access_token = 'YOUR_ACCESS_TOKEN'
 
 # create an instance of the API class
-api_instance = swagger_client.OrderApi(swagger_client.ApiClient(configuration))
-body = swagger_client.ModifyOrderRequest() # ModifyOrderRequest | 
+api_instance = upstox_client.OrderApi(upstox_client.ApiClient(configuration))
+body = upstox_client.ModifyOrderRequest() # ModifyOrderRequest | 
 api_version = 'api_version_example' # str | API Version Header
 
 try:
@@ -345,17 +345,17 @@ This API allows you to place an order to the exchange via Upstox.
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import upstox_client
+from upstox_client.rest import ApiException
 from pprint import pprint
 
 # Configure OAuth2 access token for authorization: OAUTH2
-configuration = swagger_client.Configuration()
+configuration = upstox_client.Configuration()
 configuration.access_token = 'YOUR_ACCESS_TOKEN'
 
 # create an instance of the API class
-api_instance = swagger_client.OrderApi(swagger_client.ApiClient(configuration))
-body = swagger_client.PlaceOrderRequest() # PlaceOrderRequest | 
+api_instance = upstox_client.OrderApi(upstox_client.ApiClient(configuration))
+body = upstox_client.PlaceOrderRequest() # PlaceOrderRequest | 
 api_version = 'api_version_example' # str | API Version Header
 
 try:
@@ -384,7 +384,7 @@ Name | Type | Description  | Notes
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: application/json, */*
+ - **Accept**: */*, application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

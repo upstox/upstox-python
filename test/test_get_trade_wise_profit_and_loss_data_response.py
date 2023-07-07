@@ -14,9 +14,9 @@ from __future__ import absolute_import
 
 import unittest
 
-import swagger_client
-from swagger_client.models.get_trade_wise_profit_and_loss_data_response import GetTradeWiseProfitAndLossDataResponse  # noqa: E501
-from swagger_client.rest import ApiException
+import upstox_client
+from upstox_client.models.get_trade_wise_profit_and_loss_data_response import GetTradeWiseProfitAndLossDataResponse  # noqa: E501
+from upstox_client.rest import ApiException
 
 
 class TestGetTradeWiseProfitAndLossDataResponse(unittest.TestCase):
@@ -31,7 +31,7 @@ class TestGetTradeWiseProfitAndLossDataResponse(unittest.TestCase):
     def testGetTradeWiseProfitAndLossDataResponse(self):
         """Test GetTradeWiseProfitAndLossDataResponse"""
         # FIXME: construct object with mandatory attributes with example values
-        # model = swagger_client.models.get_trade_wise_profit_and_loss_data_response.GetTradeWiseProfitAndLossDataResponse()  # noqa: E501
+        # model = upstox_client.models.get_trade_wise_profit_and_loss_data_response.GetTradeWiseProfitAndLossDataResponse()  # noqa: E501
         pass
 
 

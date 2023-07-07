@@ -26,13 +26,13 @@ Python 2.7 and 3.4+
 If the python package is hosted on Github, you can install directly from Github
 
 ```sh
-pip install git+https://github.com/GIT_USER_ID/GIT_REPO_ID.git
+pip install upstox-python
 ```
-(you may need to run `pip` with root permission: `sudo pip install git+https://github.com/GIT_USER_ID/GIT_REPO_ID.git`)
+(you may need to run `pip` with root permission: `sudo pip install upstox-python`)
 
 Then import the package:
 ```python
-import swagger_client 
+import upstox_client 
 ```
 
 ### Setuptools
@@ -46,13 +46,7 @@ python setup.py install --user
 
 Then import the package:
 ```python
-import swagger_client
-```
-
-### Test utility
-Test utility file can be found at
-``` 
-./test/sanity_test.py
+import upstox_client
 ```
 
 ## Getting Started
@@ -62,16 +56,16 @@ Please follow the [installation procedure](#installation--usage) and then run th
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import upstox_client
+from upstox_client.rest import ApiException
 from pprint import pprint
 
 # Configure OAuth2 access token for authorization: OAUTH2
-configuration = swagger_client.Configuration()
+configuration = upstox_client.Configuration()
 configuration.access_token = 'YOUR_ACCESS_TOKEN'
 
 # create an instance of the API class
-api_instance = swagger_client.ChargeApi(swagger_client.ApiClient(configuration))
+api_instance = upstox_client.ChargeApi(upstox_client.ApiClient(configuration))
 instrument_token = 'instrument_token_example' # str | Key of the instrument
 quantity = 56 # int | Quantity with which the order is to be placed
 product = 'product_example' # str | Product with which the order is to be placed

@@ -1,4 +1,4 @@
-# swagger_client.HistoryApi
+# upstox_client.HistoryApi
 
 All URIs are relative to *https://api-v2.upstox.com*
 
@@ -19,12 +19,12 @@ Get OHLC values for all instruments across various timeframes. Historical data c
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import upstox_client
+from upstox_client.rest import ApiException
 from pprint import pprint
 
 # create an instance of the API class
-api_instance = swagger_client.HistoryApi()
+api_instance = upstox_client.HistoryApi()
 instrument_key = 'instrument_key_example' # str | 
 interval = 'interval_example' # str | 
 to_date = 'to_date_example' # str | 
@@ -73,12 +73,12 @@ Get OHLC values for all instruments across various timeframes. Historical data c
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import upstox_client
+from upstox_client.rest import ApiException
 from pprint import pprint
 
 # create an instance of the API class
-api_instance = swagger_client.HistoryApi()
+api_instance = upstox_client.HistoryApi()
 instrument_key = 'instrument_key_example' # str | 
 interval = 'interval_example' # str | 
 to_date = 'to_date_example' # str | 
@@ -129,12 +129,12 @@ Get OHLC values for all instruments for the present trading day
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import upstox_client
+from upstox_client.rest import ApiException
 from pprint import pprint
 
 # create an instance of the API class
-api_instance = swagger_client.HistoryApi()
+api_instance = upstox_client.HistoryApi()
 instrument_key = 'instrument_key_example' # str | 
 interval = 'interval_example' # str | 
 api_version = 'api_version_example' # str | API Version Header

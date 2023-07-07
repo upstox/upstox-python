@@ -14,9 +14,9 @@ from __future__ import absolute_import
 
 import unittest
 
-import swagger_client
-from swagger_client.models.profit_and_loss_other_charges_taxes import ProfitAndLossOtherChargesTaxes  # noqa: E501
-from swagger_client.rest import ApiException
+import upstox_client
+from upstox_client.models.profit_and_loss_other_charges_taxes import ProfitAndLossOtherChargesTaxes  # noqa: E501
+from upstox_client.rest import ApiException
 
 
 class TestProfitAndLossOtherChargesTaxes(unittest.TestCase):
@@ -31,7 +31,7 @@ class TestProfitAndLossOtherChargesTaxes(unittest.TestCase):
     def testProfitAndLossOtherChargesTaxes(self):
         """Test ProfitAndLossOtherChargesTaxes"""
         # FIXME: construct object with mandatory attributes with example values
-        # model = swagger_client.models.profit_and_loss_other_charges_taxes.ProfitAndLossOtherChargesTaxes()  # noqa: E501
+        # model = upstox_client.models.profit_and_loss_other_charges_taxes.ProfitAndLossOtherChargesTaxes()  # noqa: E501
         pass
 
 

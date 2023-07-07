@@ -1,192 +1,192 @@
 from __future__ import print_function
-import swagger_client
-from swagger_client.rest import ApiException
+import upstox_client
+from upstox_client.rest import ApiException
 from pprint import pprint
 
 
 def login_and_authorize(api_version, configuration, client_id, client_secret, redirect_uri, auth_code):
     # Login API
-    api_instance = swagger_client.LoginApi(
-        swagger_client.ApiClient(configuration))
+    api_instance = upstox_client.LoginApi(
+        upstox_client.ApiClient(configuration))
     api_response = api_instance.token(api_version, code=auth_code, client_id=client_id,
                                       client_secret=client_secret, redirect_uri=redirect_uri, grant_type="authorization_code")
     return api_response.access_token
 
 
 def get_profile(api_version, configuration):
-    api_instance = swagger_client.UserApi(
-        swagger_client.ApiClient(configuration))
+    api_instance = upstox_client.UserApi(
+        upstox_client.ApiClient(configuration))
     api_response = api_instance.get_profile(api_version)
     return api_response
 
 
 def get_funds_and_margin(api_version, configuration):
-    api_instance = swagger_client.UserApi(
-        swagger_client.ApiClient(configuration))
+    api_instance = upstox_client.UserApi(
+        upstox_client.ApiClient(configuration))
     api_response = api_instance.get_user_fund_margin(api_version)
     return api_response
 
 
 def get_positions(api_version, configuration):
-    api_instance = swagger_client.PortfolioApi(
-        swagger_client.ApiClient(configuration))
+    api_instance = upstox_client.PortfolioApi(
+        upstox_client.ApiClient(configuration))
     api_response = api_instance.get_positions(api_version)
     return api_response
 
 
 def get_holdings(api_version, configuration):
-    api_instance = swagger_client.PortfolioApi(
-        swagger_client.ApiClient(configuration))
+    api_instance = upstox_client.PortfolioApi(
+        upstox_client.ApiClient(configuration))
     api_response = api_instance.get_holdings(api_version)
     return api_response
 
 
 def place_order(api_version, configuration, order_details):
-    api_instance = swagger_client.OrderApi(
-        swagger_client.ApiClient(configuration))
+    api_instance = upstox_client.OrderApi(
+        upstox_client.ApiClient(configuration))
     api_response = api_instance.place_order(order_details, api_version)
     return api_response
 
 
 def modify_order(api_version, configuration, order_details):
-    api_instance = swagger_client.OrderApi(
-        swagger_client.ApiClient(configuration))
+    api_instance = upstox_client.OrderApi(
+        upstox_client.ApiClient(configuration))
     api_response = api_instance.modify_order(order_details, api_version)
     return api_response
 
 
 def cancel_order(api_version, configuration, order_id):
-    api_instance = swagger_client.OrderApi(
-        swagger_client.ApiClient(configuration))
+    api_instance = upstox_client.OrderApi(
+        upstox_client.ApiClient(configuration))
     api_response = api_instance.cancel_order(order_id, api_version)
     return api_response
 
 
 def get_trades_by_order(api_version, configuration, order_id):
-    api_instance = swagger_client.OrderApi(
-        swagger_client.ApiClient(configuration))
+    api_instance = upstox_client.OrderApi(
+        upstox_client.ApiClient(configuration))
     api_response = api_instance.get_trades_by_order(order_id, api_version)
     return api_response
 
 
 def get_trade_history(api_version, configuration):
-    api_instance = swagger_client.OrderApi(
-        swagger_client.ApiClient(configuration))
+    api_instance = upstox_client.OrderApi(
+        upstox_client.ApiClient(configuration))
     api_response = api_instance.get_trade_history(api_version)
     return api_response
 
 
 def get_order_book(api_version, configuration):
-    api_instance = swagger_client.OrderApi(
-        swagger_client.ApiClient(configuration))
+    api_instance = upstox_client.OrderApi(
+        upstox_client.ApiClient(configuration))
     api_response = api_instance.get_order_book(api_version)
     return api_response
 
 
 def get_order_details(api_version, configuration, order_id):
-    api_instance = swagger_client.OrderApi(
-        swagger_client.ApiClient(configuration))
+    api_instance = upstox_client.OrderApi(
+        upstox_client.ApiClient(configuration))
     api_response = api_instance.get_order_details(
         api_version, order_id=order_id)
     return api_response
 
 
 def convert_positions(api_version, configuration, body):
-    api_instance = swagger_client.PortfolioApi(
-        swagger_client.ApiClient(configuration))
+    api_instance = upstox_client.PortfolioApi(
+        upstox_client.ApiClient(configuration))
     api_response = api_instance.convert_positions(body, api_version)
     return api_response
 
 
 def get_full_market_quote(api_version, configuration, instrument_key):
-    api_instance = swagger_client.MarketQuoteApi(
-        swagger_client.ApiClient(configuration))
+    api_instance = upstox_client.MarketQuoteApi(
+        upstox_client.ApiClient(configuration))
     api_response = api_instance.get_full_market_quote(
         instrument_key, api_version)
     return api_response
 
 
 def get_market_quote_ohlc(api_version, configuration, instrument_key, interval):
-    api_instance = swagger_client.MarketQuoteApi(
-        swagger_client.ApiClient(configuration))
+    api_instance = upstox_client.MarketQuoteApi(
+        upstox_client.ApiClient(configuration))
     api_response = api_instance.get_market_quote_ohlc(
         instrument_key, interval, api_version)
     return api_response
 
 
 def ltp(api_version, configuration, instrument_key):
-    api_instance = swagger_client.MarketQuoteApi(
-        swagger_client.ApiClient(configuration))
+    api_instance = upstox_client.MarketQuoteApi(
+        upstox_client.ApiClient(configuration))
     api_response = api_instance.ltp(instrument_key, api_version)
     return api_response
 
 
 def get_trade_wise_profit_and_loss_meta_data(api_version, configuration, segment, year):
-    api_instance = swagger_client.TradeProfitAndLossApi(
-        swagger_client.ApiClient(configuration))
+    api_instance = upstox_client.TradeProfitAndLossApi(
+        upstox_client.ApiClient(configuration))
     api_response = api_instance.get_trade_wise_profit_and_loss_meta_data(
         segment, year, api_version)
     return api_response
 
 
 def get_trade_wise_profit_and_loss_data(api_version, configuration, segment, year):
-    api_instance = swagger_client.TradeProfitAndLossApi(
-        swagger_client.ApiClient(configuration))
+    api_instance = upstox_client.TradeProfitAndLossApi(
+        upstox_client.ApiClient(configuration))
     api_response = api_instance.get_trade_wise_profit_and_loss_data(
         segment, year, 1, 3000, api_version)
     return api_response
 
 
 def get_profit_and_loss_charges(api_version, configuration, segment, year):
-    api_instance = swagger_client.TradeProfitAndLossApi(
-        swagger_client.ApiClient(configuration))
+    api_instance = upstox_client.TradeProfitAndLossApi(
+        upstox_client.ApiClient(configuration))
     api_response = api_instance.get_profit_and_loss_charges(
         segment, year, api_version)
     return api_response
 
 
 def get_historical_candle_data(api_version, configuration, instrument_key, interval, to_date, from_date=None):
-    api_instance = swagger_client.HistoryApi(
-        swagger_client.ApiClient(configuration))
+    api_instance = upstox_client.HistoryApi(
+        upstox_client.ApiClient(configuration))
     api_response = api_instance.get_historical_candle_data(
         instrument_key, interval, to_date, api_version)
     return api_response
 
 
 def get_intra_day_candle_data(api_version, configuration, instrument_key, interval):
-    api_instance = swagger_client.HistoryApi(
-        swagger_client.ApiClient(configuration))
+    api_instance = upstox_client.HistoryApi(
+        upstox_client.ApiClient(configuration))
     api_response = api_instance.get_intra_day_candle_data(
         instrument_key, interval, api_version)
     return api_response
 
 
 def get_brokerage(api_version, configuration, instrument_token, quantity, product, transaction_type, price):
-    api_instance = swagger_client.ChargeApi(
-        swagger_client.ApiClient(configuration))
+    api_instance = upstox_client.ChargeApi(
+        upstox_client.ApiClient(configuration))
     api_response = api_instance.get_brokerage(
         instrument_token, quantity, product, transaction_type, price, api_version)
     return api_response
 
 
 def get_portfolio_stream_feed_authorize(api_version, configuration):
-    api_instance = swagger_client.WebsocketApi(
-        swagger_client.ApiClient(configuration))
+    api_instance = upstox_client.WebsocketApi(
+        upstox_client.ApiClient(configuration))
     api_response = api_instance.get_portfolio_stream_feed_authorize(
         api_version)
     return api_response
 
 
 def get_market_data_feed_authorize(api_version, configuration):
-    api_instance = swagger_client.WebsocketApi(
-        swagger_client.ApiClient(configuration))
+    api_instance = upstox_client.WebsocketApi(
+        upstox_client.ApiClient(configuration))
     api_response = api_instance.get_market_data_feed_authorize(api_version)
     return api_response
 
 
 def main():
     # Configure OAuth2 access token for authorization: OAUTH2
-    configuration = swagger_client.Configuration()
+    configuration = upstox_client.Configuration()
 
     api_version = '2.0'
     client_id = "<API_KEY>"

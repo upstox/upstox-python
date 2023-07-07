@@ -17,7 +17,7 @@ import re  # noqa: F401
 # python 2 and python 3 compatibility library
 import six
 
-from swagger_client.api_client import ApiClient
+from upstox_client.api_client import ApiClient
 
 
 class OrderApi(object):
@@ -209,7 +209,7 @@ class OrderApi(object):
         body_params = None
         # HTTP header `Accept`
         header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json', '*/*'])  # noqa: E501
+            ['*/*', 'application/json'])  # noqa: E501
 
         # Authentication setting
         auth_settings = ['OAUTH2']  # noqa: E501
@@ -407,7 +407,7 @@ class OrderApi(object):
         body_params = None
         # HTTP header `Accept`
         header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json', '*/*'])  # noqa: E501
+            ['*/*', 'application/json'])  # noqa: E501
 
         # Authentication setting
         auth_settings = ['OAUTH2']  # noqa: E501
@@ -720,7 +720,7 @@ class OrderApi(object):
             body_params = params['body']
         # HTTP header `Accept`
         header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json', '*/*'])  # noqa: E501
+            ['*/*', 'application/json'])  # noqa: E501
 
         # HTTP header `Content-Type`
         header_params['Content-Type'] = self.api_client.select_header_content_type(  # noqa: E501
