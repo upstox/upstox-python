@@ -1,5 +1,7 @@
 # Upstox Python SDK for API v2
 
+![PyPI](https://img.shields.io/pypi/v/upstox-python-sdk?label=upstox-python-sdk)
+
 ## Introduction
 
 The official Python client for communicating with the <a href="https://upstox.com/uplink/">Upstox API</a>.
