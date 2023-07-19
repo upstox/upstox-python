@@ -51,6 +51,13 @@ Then import the package:
 import upstox_client
 ```
 
+## Examples
+
+[Sample Implementations](examples/) can be found within `/examples`.
+
+- [Websocket Market data](examples/websocket/market_data/)
+- [Websocket Order updates](examples/websocket/order_updates/)
+
 ## Getting Started
 
 Please follow the [installation procedure](#installation--usage) and then run the following:
@@ -83,9 +90,6 @@ except ApiException as e:
     print("Exception when calling ChargeApi->get_brokerage: %s\n" % e)
 ```
 
-## Examples
-
-[Sample Implementations](examples/README.md) can be found within `/examples`.
 ## Documentation for API Endpoints
 
 All URIs are relative to *https://api-v2.upstox.com*
