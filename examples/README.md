@@ -1,6 +1,4 @@
-# PythonSample Implementation
-
-Here are sample implementations of Upstox API features.
+# Python Sample Implementation
 
 ## Websocket
 
