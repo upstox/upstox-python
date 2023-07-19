@@ -51,6 +51,13 @@ Then import the package:
 import upstox_client
 ```
 
+## Examples
+
+[Sample Implementations](examples/) can be found within `/examples` folder.
+
+- [Websocket Market data](examples/websocket/market_data/)
+- [Websocket Order updates](examples/websocket/order_updates/)
+
 ## Getting Started
 
 Please follow the [installation procedure](#installation--usage) and then run the following:
