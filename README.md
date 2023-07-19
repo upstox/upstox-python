@@ -53,7 +53,7 @@ import upstox_client
 
 ## Examples
 
-[Sample Implementations](examples/) can be found within `/examples`.
+[Sample Implementations](examples/) can be found within `/examples` folder.
 
 - [Websocket Market data](examples/websocket/market_data/)
 - [Websocket Order updates](examples/websocket/order_updates/)
