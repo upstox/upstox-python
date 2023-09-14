@@ -135,7 +135,7 @@ class TokenResponse(object):
         :param exchanges: The exchanges of this TokenResponse.  # noqa: E501
         :type: list[str]
         """
-        allowed_values = ["NSE", "NFO", "CDS", "BSE", "BCD", "MCX"]  # noqa: E501
+        allowed_values = ["NSE", "NFO", "CDS", "BSE", "BFO", "BCD", "MCX"]  # noqa: E501
         if not set(exchanges).issubset(set(allowed_values)):
             raise ValueError(
                 "Invalid values for `exchanges` [{0}], must be a subset of [{1}]"  # noqa: E501
