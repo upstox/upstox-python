@@ -38,6 +38,7 @@ class OrderBookData(object):
         'instrument_token': 'str',
         'placed_by': 'str',
         'tradingsymbol': 'str',
+        'trading_symbol': 'str',
         'order_type': 'str',
         'validity': 'str',
         'trigger_price': 'float',
@@ -70,6 +71,7 @@ class OrderBookData(object):
         'instrument_token': 'instrument_token',
         'placed_by': 'placed_by',
         'tradingsymbol': 'tradingsymbol',
+        'trading_symbol': 'trading_symbol',
         'order_type': 'order_type',
         'validity': 'validity',
         'trigger_price': 'trigger_price',
@@ -91,7 +93,7 @@ class OrderBookData(object):
         'order_ref_id': 'order_ref_id'
     }
 
-    def __init__(self, exchange=None, product=None, price=None, quantity=None, status=None, guid=None, tag=None, instrument_token=None, placed_by=None, tradingsymbol=None, order_type=None, validity=None, trigger_price=None, disclosed_quantity=None, transaction_type=None, average_price=None, filled_quantity=None, pending_quantity=None, status_message=None, status_message_raw=None, exchange_order_id=None, parent_order_id=None, order_id=None, variety=None, order_timestamp=None, exchange_timestamp=None, is_amo=None, order_request_id=None, order_ref_id=None):  # noqa: E501
+    def __init__(self, exchange=None, product=None, price=None, quantity=None, status=None, guid=None, tag=None, instrument_token=None, placed_by=None, tradingsymbol=None, trading_symbol=None, order_type=None, validity=None, trigger_price=None, disclosed_quantity=None, transaction_type=None, average_price=None, filled_quantity=None, pending_quantity=None, status_message=None, status_message_raw=None, exchange_order_id=None, parent_order_id=None, order_id=None, variety=None, order_timestamp=None, exchange_timestamp=None, is_amo=None, order_request_id=None, order_ref_id=None):  # noqa: E501
         """OrderBookData - a model defined in Swagger"""  # noqa: E501
         self._exchange = None
         self._product = None
@@ -103,6 +105,7 @@ class OrderBookData(object):
         self._instrument_token = None
         self._placed_by = None
         self._tradingsymbol = None
+        self._trading_symbol = None
         self._order_type = None
         self._validity = None
         self._trigger_price = None
@@ -143,6 +146,8 @@ class OrderBookData(object):
             self.placed_by = placed_by
         if tradingsymbol is not None:
             self.tradingsymbol = tradingsymbol
+        if trading_symbol is not None:
+            self.trading_symbol = trading_symbol
         if order_type is not None:
             self.order_type = order_type
         if validity is not None:
@@ -421,6 +426,29 @@ class OrderBookData(object):
         """
 
         self._tradingsymbol = tradingsymbol
+
+    @property
+    def trading_symbol(self):
+        """Gets the trading_symbol of this OrderBookData.  # noqa: E501
+
+        Shows the trading symbol of the instrument  # noqa: E501
+
+        :return: The trading_symbol of this OrderBookData.  # noqa: E501
+        :rtype: str
+        """
+        return self._trading_symbol
+
+    @trading_symbol.setter
+    def trading_symbol(self, trading_symbol):
+        """Sets the trading_symbol of this OrderBookData.
+
+        Shows the trading symbol of the instrument  # noqa: E501
+
+        :param trading_symbol: The trading_symbol of this OrderBookData.  # noqa: E501
+        :type: str
+        """
+
+        self._trading_symbol = trading_symbol
 
     @property
     def order_type(self):

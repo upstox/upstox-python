@@ -31,6 +31,7 @@ class TradeData(object):
         'exchange': 'str',
         'product': 'str',
         'tradingsymbol': 'str',
+        'trading_symbol': 'str',
         'instrument_token': 'str',
         'order_type': 'str',
         'transaction_type': 'str',
@@ -48,6 +49,7 @@ class TradeData(object):
         'exchange': 'exchange',
         'product': 'product',
         'tradingsymbol': 'tradingsymbol',
+        'trading_symbol': 'trading_symbol',
         'instrument_token': 'instrument_token',
         'order_type': 'order_type',
         'transaction_type': 'transaction_type',
@@ -61,11 +63,12 @@ class TradeData(object):
         'order_timestamp': 'order_timestamp'
     }
 
-    def __init__(self, exchange=None, product=None, tradingsymbol=None, instrument_token=None, order_type=None, transaction_type=None, quantity=None, exchange_order_id=None, order_id=None, exchange_timestamp=None, average_price=None, trade_id=None, order_ref_id=None, order_timestamp=None):  # noqa: E501
+    def __init__(self, exchange=None, product=None, tradingsymbol=None, trading_symbol=None, instrument_token=None, order_type=None, transaction_type=None, quantity=None, exchange_order_id=None, order_id=None, exchange_timestamp=None, average_price=None, trade_id=None, order_ref_id=None, order_timestamp=None):  # noqa: E501
         """TradeData - a model defined in Swagger"""  # noqa: E501
         self._exchange = None
         self._product = None
         self._tradingsymbol = None
+        self._trading_symbol = None
         self._instrument_token = None
         self._order_type = None
         self._transaction_type = None
@@ -84,6 +87,8 @@ class TradeData(object):
             self.product = product
         if tradingsymbol is not None:
             self.tradingsymbol = tradingsymbol
+        if trading_symbol is not None:
+            self.trading_symbol = trading_symbol
         if instrument_token is not None:
             self.instrument_token = instrument_token
         if order_type is not None:
@@ -187,6 +192,29 @@ class TradeData(object):
         """
 
         self._tradingsymbol = tradingsymbol
+
+    @property
+    def trading_symbol(self):
+        """Gets the trading_symbol of this TradeData.  # noqa: E501
+
+        Shows the trading symbol which could be a combination of symbol name, instrument, expiry date etc  # noqa: E501
+
+        :return: The trading_symbol of this TradeData.  # noqa: E501
+        :rtype: str
+        """
+        return self._trading_symbol
+
+    @trading_symbol.setter
+    def trading_symbol(self, trading_symbol):
+        """Sets the trading_symbol of this TradeData.
+
+        Shows the trading symbol which could be a combination of symbol name, instrument, expiry date etc  # noqa: E501
+
+        :param trading_symbol: The trading_symbol of this TradeData.  # noqa: E501
+        :type: str
+        """
+
+        self._trading_symbol = trading_symbol
 
     @property
     def instrument_token(self):

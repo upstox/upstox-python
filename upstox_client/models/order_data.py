@@ -47,6 +47,7 @@ class OrderData(object):
         'order_type': 'str',
         'parent_order_id': 'str',
         'tradingsymbol': 'str',
+        'trading_symbol': 'str',
         'order_timestamp': 'str',
         'filled_quantity': 'int',
         'transaction_type': 'str',
@@ -75,6 +76,7 @@ class OrderData(object):
         'order_type': 'order_type',
         'parent_order_id': 'parent_order_id',
         'tradingsymbol': 'tradingsymbol',
+        'trading_symbol': 'trading_symbol',
         'order_timestamp': 'order_timestamp',
         'filled_quantity': 'filled_quantity',
         'transaction_type': 'transaction_type',
@@ -83,7 +85,7 @@ class OrderData(object):
         'variety': 'variety'
     }
 
-    def __init__(self, exchange=None, price=None, product=None, quantity=None, status=None, tag=None, validity=None, average_price=None, disclosed_quantity=None, exchange_order_id=None, exchange_timestamp=None, instrument_token=None, is_amo=None, status_message=None, order_id=None, order_request_id=None, order_type=None, parent_order_id=None, tradingsymbol=None, order_timestamp=None, filled_quantity=None, transaction_type=None, trigger_price=None, placed_by=None, variety=None):  # noqa: E501
+    def __init__(self, exchange=None, price=None, product=None, quantity=None, status=None, tag=None, validity=None, average_price=None, disclosed_quantity=None, exchange_order_id=None, exchange_timestamp=None, instrument_token=None, is_amo=None, status_message=None, order_id=None, order_request_id=None, order_type=None, parent_order_id=None, tradingsymbol=None, trading_symbol=None, order_timestamp=None, filled_quantity=None, transaction_type=None, trigger_price=None, placed_by=None, variety=None):  # noqa: E501
         """OrderData - a model defined in Swagger"""  # noqa: E501
         self._exchange = None
         self._price = None
@@ -104,6 +106,7 @@ class OrderData(object):
         self._order_type = None
         self._parent_order_id = None
         self._tradingsymbol = None
+        self._trading_symbol = None
         self._order_timestamp = None
         self._filled_quantity = None
         self._transaction_type = None
@@ -149,6 +152,8 @@ class OrderData(object):
             self.parent_order_id = parent_order_id
         if tradingsymbol is not None:
             self.tradingsymbol = tradingsymbol
+        if trading_symbol is not None:
+            self.trading_symbol = trading_symbol
         if order_timestamp is not None:
             self.order_timestamp = order_timestamp
         if filled_quantity is not None:
@@ -622,6 +627,29 @@ class OrderData(object):
         """
 
         self._tradingsymbol = tradingsymbol
+
+    @property
+    def trading_symbol(self):
+        """Gets the trading_symbol of this OrderData.  # noqa: E501
+
+        Shows the trading symbol of the instrument  # noqa: E501
+
+        :return: The trading_symbol of this OrderData.  # noqa: E501
+        :rtype: str
+        """
+        return self._trading_symbol
+
+    @trading_symbol.setter
+    def trading_symbol(self, trading_symbol):
+        """Sets the trading_symbol of this OrderData.
+
+        Shows the trading symbol of the instrument  # noqa: E501
+
+        :param trading_symbol: The trading_symbol of this OrderData.  # noqa: E501
+        :type: str
+        """
+
+        self._trading_symbol = trading_symbol
 
     @property
     def order_timestamp(self):

@@ -36,6 +36,7 @@ class HoldingsData(object):
         'product': 'str',
         'quantity': 'int',
         'tradingsymbol': 'str',
+        'trading_symbol': 'str',
         'last_price': 'float',
         'close_price': 'float',
         'pnl': 'float',
@@ -58,6 +59,7 @@ class HoldingsData(object):
         'product': 'product',
         'quantity': 'quantity',
         'tradingsymbol': 'tradingsymbol',
+        'trading_symbol': 'trading_symbol',
         'last_price': 'last_price',
         'close_price': 'close_price',
         'pnl': 'pnl',
@@ -71,7 +73,7 @@ class HoldingsData(object):
         'exchange': 'exchange'
     }
 
-    def __init__(self, isin=None, cnc_used_quantity=None, collateral_type=None, company_name=None, haircut=None, product=None, quantity=None, tradingsymbol=None, last_price=None, close_price=None, pnl=None, day_change=None, day_change_percentage=None, instrument_token=None, average_price=None, collateral_quantity=None, collateral_update_quantity=None, t1_quantity=None, exchange=None):  # noqa: E501
+    def __init__(self, isin=None, cnc_used_quantity=None, collateral_type=None, company_name=None, haircut=None, product=None, quantity=None, tradingsymbol=None, trading_symbol=None, last_price=None, close_price=None, pnl=None, day_change=None, day_change_percentage=None, instrument_token=None, average_price=None, collateral_quantity=None, collateral_update_quantity=None, t1_quantity=None, exchange=None):  # noqa: E501
         """HoldingsData - a model defined in Swagger"""  # noqa: E501
         self._isin = None
         self._cnc_used_quantity = None
@@ -81,6 +83,7 @@ class HoldingsData(object):
         self._product = None
         self._quantity = None
         self._tradingsymbol = None
+        self._trading_symbol = None
         self._last_price = None
         self._close_price = None
         self._pnl = None
@@ -109,6 +112,8 @@ class HoldingsData(object):
             self.quantity = quantity
         if tradingsymbol is not None:
             self.tradingsymbol = tradingsymbol
+        if trading_symbol is not None:
+            self.trading_symbol = trading_symbol
         if last_price is not None:
             self.last_price = last_price
         if close_price is not None:
@@ -315,6 +320,29 @@ class HoldingsData(object):
         """
 
         self._tradingsymbol = tradingsymbol
+
+    @property
+    def trading_symbol(self):
+        """Gets the trading_symbol of this HoldingsData.  # noqa: E501
+
+        Shows the trading symbol of the instrument  # noqa: E501
+
+        :return: The trading_symbol of this HoldingsData.  # noqa: E501
+        :rtype: str
+        """
+        return self._trading_symbol
+
+    @trading_symbol.setter
+    def trading_symbol(self, trading_symbol):
+        """Sets the trading_symbol of this HoldingsData.
+
+        Shows the trading symbol of the instrument  # noqa: E501
+
+        :param trading_symbol: The trading_symbol of this HoldingsData.  # noqa: E501
+        :type: str
+        """
+
+        self._trading_symbol = trading_symbol
 
     @property
     def last_price(self):
