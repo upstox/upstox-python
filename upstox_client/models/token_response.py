@@ -38,7 +38,8 @@ class TokenResponse(object):
         'user_type': 'str',
         'poa': 'bool',
         'is_active': 'bool',
-        'access_token': 'str'
+        'access_token': 'str',
+        'extended_token': 'str'
     }
 
     attribute_map = {
@@ -52,10 +53,11 @@ class TokenResponse(object):
         'user_type': 'user_type',
         'poa': 'poa',
         'is_active': 'is_active',
-        'access_token': 'access_token'
+        'access_token': 'access_token',
+        'extended_token': 'extended_token'
     }
 
-    def __init__(self, email=None, exchanges=None, products=None, broker=None, user_id=None, user_name=None, order_types=None, user_type=None, poa=None, is_active=None, access_token=None):  # noqa: E501
+    def __init__(self, email=None, exchanges=None, products=None, broker=None, user_id=None, user_name=None, order_types=None, user_type=None, poa=None, is_active=None, access_token=None, extended_token=None):  # noqa: E501
         """TokenResponse - a model defined in Swagger"""  # noqa: E501
         self._email = None
         self._exchanges = None
@@ -68,6 +70,7 @@ class TokenResponse(object):
         self._poa = None
         self._is_active = None
         self._access_token = None
+        self._extended_token = None
         self.discriminator = None
         if email is not None:
             self.email = email
@@ -91,6 +94,8 @@ class TokenResponse(object):
             self.is_active = is_active
         if access_token is not None:
             self.access_token = access_token
+        if extended_token is not None:
+            self.extended_token = extended_token
 
     @property
     def email(self):
@@ -365,6 +370,29 @@ class TokenResponse(object):
         """
 
         self._access_token = access_token
+
+    @property
+    def extended_token(self):
+        """Gets the extended_token of this TokenResponse.  # noqa: E501
+
+        The authentication token that is to used with every subsequent API requests  # noqa: E501
+
+        :return: The extended_token of this TokenResponse.  # noqa: E501
+        :rtype: str
+        """
+        return self._extended_token
+
+    @extended_token.setter
+    def extended_token(self, extended_token):
+        """Sets the extended_token of this TokenResponse.
+
+        The authentication token that is to used with every subsequent API requests  # noqa: E501
+
+        :param extended_token: The extended_token of this TokenResponse.  # noqa: E501
+        :type: str
+        """
+
+        self._extended_token = extended_token
 
     def to_dict(self):
         """Returns the model properties as a dict"""

@@ -53,6 +53,7 @@ class PositionData(object):
         'realised': 'float',
         'sell_value': 'float',
         'tradingsymbol': 'str',
+        'trading_symbol': 'str',
         'close_price': 'float',
         'buy_price': 'float',
         'sell_price': 'float'
@@ -84,12 +85,13 @@ class PositionData(object):
         'realised': 'realised',
         'sell_value': 'sell_value',
         'tradingsymbol': 'tradingsymbol',
+        'trading_symbol': 'trading_symbol',
         'close_price': 'close_price',
         'buy_price': 'buy_price',
         'sell_price': 'sell_price'
     }
 
-    def __init__(self, exchange=None, multiplier=None, value=None, pnl=None, product=None, instrument_token=None, average_price=None, buy_value=None, overnight_quantity=None, day_buy_value=None, day_buy_price=None, overnight_buy_amount=None, overnight_buy_quantity=None, day_buy_quantity=None, day_sell_value=None, day_sell_price=None, overnight_sell_amount=None, overnight_sell_quantity=None, day_sell_quantity=None, quantity=None, last_price=None, unrealised=None, realised=None, sell_value=None, tradingsymbol=None, close_price=None, buy_price=None, sell_price=None):  # noqa: E501
+    def __init__(self, exchange=None, multiplier=None, value=None, pnl=None, product=None, instrument_token=None, average_price=None, buy_value=None, overnight_quantity=None, day_buy_value=None, day_buy_price=None, overnight_buy_amount=None, overnight_buy_quantity=None, day_buy_quantity=None, day_sell_value=None, day_sell_price=None, overnight_sell_amount=None, overnight_sell_quantity=None, day_sell_quantity=None, quantity=None, last_price=None, unrealised=None, realised=None, sell_value=None, tradingsymbol=None, trading_symbol=None, close_price=None, buy_price=None, sell_price=None):  # noqa: E501
         """PositionData - a model defined in Swagger"""  # noqa: E501
         self._exchange = None
         self._multiplier = None
@@ -116,6 +118,7 @@ class PositionData(object):
         self._realised = None
         self._sell_value = None
         self._tradingsymbol = None
+        self._trading_symbol = None
         self._close_price = None
         self._buy_price = None
         self._sell_price = None
@@ -170,6 +173,8 @@ class PositionData(object):
             self.sell_value = sell_value
         if tradingsymbol is not None:
             self.tradingsymbol = tradingsymbol
+        if trading_symbol is not None:
+            self.trading_symbol = trading_symbol
         if close_price is not None:
             self.close_price = close_price
         if buy_price is not None:
@@ -757,6 +762,29 @@ class PositionData(object):
         """
 
         self._tradingsymbol = tradingsymbol
+
+    @property
+    def trading_symbol(self):
+        """Gets the trading_symbol of this PositionData.  # noqa: E501
+
+        Shows the trading symbol of the instrument  # noqa: E501
+
+        :return: The trading_symbol of this PositionData.  # noqa: E501
+        :rtype: str
+        """
+        return self._trading_symbol
+
+    @trading_symbol.setter
+    def trading_symbol(self, trading_symbol):
+        """Sets the trading_symbol of this PositionData.
+
+        Shows the trading symbol of the instrument  # noqa: E501
+
+        :param trading_symbol: The trading_symbol of this PositionData.  # noqa: E501
+        :type: str
+        """
+
+        self._trading_symbol = trading_symbol
 
     @property
     def close_price(self):
