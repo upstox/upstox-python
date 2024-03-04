@@ -1,6 +1,7 @@
 import websocket
-from .feeder import Feeder
+import threading
 import ssl
+from .feeder import Feeder
 
 
 class PortfolioDataFeeder(Feeder):
@@ -16,15 +17,15 @@ class PortfolioDataFeeder(Feeder):
         self.closingCode = -1
 
     def connect(self):
-        ssl_context = ssl.create_default_context()
-        ssl_context.check_hostname = False
-        ssl_context.verify_mode = ssl.CERT_NONE
-        sslopt = {
-            "cert_reqs": ssl_context.verify_mode,
-            "check_hostname": ssl_context.check_hostname,
-        }
         if self.ws and self.ws.sock:
             return
+
+        ssl_context = ssl.create_default_context()
+        ssl_context.load_default_certs()  # Load default CA certificates
+        sslopt = {
+            "cert_reqs": ssl.CERT_REQUIRED,  # Require a valid certificate
+            "check_hostname": True,  # Verify the server's hostname
+        }
 
         ws_url = "wss://api.upstox.com/v2/feed/portfolio-stream-feed"
         headers = {'Authorization': self.api_client.configuration.auth_settings().get("OAUTH2")[
@@ -35,4 +36,6 @@ class PortfolioDataFeeder(Feeder):
                                          on_message=self.on_message,
                                          on_error=self.on_error,
                                          on_close=self.on_close)
-        self.ws.run_forever(sslopt=sslopt)
+
+        threading.Thread(target=self.ws.run_forever,
+                         kwargs={"sslopt": sslopt}).start()

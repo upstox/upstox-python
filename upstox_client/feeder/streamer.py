@@ -58,7 +58,7 @@ class Streamer(ABC):
         self.retry_count = retry_count
         if not enable:
             self.emit(self.Event["AUTO_RECONNECT_STOPPED"],
-                      "Stopped by client.")
+                      "Disabled by client.")
 
     def launch_auto_reconnect(self):
         """Starts the auto-reconnect process."""
