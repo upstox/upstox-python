@@ -68,3 +68,6 @@ target/
 .vscode/
 .swagger-codegen-ignore
 git_push.sh
+
+#Intellij
+.idea/
