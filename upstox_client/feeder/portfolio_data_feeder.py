@@ -20,9 +20,6 @@ class PortfolioDataFeeder(Feeder):
         if self.ws and self.ws.sock:
             return
 
-        ssl_context = ssl.create_default_context()
-        ssl_context.check_hostname = False
-        ssl_context.verify_mode = ssl.CERT_NONE
         sslopt = {
             "cert_reqs": ssl.CERT_NONE,
             "check_hostname": False,
