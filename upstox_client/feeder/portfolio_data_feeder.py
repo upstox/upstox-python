@@ -24,8 +24,8 @@ class PortfolioDataFeeder(Feeder):
         ssl_context.check_hostname = False
         ssl_context.verify_mode = ssl.CERT_NONE
         sslopt = {
-            "cert_reqs": ssl_context.verify_mode,
-            "check_hostname": ssl_context.check_hostname,
+            "cert_reqs": ssl.CERT_NONE,
+            "check_hostname": False,
         }
 
         ws_url = "wss://api.upstox.com/v2/feed/portfolio-stream-feed"
