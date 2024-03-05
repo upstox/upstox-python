@@ -21,10 +21,11 @@ class PortfolioDataFeeder(Feeder):
             return
 
         ssl_context = ssl.create_default_context()
-        ssl_context.load_default_certs()  # Load default CA certificates
+        ssl_context.check_hostname = False
+        ssl_context.verify_mode = ssl.CERT_NONE
         sslopt = {
-            "cert_reqs": ssl.CERT_REQUIRED,  # Require a valid certificate
-            "check_hostname": True,  # Verify the server's hostname
+            "cert_reqs": ssl_context.verify_mode,
+            "check_hostname": ssl_context.check_hostname,
         }
 
         ws_url = "wss://api.upstox.com/v2/feed/portfolio-stream-feed"
