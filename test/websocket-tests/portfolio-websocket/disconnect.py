@@ -5,8 +5,8 @@ import upstox_client
 configuration = upstox_client.Configuration()
 access_token = "access_token"
 configuration.access_token = access_token
-streamer = upstox_client.MarketDataStreamer(
-    upstox_client.ApiClient(configuration), instrumentKeys=["MCX_FO|426302"], mode="full")
+streamer = upstox_client.PortfolioDataStreamer(
+    upstox_client.ApiClient(configuration))
 
 
 streamer.auto_reconnect(True, 5, 10)
@@ -24,16 +24,13 @@ def message(data):
 def error(er):
     print(f"on error message= {er}")
 
-def add_subsriptions():
-    time.sleep(5)
-    streamer.subscribe(["NSE_EQ|INE528G01035"], "full")
 
 def disconnection():
     time.sleep(10)
     streamer.disconnect()
 
 def f_disconnection():
-    time.sleep(5)
+    time.sleep(15)
     streamer.disconnect()
 
 def reconnecting(data):
@@ -46,6 +43,6 @@ streamer.on("reconnecting", reconnecting)
 streamer.on("error", error)
 
 streamer.connect()
-add_subsriptions()
 disconnection()
 f_disconnection()
+

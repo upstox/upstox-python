@@ -23,3 +23,10 @@ class PortfolioDataStreamer(Streamer):
     def handle_message(self, ws, message):
         self.emit(self.Event["MESSAGE"], message)
 
+    def disconnect(self):
+        """Initiates the disconnection process."""
+        if self.feeder:
+            self.disconnect_valid = True
+            self.feeder.disconnect()
+        else:
+            raise NotImplementedError("Feeder instance not set.")

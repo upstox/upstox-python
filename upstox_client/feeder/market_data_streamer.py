@@ -76,3 +76,12 @@ class MarketDataStreamer(Streamer):
         decoded_data = self.decode_protobuf(message)
         data_dict = json_format.MessageToDict(decoded_data)
         self.emit(self.Event["MESSAGE"], data_dict)
+
+    def disconnect(self):
+        """Initiates the disconnection process."""
+        if self.feeder:
+            self.disconnect_valid = True
+            self.feeder.disconnect()
+            self.clear_subscriptions()
+        else:
+            raise NotImplementedError("Feeder instance not set.")

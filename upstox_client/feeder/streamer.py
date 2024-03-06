@@ -44,14 +44,6 @@ class Streamer(ABC):
         """Initates a connection with the appropriate Feeder."""
         pass
 
-    def disconnect(self):
-        """Initiates the disconnection process."""
-        if self.feeder:
-            self.disconnect_valid = True
-            self.feeder.disconnect()
-        else:
-            raise NotImplementedError("Feeder instance not set.")
-
     def auto_reconnect(self, enable, interval=1, retry_count=5):
         self.enable_auto_reconnect = enable
         self.interval = interval
