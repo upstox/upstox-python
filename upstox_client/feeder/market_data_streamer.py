@@ -14,8 +14,6 @@ class MarketDataStreamer(Streamer):
         super().__init__(api_client)
         self.protobufRoot = MarketDataFeed_pb2
         self.api_client = api_client
-        self.instrumentKeys = instrumentKeys
-        self.mode = mode
         self.subscriptions = {
             self.Mode["LTPC"]: set(),
             self.Mode["FULL"]: set(),
@@ -26,7 +24,7 @@ class MarketDataStreamer(Streamer):
 
     def connect(self):
         self.feeder = MarketDataFeeder(
-            api_client=self.api_client, instrumentKeys=self.instrumentKeys, mode=self.mode, on_open=self.handle_open, on_message=self.handle_message, on_error=self.handle_error, on_close=self.handle_close)
+            api_client=self.api_client, on_open=self.handle_open, on_message=self.handle_message, on_error=self.handle_error, on_close=self.handle_close)
         self.feeder.connect()
 
     def subscribe_to_initial_keys(self):

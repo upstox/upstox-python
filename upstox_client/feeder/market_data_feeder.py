@@ -18,11 +18,9 @@ class MarketDataFeeder(Feeder):
         "UNSUBSCRIBE": "unsub",
     }
 
-    def __init__(self, api_client=None, instrumentKeys=[], mode="full", on_open=None, on_message=None, on_error=None, on_close=None):
+    def __init__(self, api_client=None, on_open=None, on_message=None, on_error=None, on_close=None):
         super().__init__(api_client=api_client)
         self.api_client = api_client
-        self.instrumentKeys = instrumentKeys
-        self.mode = mode
         self.on_open = on_open
         self.on_message = on_message
         self.on_error = on_error
