@@ -112,7 +112,7 @@ class UserApi(object):
         auth_settings = ['OAUTH2']  # noqa: E501
 
         return self.api_client.call_api(
-            '/user/profile', 'GET',
+            '/v2/user/profile', 'GET',
             path_params,
             query_params,
             header_params,
@@ -211,7 +211,7 @@ class UserApi(object):
         auth_settings = ['OAUTH2']  # noqa: E501
 
         return self.api_client.call_api(
-            '/user/get-funds-and-margin', 'GET',
+            '/v2/user/get-funds-and-margin', 'GET',
             path_params,
             query_params,
             header_params,

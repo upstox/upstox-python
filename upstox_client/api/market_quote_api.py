@@ -120,7 +120,7 @@ class MarketQuoteApi(object):
         auth_settings = ['OAUTH2']  # noqa: E501
 
         return self.api_client.call_api(
-            '/market-quote/quotes', 'GET',
+            '/v2/market-quote/quotes', 'GET',
             path_params,
             query_params,
             header_params,
@@ -231,7 +231,7 @@ class MarketQuoteApi(object):
         auth_settings = ['OAUTH2']  # noqa: E501
 
         return self.api_client.call_api(
-            '/market-quote/ohlc', 'GET',
+            '/v2/market-quote/ohlc', 'GET',
             path_params,
             query_params,
             header_params,
@@ -334,7 +334,7 @@ class MarketQuoteApi(object):
         auth_settings = ['OAUTH2']  # noqa: E501
 
         return self.api_client.call_api(
-            '/market-quote/ltp', 'GET',
+            '/v2/market-quote/ltp', 'GET',
             path_params,
             query_params,
             header_params,
