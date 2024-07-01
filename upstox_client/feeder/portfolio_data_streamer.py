@@ -4,14 +4,19 @@ from .streamer import Streamer
 
 class PortfolioDataStreamer(Streamer):
 
-    def __init__(self, api_client=None):
+    def __init__(self, api_client=None, order_update=True, position_update=False, holding_update=False):
         super().__init__(api_client)
         self.api_client = api_client
+        self.order_update = order_update
+        self.position_update = position_update
+        self.holding_update = holding_update
         self.feeder = None
 
     def connect(self):
         self.feeder = PortfolioDataFeeder(
-            api_client=self.api_client, on_open=self.handle_open, on_message=self.handle_message, on_error=self.handle_error, on_close=self.handle_close)
+            api_client=self.api_client, on_open=self.handle_open, on_message=self.handle_message,
+            on_error=self.handle_error, on_close=self.handle_close, order_update=self.order_update,
+            position_update=self.position_update, holding_update=self.holding_update)
         self.feeder.connect()
 
     def handle_open(self, ws):
@@ -22,4 +27,3 @@ class PortfolioDataStreamer(Streamer):
 
     def handle_message(self, ws, message):
         self.emit(self.Event["MESSAGE"], message)
-
