@@ -31,6 +31,9 @@ class WebsocketApi(object):
         if api_client is None:
             api_client = ApiClient()
         self.api_client = api_client
+        self.order_update = True
+        self.holding_update = False
+        self.position_update = False
 
     def get_market_data_feed(self, api_version, **kwargs):  # noqa: E501
         """Market Data Feed  # noqa: E501
@@ -317,7 +320,7 @@ class WebsocketApi(object):
             _request_timeout=params.get('_request_timeout'),
             collection_formats=collection_formats)
 
-    def get_portfolio_stream_feed_authorize(self, api_version, **kwargs):  # noqa: E501
+    def get_portfolio_stream_feed_authorize(self, api_version,  order_update=True, position_update=False,holding_update=False,**kwargs):  # noqa: E501
         """Portfolio Stream Feed Authorize  # noqa: E501
 
          This API provides the functionality to retrieve the socket endpoint URI for Portfolio updates.  # noqa: E501
@@ -332,6 +335,9 @@ class WebsocketApi(object):
                  If the method is called asynchronously,
                  returns the request thread.
         """
+        self.position_update = position_update
+        self.holding_update = holding_update
+        self.order_update = order_update
         kwargs['_return_http_data_only'] = True
         if kwargs.get('async_req'):
             return self.get_portfolio_stream_feed_authorize_with_http_info(api_version, **kwargs)  # noqa: E501
@@ -397,7 +403,7 @@ class WebsocketApi(object):
         auth_settings = ['OAUTH2']  # noqa: E501
 
         return self.api_client.call_api(
-            '/feed/portfolio-stream-feed/authorize', 'GET',
+            '/feed/portfolio-stream-feed/authorize' + self.get_websocket_parameters(), 'GET',
             path_params,
             query_params,
             header_params,
@@ -411,3 +417,17 @@ class WebsocketApi(object):
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
             collection_formats=collection_formats)
+
+    def get_websocket_parameters(self):
+        params = ""
+        update_types = []
+        if self.order_update:
+            update_types.append("order")
+        if self.holding_update:
+            update_types.append("holding")
+        if self.position_update:
+            update_types.append("position")
+
+        if update_types:
+            params += "?update_types=" + "%2C".join(update_types)
+        return params

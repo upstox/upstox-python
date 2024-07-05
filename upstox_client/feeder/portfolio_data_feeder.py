@@ -52,13 +52,7 @@ class PortfolioDataFeeder(Feeder):
         if self.position_update:
             update_types.append("position")
 
-        if len(update_types) >= 1:
-            ws_url += "?update_types="
-
-        for i in range(len(update_types) - 1):
-            ws_url += update_types[i] + "%2C"
-
-        if len(update_types) >= 1:
-            ws_url += update_types[-1]
+        if update_types:
+            ws_url += "?update_types=" + "%2C".join(update_types)
 
         return ws_url

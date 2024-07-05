@@ -6,7 +6,7 @@ configuration = upstox_client.Configuration()
 access_token = "access_token"
 
 configuration.access_token = access_token
-streamer = upstox_client.PortfolioDataStreamer(upstox_client.ApiClient(configuration),order_update=False,holding_update=True,position_update=False)
+streamer = upstox_client.PortfolioDataStreamer(upstox_client.ApiClient(configuration),order_update=True,holding_update=False,position_update=True)
 
 def on_open():
     print("on open message")
