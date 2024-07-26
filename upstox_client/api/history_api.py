@@ -136,7 +136,7 @@ class HistoryApi(object):
         auth_settings = []  # noqa: E501
 
         return self.api_client.call_api(
-            '/historical-candle/{instrumentKey}/{interval}/{to_date}', 'GET',
+            '/v2/historical-candle/{instrumentKey}/{interval}/{to_date}', 'GET',
             path_params,
             query_params,
             header_params,
@@ -263,7 +263,7 @@ class HistoryApi(object):
         auth_settings = []  # noqa: E501
 
         return self.api_client.call_api(
-            '/historical-candle/{instrumentKey}/{interval}/{to_date}/{from_date}', 'GET',
+            '/v2/historical-candle/{instrumentKey}/{interval}/{to_date}/{from_date}', 'GET',
             path_params,
             query_params,
             header_params,
@@ -374,7 +374,7 @@ class HistoryApi(object):
         auth_settings = []  # noqa: E501
 
         return self.api_client.call_api(
-            '/historical-candle/intraday/{instrumentKey}/{interval}', 'GET',
+            '/v2/historical-candle/intraday/{instrumentKey}/{interval}', 'GET',
             path_params,
             query_params,
             header_params,

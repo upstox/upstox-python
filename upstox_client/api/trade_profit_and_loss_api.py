@@ -136,7 +136,7 @@ class TradeProfitAndLossApi(object):
         auth_settings = ['OAUTH2']  # noqa: E501
 
         return self.api_client.call_api(
-            '/trade/profit-loss/charges', 'GET',
+            '/v2/trade/profit-loss/charges', 'GET',
             path_params,
             query_params,
             header_params,
@@ -271,7 +271,7 @@ class TradeProfitAndLossApi(object):
         auth_settings = ['OAUTH2']  # noqa: E501
 
         return self.api_client.call_api(
-            '/trade/profit-loss/data', 'GET',
+            '/v2/trade/profit-loss/data', 'GET',
             path_params,
             query_params,
             header_params,
@@ -390,7 +390,7 @@ class TradeProfitAndLossApi(object):
         auth_settings = ['OAUTH2']  # noqa: E501
 
         return self.api_client.call_api(
-            '/trade/profit-loss/metadata', 'GET',
+            '/v2/trade/profit-loss/metadata', 'GET',
             path_params,
             query_params,
             header_params,
