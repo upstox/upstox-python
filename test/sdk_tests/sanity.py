@@ -1,4 +1,5 @@
 import upstox_client
+import local_storage
 from upstox_client.rest import ApiException
 from datetime import datetime, time
 import json
@@ -17,7 +18,7 @@ def is_within_market_hours():
 
 
 configuration = upstox_client.Configuration()
-configuration.access_token = '{your_access_token}'
+configuration.access_token = local_storage.access_token
 api_version = '2.0'
 
 api_instance = upstox_client.UserApi(upstox_client.ApiClient(configuration))
