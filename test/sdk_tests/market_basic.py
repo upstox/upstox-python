@@ -1,8 +1,8 @@
 import upstox_client
-import local_storage
+import data_token
 
 configuration = upstox_client.Configuration()
-configuration.access_token = local_storage.access_token
+configuration.access_token = data_token.access_token
 streamer = upstox_client.MarketDataStreamer(
     upstox_client.ApiClient(configuration), instrumentKeys=["MCX_FO|426302", "NSE_EQ|INE528G01035"], mode="full")
 

@@ -1,5 +1,5 @@
 import upstox_client
-import local_storage
+import data_token
 
 
 def on_message(message):
@@ -12,7 +12,7 @@ def on_open():
 
 def main():
     configuration = upstox_client.Configuration()
-    configuration.access_token = local_storage.access_token
+    configuration.access_token = data_token.access_token
 
     streamer = upstox_client.PortfolioDataStreamer(
         upstox_client.ApiClient(configuration))
