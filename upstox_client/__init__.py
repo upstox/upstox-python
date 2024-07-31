@@ -18,7 +18,9 @@ from __future__ import absolute_import
 from upstox_client.api.charge_api import ChargeApi
 from upstox_client.api.history_api import HistoryApi
 from upstox_client.api.login_api import LoginApi
+from upstox_client.api.market_holidays_and_timings_api import MarketHolidaysAndTimingsApi
 from upstox_client.api.market_quote_api import MarketQuoteApi
+from upstox_client.api.options_api import OptionsApi
 from upstox_client.api.order_api import OrderApi
 from upstox_client.api.portfolio_api import PortfolioApi
 from upstox_client.api.trade_profit_and_loss_api import TradeProfitAndLossApi
@@ -31,6 +33,7 @@ from upstox_client.feeder.portfolio_data_streamer import PortfolioDataStreamer
 from upstox_client.api_client import ApiClient
 from upstox_client.configuration import Configuration
 # import models into sdk package
+from upstox_client.models.analytics_data import AnalyticsData
 from upstox_client.models.api_gateway_error_response import ApiGatewayErrorResponse
 from upstox_client.models.brokerage_data import BrokerageData
 from upstox_client.models.brokerage_taxes import BrokerageTaxes
@@ -43,13 +46,19 @@ from upstox_client.models.convert_position_response import ConvertPositionRespon
 from upstox_client.models.depth import Depth
 from upstox_client.models.depth_map import DepthMap
 from upstox_client.models.dp_plan import DpPlan
+from upstox_client.models.exchange_timing_data import ExchangeTimingData
 from upstox_client.models.get_brokerage_response import GetBrokerageResponse
+from upstox_client.models.get_exchange_timing_response import GetExchangeTimingResponse
 from upstox_client.models.get_full_market_quote_response import GetFullMarketQuoteResponse
 from upstox_client.models.get_historical_candle_response import GetHistoricalCandleResponse
 from upstox_client.models.get_holdings_response import GetHoldingsResponse
+from upstox_client.models.get_holiday_response import GetHolidayResponse
 from upstox_client.models.get_intra_day_candle_response import GetIntraDayCandleResponse
 from upstox_client.models.get_market_quote_last_traded_price_response import GetMarketQuoteLastTradedPriceResponse
 from upstox_client.models.get_market_quote_ohlc_response import GetMarketQuoteOHLCResponse
+from upstox_client.models.get_market_status_response import GetMarketStatusResponse
+from upstox_client.models.get_option_chain_response import GetOptionChainResponse
+from upstox_client.models.get_option_contract_response import GetOptionContractResponse
 from upstox_client.models.get_order_book_response import GetOrderBookResponse
 from upstox_client.models.get_order_response import GetOrderResponse
 from upstox_client.models.get_position_response import GetPositionResponse
@@ -61,11 +70,15 @@ from upstox_client.models.get_trade_wise_profit_and_loss_meta_data_response impo
 from upstox_client.models.get_user_fund_margin_response import GetUserFundMarginResponse
 from upstox_client.models.historical_candle_data import HistoricalCandleData
 from upstox_client.models.holdings_data import HoldingsData
+from upstox_client.models.holiday_data import HolidayData
+from upstox_client.models.instrument_data import InstrumentData
 from upstox_client.models.intra_day_candle_data import IntraDayCandleData
 from upstox_client.models.logout_response import LogoutResponse
+from upstox_client.models.market_data import MarketData
 from upstox_client.models.market_quote_ohlc import MarketQuoteOHLC
 from upstox_client.models.market_quote_symbol import MarketQuoteSymbol
 from upstox_client.models.market_quote_symbol_ltp import MarketQuoteSymbolLtp
+from upstox_client.models.market_status_data import MarketStatusData
 from upstox_client.models.modify_order_data import ModifyOrderData
 from upstox_client.models.modify_order_request import ModifyOrderRequest
 from upstox_client.models.modify_order_response import ModifyOrderResponse
@@ -74,6 +87,7 @@ from upstox_client.models.o_auth_client_exception_cause import OAuthClientExcept
 from upstox_client.models.o_auth_client_exception_cause_stack_trace import OAuthClientExceptionCauseStackTrace
 from upstox_client.models.o_auth_client_exception_cause_suppressed import OAuthClientExceptionCauseSuppressed
 from upstox_client.models.ohlc import Ohlc
+from upstox_client.models.option_strike_data import OptionStrikeData
 from upstox_client.models.order_book_data import OrderBookData
 from upstox_client.models.order_data import OrderData
 from upstox_client.models.other_taxes import OtherTaxes
@@ -89,6 +103,7 @@ from upstox_client.models.profit_and_loss_charges_wrapper_data import ProfitAndL
 from upstox_client.models.profit_and_loss_meta_data import ProfitAndLossMetaData
 from upstox_client.models.profit_and_loss_meta_data_wrapper import ProfitAndLossMetaDataWrapper
 from upstox_client.models.profit_and_loss_other_charges_taxes import ProfitAndLossOtherChargesTaxes
+from upstox_client.models.put_call_option_chain_data import PutCallOptionChainData
 from upstox_client.models.token_request import TokenRequest
 from upstox_client.models.token_response import TokenResponse
 from upstox_client.models.trade_data import TradeData

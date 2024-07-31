@@ -145,8 +145,10 @@ class ApiClient(object):
             body = self.sanitize_for_serialization(body)
 
         # request url
-        url = self.configuration.host + resource_path
-
+        if self.__is_order_path(resource_path):
+            url = self.configuration.order_host + resource_path
+        else:
+            url = self.configuration.host + resource_path
         # perform request and return response
         response_data = self.request(
             method, url, query_params=query_params, headers=header_params,
@@ -633,3 +635,6 @@ class ApiClient(object):
             if klass_name:
                 instance = self.__deserialize(data, klass_name)
         return instance
+
+    def __is_order_path(self, path):
+        return path.__contains__("/order/place") or path.__contains__("/order/modify") or path.__contains__("/order/cancel")

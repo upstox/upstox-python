@@ -152,7 +152,7 @@ class ChargeApi(object):
         auth_settings = ['OAUTH2']  # noqa: E501
 
         return self.api_client.call_api(
-            '/charges/brokerage', 'GET',
+            '/v2/charges/brokerage', 'GET',
             path_params,
             query_params,
             header_params,

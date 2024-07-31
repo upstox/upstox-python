@@ -115,7 +115,7 @@ class WebsocketApi(object):
         auth_settings = ['OAUTH2']  # noqa: E501
 
         return self.api_client.call_api(
-            '/feed/market-data-feed', 'GET',
+            '/v2/feed/market-data-feed', 'GET',
             path_params,
             query_params,
             header_params,
@@ -210,7 +210,7 @@ class WebsocketApi(object):
         auth_settings = ['OAUTH2']  # noqa: E501
 
         return self.api_client.call_api(
-            '/feed/market-data-feed/authorize', 'GET',
+            '/v2/feed/market-data-feed/authorize', 'GET',
             path_params,
             query_params,
             header_params,
@@ -305,7 +305,7 @@ class WebsocketApi(object):
         auth_settings = ['OAUTH2']  # noqa: E501
 
         return self.api_client.call_api(
-            '/feed/portfolio-stream-feed', 'GET',
+            '/v2/feed/portfolio-stream-feed', 'GET',
             path_params,
             query_params,
             header_params,
@@ -403,7 +403,7 @@ class WebsocketApi(object):
         auth_settings = ['OAUTH2']  # noqa: E501
 
         return self.api_client.call_api(
-            '/feed/portfolio-stream-feed/authorize' + self.get_websocket_parameters(), 'GET',
+            '/v2/feed/portfolio-stream-feed/authorize' + self.get_websocket_parameters(), 'GET',
             path_params,
             query_params,
             header_params,

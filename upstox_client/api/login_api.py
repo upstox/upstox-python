@@ -136,7 +136,7 @@ class LoginApi(object):
         auth_settings = []  # noqa: E501
 
         return self.api_client.call_api(
-            '/login/authorization/dialog', 'GET',
+            '/v2/login/authorization/dialog', 'GET',
             path_params,
             query_params,
             header_params,
@@ -231,7 +231,7 @@ class LoginApi(object):
         auth_settings = ['OAUTH2']  # noqa: E501
 
         return self.api_client.call_api(
-            '/logout', 'DELETE',
+            '/v2/logout', 'DELETE',
             path_params,
             query_params,
             header_params,
@@ -350,7 +350,7 @@ class LoginApi(object):
         auth_settings = []  # noqa: E501
 
         return self.api_client.call_api(
-            '/login/authorization/token', 'POST',
+            '/v2/login/authorization/token', 'POST',
             path_params,
             query_params,
             header_params,

@@ -120,7 +120,7 @@ class OrderApi(object):
         auth_settings = ['OAUTH2']  # noqa: E501
 
         return self.api_client.call_api(
-            '/order/cancel', 'DELETE',
+            '/v2/order/cancel', 'DELETE',
             path_params,
             query_params,
             header_params,
@@ -215,7 +215,7 @@ class OrderApi(object):
         auth_settings = ['OAUTH2']  # noqa: E501
 
         return self.api_client.call_api(
-            '/order/retrieve-all', 'GET',
+            '/v2/order/retrieve-all', 'GET',
             path_params,
             query_params,
             header_params,
@@ -318,7 +318,7 @@ class OrderApi(object):
         auth_settings = ['OAUTH2']  # noqa: E501
 
         return self.api_client.call_api(
-            '/order/history', 'GET',
+            '/v2/order/history', 'GET',
             path_params,
             query_params,
             header_params,
@@ -413,7 +413,7 @@ class OrderApi(object):
         auth_settings = ['OAUTH2']  # noqa: E501
 
         return self.api_client.call_api(
-            '/order/trades/get-trades-for-day', 'GET',
+            '/v2/order/trades/get-trades-for-day', 'GET',
             path_params,
             query_params,
             header_params,
@@ -516,7 +516,7 @@ class OrderApi(object):
         auth_settings = ['OAUTH2']  # noqa: E501
 
         return self.api_client.call_api(
-            '/order/trades', 'GET',
+            '/v2/order/trades', 'GET',
             path_params,
             query_params,
             header_params,
@@ -623,7 +623,7 @@ class OrderApi(object):
         auth_settings = ['OAUTH2']  # noqa: E501
 
         return self.api_client.call_api(
-            '/order/modify', 'PUT',
+            '/v2/order/modify', 'PUT',
             path_params,
             query_params,
             header_params,
@@ -730,7 +730,7 @@ class OrderApi(object):
         auth_settings = ['OAUTH2']  # noqa: E501
 
         return self.api_client.call_api(
-            '/order/place', 'POST',
+            '/v2/order/place', 'POST',
             path_params,
             query_params,
             header_params,

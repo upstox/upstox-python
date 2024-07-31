@@ -124,7 +124,7 @@ class PortfolioApi(object):
         auth_settings = ['OAUTH2']  # noqa: E501
 
         return self.api_client.call_api(
-            '/portfolio/convert-position', 'PUT',
+            '/v2/portfolio/convert-position', 'PUT',
             path_params,
             query_params,
             header_params,
@@ -219,7 +219,7 @@ class PortfolioApi(object):
         auth_settings = ['OAUTH2']  # noqa: E501
 
         return self.api_client.call_api(
-            '/portfolio/long-term-holdings', 'GET',
+            '/v2/portfolio/long-term-holdings', 'GET',
             path_params,
             query_params,
             header_params,
@@ -314,7 +314,7 @@ class PortfolioApi(object):
         auth_settings = ['OAUTH2']  # noqa: E501
 
         return self.api_client.call_api(
-            '/portfolio/short-term-positions', 'GET',
+            '/v2/portfolio/short-term-positions', 'GET',
             path_params,
             query_params,
             header_params,
