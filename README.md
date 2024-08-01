@@ -412,7 +412,7 @@ if __name__ == "__main__":
 ```
 <br/>
 
-You can also enable position and holding updates by providing a boolean value to the constructor of `PortfolioDataStreamer`
+Position and holding updates can be enabled by setting the corresponding flag to `True` in the constructor of the `PortfolioDataStreamer` class.
 
 ```python
 import upstox_client
