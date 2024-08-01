@@ -410,6 +410,40 @@ def main():
 if __name__ == "__main__":
     main()
 ```
+<br/>
+
+You can also enable position and holding updates by providing a boolean value to the constructor of `PortfolioDataStreamer`
+
+```python
+import upstox_client
+import data_token
+
+
+def on_message(message):
+    print(message)
+
+
+def on_open():
+    print("connection opened")
+
+
+def main():
+    configuration = upstox_client.Configuration()
+    configuration.access_token = <ACCESS_TOKEN>
+
+    streamer = upstox_client.PortfolioDataStreamer(upstox_client.ApiClient(configuration),order_update=True,position_update=True,holding_update=True)
+
+    streamer.on("message", on_message)
+    streamer.on("open", on_open)
+    streamer.connect()
+
+
+if __name__ == "__main__":
+    main()
+
+```
+
+<br/>
 
 This example demonstrates initializing the PortfolioDataStreamer, connecting it to the WebSocket, and setting up an event listener to receive and print order updates. Replace <ACCESS_TOKEN> with your valid access token to authenticate the session.
 
