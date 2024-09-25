@@ -84,6 +84,7 @@ Class | Method | HTTP request | Description
 *OrderApi* | [**cancel_order**](docs/OrderApi.md#cancel_order) | **DELETE** /v2/order/cancel | Cancel order
 *OrderApi* | [**get_order_book**](docs/OrderApi.md#get_order_book) | **GET** /v2/order/retrieve-all | Get order book
 *OrderApi* | [**get_order_details**](docs/OrderApi.md#get_order_details) | **GET** /v2/order/history | Get order history
+*OrderApi* | [**get_order_status**](docs/OrderApi.md#get_order_status) | **GET** /v2/order/details | Get order details
 *OrderApi* | [**get_trade_history**](docs/OrderApi.md#get_trade_history) | **GET** /v2/order/trades/get-trades-for-day | Get trades
 *OrderApi* | [**get_trades_by_order**](docs/OrderApi.md#get_trades_by_order) | **GET** /v2/order/trades | Get trades for order
 *OrderApi* | [**modify_order**](docs/OrderApi.md#modify_order) | **PUT** /v2/order/modify | Modify order
@@ -91,7 +92,7 @@ Class | Method | HTTP request | Description
 *PortfolioApi* | [**convert_positions**](docs/PortfolioApi.md#convert_positions) | **PUT** /v2/portfolio/convert-position | Convert Positions
 *PortfolioApi* | [**get_holdings**](docs/PortfolioApi.md#get_holdings) | **GET** /v2/portfolio/long-term-holdings | Get Holdings
 *PortfolioApi* | [**get_positions**](docs/PortfolioApi.md#get_positions) | **GET** /v2/portfolio/short-term-positions | Get Positions
-*PostTradeApi* | [**get_trade_history1**](docs/PostTradeApi.md#get_trade_history1) | **GET** /v2/charges/historical-trades | 
+*PostTradeApi* | [**get_trades_by_date_range**](docs/PostTradeApi.md#get_trades_by_date_range) | **GET** /v2/charges/historical-trades | Get historical trades
 *TradeProfitAndLossApi* | [**get_profit_and_loss_charges**](docs/TradeProfitAndLossApi.md#get_profit_and_loss_charges) | **GET** /v2/trade/profit-loss/charges | Get profit and loss on trades
 *TradeProfitAndLossApi* | [**get_trade_wise_profit_and_loss_data**](docs/TradeProfitAndLossApi.md#get_trade_wise_profit_and_loss_data) | **GET** /v2/trade/profit-loss/data | Get Trade-wise Profit and Loss Report Data
 *TradeProfitAndLossApi* | [**get_trade_wise_profit_and_loss_meta_data**](docs/TradeProfitAndLossApi.md#get_trade_wise_profit_and_loss_meta_data) | **GET** /v2/trade/profit-loss/metadata | Get profit and loss meta data on trades
@@ -494,6 +495,7 @@ This example demonstrates initializing the PortfolioDataStreamer, connecting it 
  - [GetOptionChainResponse](docs/GetOptionChainResponse.md)
  - [GetOptionContractResponse](docs/GetOptionContractResponse.md)
  - [GetOrderBookResponse](docs/GetOrderBookResponse.md)
+ - [GetOrderDetailsResponse](docs/GetOrderDetailsResponse.md)
  - [GetOrderResponse](docs/GetOrderResponse.md)
  - [GetPositionResponse](docs/GetPositionResponse.md)
  - [GetProfileResponse](docs/GetProfileResponse.md)

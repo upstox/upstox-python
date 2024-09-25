@@ -61,6 +61,7 @@ from upstox_client.models.get_market_status_response import GetMarketStatusRespo
 from upstox_client.models.get_option_chain_response import GetOptionChainResponse
 from upstox_client.models.get_option_contract_response import GetOptionContractResponse
 from upstox_client.models.get_order_book_response import GetOrderBookResponse
+from upstox_client.models.get_order_details_response import GetOrderDetailsResponse
 from upstox_client.models.get_order_response import GetOrderResponse
 from upstox_client.models.get_position_response import GetPositionResponse
 from upstox_client.models.get_profile_response import GetProfileResponse

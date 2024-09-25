@@ -4,12 +4,14 @@ All URIs are relative to *https://api-v2.upstox.com*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**get_trade_history1**](PostTradeApi.md#get_trade_history1) | **GET** /v2/charges/historical-trades | 
+[**get_trades_by_date_range**](PostTradeApi.md#get_trades_by_date_range) | **GET** /v2/charges/historical-trades | Get historical trades
 
-# **get_trade_history1**
-> TradeHistoryResponse get_trade_history1(start_date, end_date, page_number, page_size, segment=segment)
+# **get_trades_by_date_range**
+> TradeHistoryResponse get_trades_by_date_range(start_date, end_date, page_number, page_size, segment=segment)
 
+Get historical trades
 
+This API retrieves the trade history for a specified time interval.
 
 ### Example
 ```python
@@ -32,10 +34,11 @@ page_size = 56 # int | How many records you want for a page
 segment = '' # str | Segment for which data is requested can be from the following options EQ - Equity,   FO - Futures and Options,   COM  - Commodity,   CD - Currency Derivatives MF - Mutual Funds (optional)
 
 try:
-    api_response = api_instance.get_trade_history1(start_date, end_date, page_number, page_size, segment=segment)
+    # Get historical trades
+    api_response = api_instance.get_trades_by_date_range(start_date, end_date, page_number, page_size, segment=segment)
     pprint(api_response)
 except ApiException as e:
-    print("Exception when calling PostTradeApi->get_trade_history1: %s\n" % e)
+    print("Exception when calling PostTradeApi->get_trades_by_date_range: %s\n" % e)
 ```
 
 ### Parameters

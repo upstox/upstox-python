@@ -32,12 +32,13 @@ class PostTradeApi(object):
             api_client = ApiClient()
         self.api_client = api_client
 
-    def get_trade_history1(self, start_date, end_date, page_number, page_size, **kwargs):  # noqa: E501
-        """get_trade_history1  # noqa: E501
+    def get_trades_by_date_range(self, start_date, end_date, page_number, page_size, **kwargs):  # noqa: E501
+        """Get historical trades  # noqa: E501
 
+        This API retrieves the trade history for a specified time interval.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.get_trade_history1(start_date, end_date, page_number, page_size, async_req=True)
+        >>> thread = api.get_trades_by_date_range(start_date, end_date, page_number, page_size, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
@@ -52,17 +53,18 @@ class PostTradeApi(object):
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('async_req'):
-            return self.get_trade_history1_with_http_info(start_date, end_date, page_number, page_size, **kwargs)  # noqa: E501
+            return self.get_trades_by_date_range_with_http_info(start_date, end_date, page_number, page_size, **kwargs)  # noqa: E501
         else:
-            (data) = self.get_trade_history1_with_http_info(start_date, end_date, page_number, page_size, **kwargs)  # noqa: E501
+            (data) = self.get_trades_by_date_range_with_http_info(start_date, end_date, page_number, page_size, **kwargs)  # noqa: E501
             return data
 
-    def get_trade_history1_with_http_info(self, start_date, end_date, page_number, page_size, **kwargs):  # noqa: E501
-        """get_trade_history1  # noqa: E501
+    def get_trades_by_date_range_with_http_info(self, start_date, end_date, page_number, page_size, **kwargs):  # noqa: E501
+        """Get historical trades  # noqa: E501
 
+        This API retrieves the trade history for a specified time interval.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.get_trade_history1_with_http_info(start_date, end_date, page_number, page_size, async_req=True)
+        >>> thread = api.get_trades_by_date_range_with_http_info(start_date, end_date, page_number, page_size, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
@@ -87,26 +89,26 @@ class PostTradeApi(object):
             if key not in all_params:
                 raise TypeError(
                     "Got an unexpected keyword argument '%s'"
-                    " to method get_trade_history1" % key
+                    " to method get_trades_by_date_range" % key
                 )
             params[key] = val
         del params['kwargs']
         # verify the required parameter 'start_date' is set
         if ('start_date' not in params or
                 params['start_date'] is None):
-            raise ValueError("Missing the required parameter `start_date` when calling `get_trade_history1`")  # noqa: E501
+            raise ValueError("Missing the required parameter `start_date` when calling `get_trades_by_date_range`")  # noqa: E501
         # verify the required parameter 'end_date' is set
         if ('end_date' not in params or
                 params['end_date'] is None):
-            raise ValueError("Missing the required parameter `end_date` when calling `get_trade_history1`")  # noqa: E501
+            raise ValueError("Missing the required parameter `end_date` when calling `get_trades_by_date_range`")  # noqa: E501
         # verify the required parameter 'page_number' is set
         if ('page_number' not in params or
                 params['page_number'] is None):
-            raise ValueError("Missing the required parameter `page_number` when calling `get_trade_history1`")  # noqa: E501
+            raise ValueError("Missing the required parameter `page_number` when calling `get_trades_by_date_range`")  # noqa: E501
         # verify the required parameter 'page_size' is set
         if ('page_size' not in params or
                 params['page_size'] is None):
-            raise ValueError("Missing the required parameter `page_size` when calling `get_trade_history1`")  # noqa: E501
+            raise ValueError("Missing the required parameter `page_size` when calling `get_trades_by_date_range`")  # noqa: E501
 
         collection_formats = {}
 

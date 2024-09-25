@@ -15,23 +15,23 @@ from __future__ import absolute_import
 import unittest
 
 import swagger_client
-from swagger_client.api.post_trade_api import PostTradeApi  # noqa: E501
+from swagger_client.models.get_order_details_response import GetOrderDetailsResponse  # noqa: E501
 from swagger_client.rest import ApiException
 
 
-class TestPostTradeApi(unittest.TestCase):
-    """PostTradeApi unit test stubs"""
+class TestGetOrderDetailsResponse(unittest.TestCase):
+    """GetOrderDetailsResponse unit test stubs"""
 
     def setUp(self):
-        self.api = PostTradeApi()  # noqa: E501
+        pass
 
     def tearDown(self):
         pass
 
-    def test_get_trades_by_date_range(self):
-        """Test case for test_get_trades_by_date_range
-
-        """
+    def testGetOrderDetailsResponse(self):
+        """Test GetOrderDetailsResponse"""
+        # FIXME: construct object with mandatory attributes with example values
+        # model = swagger_client.models.get_order_details_response.GetOrderDetailsResponse()  # noqa: E501
         pass
 
 

@@ -333,6 +333,97 @@ class OrderApi(object):
             _request_timeout=params.get('_request_timeout'),
             collection_formats=collection_formats)
 
+    def get_order_status(self, **kwargs):  # noqa: E501
+        """Get order details  # noqa: E501
+
+        This API provides the recent detail of the particular order the user has placed. The orders placed by the user is transient for a day and are cleared by the end of the trading session.\\n\\nThe order details can be requested using order_id.    # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.get_order_status(async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param str order_id: The order reference ID for which the order details is required
+        :return: GetOrderDetailsResponse
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('async_req'):
+            return self.get_order_status_with_http_info(**kwargs)  # noqa: E501
+        else:
+            (data) = self.get_order_status_with_http_info(**kwargs)  # noqa: E501
+            return data
+
+    def get_order_status_with_http_info(self, **kwargs):  # noqa: E501
+        """Get order details  # noqa: E501
+
+        This API provides the recent detail of the particular order the user has placed. The orders placed by the user is transient for a day and are cleared by the end of the trading session.\\n\\nThe order details can be requested using order_id.    # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.get_order_status_with_http_info(async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param str order_id: The order reference ID for which the order details is required
+        :return: GetOrderDetailsResponse
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['order_id']  # noqa: E501
+        all_params.append('async_req')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in six.iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method get_order_status" % key
+                )
+            params[key] = val
+        del params['kwargs']
+
+        collection_formats = {}
+
+        path_params = {}
+
+        query_params = []
+        if 'order_id' in params:
+            query_params.append(('order_id', params['order_id']))  # noqa: E501
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.select_header_accept(
+            ['*/*', 'application/json'])  # noqa: E501
+
+        # Authentication setting
+        auth_settings = ['OAUTH2']  # noqa: E501
+
+        return self.api_client.call_api(
+            '/v2/order/details', 'GET',
+            path_params,
+            query_params,
+            header_params,
+            body=body_params,
+            post_params=form_params,
+            files=local_var_files,
+            response_type='GetOrderDetailsResponse',  # noqa: E501
+            auth_settings=auth_settings,
+            async_req=params.get('async_req'),
+            _return_http_data_only=params.get('_return_http_data_only'),
+            _preload_content=params.get('_preload_content', True),
+            _request_timeout=params.get('_request_timeout'),
+            collection_formats=collection_formats)
+
     def get_trade_history(self, api_version, **kwargs):  # noqa: E501
         """Get trades  # noqa: E501
 
