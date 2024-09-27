@@ -41,6 +41,7 @@ from upstox_client.models.get_market_status_response import GetMarketStatusRespo
 from upstox_client.models.get_option_chain_response import GetOptionChainResponse
 from upstox_client.models.get_option_contract_response import GetOptionContractResponse
 from upstox_client.models.get_order_book_response import GetOrderBookResponse
+from upstox_client.models.get_order_details_response import GetOrderDetailsResponse
 from upstox_client.models.get_order_response import GetOrderResponse
 from upstox_client.models.get_position_response import GetPositionResponse
 from upstox_client.models.get_profile_response import GetProfileResponse
@@ -52,9 +53,13 @@ from upstox_client.models.get_user_fund_margin_response import GetUserFundMargin
 from upstox_client.models.historical_candle_data import HistoricalCandleData
 from upstox_client.models.holdings_data import HoldingsData
 from upstox_client.models.holiday_data import HolidayData
+from upstox_client.models.instrument import Instrument
 from upstox_client.models.instrument_data import InstrumentData
 from upstox_client.models.intra_day_candle_data import IntraDayCandleData
 from upstox_client.models.logout_response import LogoutResponse
+from upstox_client.models.margin import Margin
+from upstox_client.models.margin_data import MarginData
+from upstox_client.models.margin_request import MarginRequest
 from upstox_client.models.market_data import MarketData
 from upstox_client.models.market_quote_ohlc import MarketQuoteOHLC
 from upstox_client.models.market_quote_symbol import MarketQuoteSymbol
@@ -76,6 +81,7 @@ from upstox_client.models.place_order_data import PlaceOrderData
 from upstox_client.models.place_order_request import PlaceOrderRequest
 from upstox_client.models.place_order_response import PlaceOrderResponse
 from upstox_client.models.position_data import PositionData
+from upstox_client.models.post_margin_response import PostMarginResponse
 from upstox_client.models.problem import Problem
 from upstox_client.models.profile_data import ProfileData
 from upstox_client.models.profit_and_loss_charges_data import ProfitAndLossChargesData
@@ -88,6 +94,10 @@ from upstox_client.models.put_call_option_chain_data import PutCallOptionChainDa
 from upstox_client.models.token_request import TokenRequest
 from upstox_client.models.token_response import TokenResponse
 from upstox_client.models.trade_data import TradeData
+from upstox_client.models.trade_history_response import TradeHistoryResponse
+from upstox_client.models.trade_history_response_meta_data import TradeHistoryResponseMetaData
+from upstox_client.models.trade_history_response_page_data import TradeHistoryResponsePageData
+from upstox_client.models.trade_history_response_trade_data import TradeHistoryResponseTradeData
 from upstox_client.models.trade_wise_meta_data import TradeWiseMetaData
 from upstox_client.models.trade_wise_profit_and_loss_data import TradeWiseProfitAndLossData
 from upstox_client.models.user_fund_margin_data import UserFundMarginData

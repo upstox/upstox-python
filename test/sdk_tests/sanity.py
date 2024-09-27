@@ -56,7 +56,19 @@ try:
         print("Brokerage giving wrong response")
 except ApiException as e:
     print("Exception when calling ChargeApi->get_brokerage: %s\n" % e)
-
+    
+instruments = [
+    upstox_client.Instrument(instrument_key="NSE_EQ|INE528G01035",quantity=12,product="D",transaction_type="BUY"),
+    upstox_client.Instrument(instrument_key="NSE_EQ|INE002A01018",quantity=1,product="D",transaction_type="BUY")
+]
+margin_body = upstox_client.MarginRequest(instruments)
+try:
+    api_response = api_instance.post_margin(margin_body)
+    if api_response.status!="success":
+        print("error in margin api")
+except ApiException as e:
+    print("Exception when calling Margin API: %s\n" % e.body)  
+    
 api_instance = upstox_client.OrderApi(upstox_client.ApiClient(configuration))
 body = upstox_client.PlaceOrderRequest(1, "D", "DAY", 0.0, "string", "NSE_EQ|INE528G01035", "MARKET", "BUY", 0, 0.0,
                                        True)
@@ -86,7 +98,19 @@ except ApiException as e:
     data_dict = json.loads(json_string)
     if data_dict.get('errors')[0].get('errorCode') != "UDAPI100010":
         print("modify order giving wrong response")
+        
+#order details
+order_id = '240925010636040'
 
+try:
+    api_response = api_instance.get_order_status(order_id=order_id)
+    print(api_response)
+except ApiException as e:
+    json_string = e.body.decode('utf-8')
+    data_dict = json.loads(json_string)
+    if data_dict.get('errors')[0].get('errorCode') != "UDAPI100010":
+        print("order details giving wrong response")
+        
 api_instance = upstox_client.OrderApi(upstox_client.ApiClient(configuration))
 order_id = '231221011081579'
 api_version = '2.0'
@@ -339,7 +363,15 @@ except ApiException as e:
     if data_dict.get('errors')[0].get('errorCode') != "UDAPI100069":
         print("convert position giving error")
 
-
+api_instance = upstox_client.PostTradeApi(upstox_client.ApiClient(configuration=configuration))
+ 
+try:
+    api_response = api_instance.get_trades_by_date_range("2023-04-01", "2024-03-31",1,1000)
+    if api_response.status != "success":
+        print("error in post trade api")
+except ApiException as e:
+    print("Exception when calling PostTrade api: %s\n" % e)
+    
 api_instance = upstox_client.LoginApi(upstox_client.ApiClient(configuration))
 api_version = '2.0'
 
@@ -350,3 +382,5 @@ try:
     print("successfully logged out")
 except ApiException as e:
     print("Exception when calling LoginApi->logout: %s\n" % e)
+
+
