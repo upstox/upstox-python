@@ -102,9 +102,44 @@ except ApiException as e:
 #order details
 order_id = '240925010636040'
 
+param = {
+    'tag': "sdk_python_tag"
+}
+
+try:
+    api_response = api_instance.cancel_multi_order(**param)
+except ApiException as e:
+    json_string = e.body.decode('utf-8')
+    data_dict = json.loads(json_string)
+    if data_dict.get('errors')[0].get('errorCode') != "UDAPI1109":
+        print("cancel multi giving wrong response")
+
+try:
+    api_response = api_instance.exit_positions(**param)
+except ApiException as e:
+    json_string = e.body.decode('utf-8')
+    data_dict = json.loads(json_string)
+    if data_dict.get('errors')[0].get('errorCode') != "UDAPI1111" and data_dict.get('errors')[0].get('errorCode') != "UDAPI1113":
+        print("exit position giving wrong response")
+
+body = [
+    upstox_client.MultiOrderRequest(1, "I", "DAY", 0, "kg_python_sdk", False, "NSE_EQ|INE669E01016", "MARKET", "BUY",
+                                    0, 0, True, "1"),
+    upstox_client.MultiOrderRequest(1, "D", "DAY", 8.9, "kg_python_sdk1", False, "NSE_EQ|INE669E01016", "LIMIT", "BUY",
+                                    0, 0, True, "2")
+]
+
+try:
+    api_response = api_instance.place_multi_order(body)
+    print(api_response)
+except ApiException as e:
+    print("Exception when calling OrderApi->place_order: %s\n" % e.body)
+
+
 try:
     api_response = api_instance.get_order_status(order_id=order_id)
     print(api_response)
+
 except ApiException as e:
     json_string = e.body.decode('utf-8')
     data_dict = json.loads(json_string)

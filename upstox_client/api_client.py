@@ -22,6 +22,7 @@ import tempfile
 import six
 from six.moves.urllib.parse import quote
 
+from setup import VERSION
 from upstox_client.configuration import Configuration
 import upstox_client.models
 from upstox_client import rest
@@ -73,6 +74,8 @@ class ApiClient(object):
         self.cookie = cookie
         # Set default User-Agent.
         self.user_agent = 'Swagger-Codegen/1.0.0/python'
+        self.default_headers["X-Upstox-SDK-Language"] = "python"
+        self.default_headers["X-Upstox-SDK-Version"] = VERSION
 
     def __del__(self):
         try:
