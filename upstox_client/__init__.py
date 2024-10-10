@@ -36,9 +36,13 @@ from upstox_client.configuration import Configuration
 # import models into sdk package
 from upstox_client.models.analytics_data import AnalyticsData
 from upstox_client.models.api_gateway_error_response import ApiGatewayErrorResponse
+from upstox_client.models.batch_execution_summary import BatchExecutionSummary
 from upstox_client.models.brokerage_data import BrokerageData
 from upstox_client.models.brokerage_taxes import BrokerageTaxes
 from upstox_client.models.brokerage_wrapper_data import BrokerageWrapperData
+from upstox_client.models.cancel_or_exit_multi_order_data import CancelOrExitMultiOrderData
+from upstox_client.models.cancel_or_exit_multi_order_response import CancelOrExitMultiOrderResponse
+from upstox_client.models.cancel_or_exit_order_error_data import CancelOrExitOrderErrorData
 from upstox_client.models.cancel_order_data import CancelOrderData
 from upstox_client.models.cancel_order_response import CancelOrderResponse
 from upstox_client.models.convert_position_data import ConvertPositionData
@@ -88,6 +92,11 @@ from upstox_client.models.market_status_data import MarketStatusData
 from upstox_client.models.modify_order_data import ModifyOrderData
 from upstox_client.models.modify_order_request import ModifyOrderRequest
 from upstox_client.models.modify_order_response import ModifyOrderResponse
+from upstox_client.models.multi_order_data import MultiOrderData
+from upstox_client.models.multi_order_error import MultiOrderError
+from upstox_client.models.multi_order_request import MultiOrderRequest
+from upstox_client.models.multi_order_response import MultiOrderResponse
+from upstox_client.models.multi_order_summary import MultiOrderSummary
 from upstox_client.models.o_auth_client_exception import OAuthClientException
 from upstox_client.models.o_auth_client_exception_cause import OAuthClientExceptionCause
 from upstox_client.models.o_auth_client_exception_cause_stack_trace import OAuthClientExceptionCauseStackTrace
