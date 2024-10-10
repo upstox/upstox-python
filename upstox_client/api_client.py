@@ -22,7 +22,6 @@ import tempfile
 import six
 from six.moves.urllib.parse import quote
 
-from setup import VERSION
 from upstox_client.configuration import Configuration
 import upstox_client.models
 from upstox_client import rest
@@ -75,7 +74,7 @@ class ApiClient(object):
         # Set default User-Agent.
         self.user_agent = 'Swagger-Codegen/1.0.0/python'
         self.default_headers["X-Upstox-SDK-Language"] = "python"
-        self.default_headers["X-Upstox-SDK-Version"] = VERSION
+        self.default_headers["X-Upstox-SDK-Version"] = "2.9.0"
 
     def __del__(self):
         try:
