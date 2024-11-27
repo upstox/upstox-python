@@ -29,6 +29,7 @@ from upstox_client.api.user_api import UserApi
 from upstox_client.api.websocket_api import WebsocketApi
 # import websocket interfaces into sdk package
 from upstox_client.feeder.market_data_streamer import MarketDataStreamer
+from upstox_client.feeder.market_data_streamer_v3 import MarketDataStreamerV3
 from upstox_client.feeder.portfolio_data_streamer import PortfolioDataStreamer
 # import ApiClient
 from upstox_client.api_client import ApiClient
