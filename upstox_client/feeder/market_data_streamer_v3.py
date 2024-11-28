@@ -61,10 +61,12 @@ class MarketDataStreamerV3(Streamer):
         if self.is_invalid_mode(newMode):
             return
 
-        oldMode = self.mode
         self.feeder.change_mode(instrumentKeys, newMode)
-        # Remove keys from the old mode
-        self.subscriptions[oldMode].difference_update(instrumentKeys)
+
+        # Remove keys from all modes
+        for mode in self.Mode.values():
+            self.subscriptions[mode].difference_update(instrumentKeys)
+
         # Add keys to the new mode
         self.subscriptions[newMode].update(instrumentKeys)
 
