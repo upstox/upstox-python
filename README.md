@@ -119,6 +119,287 @@ Both functions are designed to simplify the process of subscribing to essential 
 
 ### MarketDataStreamer
 
+<details>
+<summary style="cursor: pointer; font-size: 1.2em;">V3</summary>
+<p>
+
+The `MarketDataStreamerV3` interface is designed for effortless connection to the market WebSocket, enabling users to receive instantaneous updates on various instruments. The following example demonstrates how to quickly set up and start receiving market updates for selected instrument keys:
+
+```python
+import upstox_client
+
+def on_message(message):
+    print(message)
+
+
+def main():
+    configuration = upstox_client.Configuration()
+    access_token = <ACCESS_TOKEN>
+    configuration.access_token = access_token
+
+    streamer = upstox_client.MarketDataStreamerV3(
+        upstox_client.ApiClient(configuration), ["NSE_INDEX|Nifty 50", "NSE_INDEX|Nifty Bank"], "full")
+
+    streamer.on("message", on_message)
+
+    streamer.connect()
+
+
+if __name__ == "__main__":
+    main()
+```
+In this example, you first authenticate using an access token, then instantiate MarketDataStreamerV3 with specific instrument keys and a subscription mode. Upon connecting, the streamer listens for market updates, which are logged to the console as they arrive.
+
+Feel free to adjust the access token placeholder and any other specifics to better fit your actual implementation or usage scenario.
+
+### Exploring the MarketDataStreamerV3 Functionality
+
+#### Modes
+- **ltpc**: ltpc provides information solely about the most recent trade, encompassing details such as the last trade price, time of the last trade, quantity traded, and the closing price from the previous day.
+- **full**: The full option offers comprehensive information, including the latest trade prices, D5 depth, 1-minute, 30-minute, and daily candlestick data, along with some additional details.
+- **full_d30**: full_d30 includes Full mode data plus 30 market level quotes.      
+- **option_greeks**: Contains only option greeks.
+
+#### Functions
+1. **constructor MarketDataStreamerV3(apiClient, instrumentKeys, mode)**: Initializes the streamer with optional instrument keys and mode (`full`, `ltpc`, `option_greeks` or `full_d30`).
+2. **connect()**: Establishes the WebSocket connection.
+3. **subscribe(instrumentKeys, mode)**: Subscribes to updates for given instrument keys in the specified mode. Both parameters are mandatory.
+4. **unsubscribe(instrumentKeys)**: Stops updates for the specified instrument keys.
+5. **changeMode(instrumentKeys, mode)**: Switches the mode for already subscribed instrument keys.
+6. **disconnect()**: Ends the active WebSocket connection.
+7. **auto_reconnect(enable, interval, retryCount)**: Customizes auto-reconnect functionality. Parameters include a flag to enable/disable it, the interval(in seconds) between attempts, and the maximum number of retries.
+
+#### Events
+- **open**: Emitted upon successful connection establishment.
+- **close**: Indicates the WebSocket connection has been closed.
+- **message**: Delivers market updates.
+- **error**: Signals an error has occurred.
+- **reconnecting**: Announced when a reconnect attempt is initiated.
+- **autoReconnectStopped**: Informs when auto-reconnect efforts have ceased after exhausting the retry count.
+
+The following documentation includes examples to illustrate the usage of these functions and events, providing a practical understanding of how to interact with the MarketDataStreamerV3 effectively.
+
+<br/>
+
+1. Subscribing to Market Data on Connection Open with MarketDataStreamerV3
+
+```python
+import upstox_client
+
+def main():
+    configuration = upstox_client.Configuration()
+    access_token = <ACCESS_TOKEN>
+    configuration.access_token = access_token
+
+    streamer = upstox_client.MarketDataStreamerV3(
+        upstox_client.ApiClient(configuration))
+
+    def on_open():
+        streamer.subscribe(
+            ["NSE_EQ|INE020B01018", "NSE_EQ|INE467B01029"], "full")
+
+    def on_message(message):
+        print(message)
+
+    streamer.on("open", on_open)
+    streamer.on("message", on_message)
+
+    streamer.connect()
+
+if __name__ == "__main__":
+    main()
+```
+
+<br/>
+
+2. Subscribing to Instruments with Delays
+
+```python
+import upstox_client
+import time
+
+
+def main():
+    configuration = upstox_client.Configuration()
+    access_token = <ACCESS_TOKEN>
+    configuration.access_token = access_token
+
+    streamer = upstox_client.MarketDataStreamerV3(
+        upstox_client.ApiClient(configuration))
+
+    def on_open():
+        streamer.subscribe(
+            ["NSE_EQ|INE020B01018"], "full")
+
+    # Handle incoming market data messages\
+    def on_message(message):
+        print(message)
+
+    streamer.on("open", on_open)
+    streamer.on("message", on_message)
+
+    streamer.connect()
+
+    time.sleep(5)
+    streamer.subscribe(
+        ["NSE_EQ|INE467B01029"], "full")
+
+
+if __name__ == "__main__":
+    main()
+
+```
+
+<br/>
+
+3. Subscribing and Unsubscribing to Instruments
+
+```python
+import upstox_client
+import time
+
+
+def main():
+    configuration = upstox_client.Configuration()
+    access_token = <ACCESS_TOKEN>
+    configuration.access_token = access_token
+
+    streamer = upstox_client.MarketDataStreamerV3(
+        upstox_client.ApiClient(configuration))
+
+    def on_open():
+        print("Connected. Subscribing to instrument keys.")
+        streamer.subscribe(
+            ["NSE_EQ|INE020B01018", "NSE_EQ|INE467B01029"], "full")
+
+    # Handle incoming market data messages\
+    def on_message(message):
+        print(message)
+
+    streamer.on("open", on_open)
+    streamer.on("message", on_message)
+
+    streamer.connect()
+
+    time.sleep(5)
+    print("Unsubscribing from instrument keys.")
+    streamer.unsubscribe(["NSE_EQ|INE020B01018", "NSE_EQ|INE467B01029"])
+
+
+if __name__ == "__main__":
+    main()
+```
+
+<br/>
+
+4. Subscribe, Change Mode and Unsubscribe
+
+```python
+import upstox_client
+import time
+
+def main():
+    configuration = upstox_client.Configuration()
+    access_token = <ACCESS_TOKEN>
+    configuration.access_token = access_token
+
+    streamer = upstox_client.MarketDataStreamerV3(
+        upstox_client.ApiClient(configuration))
+
+    def on_open():
+        print("Connected. Subscribing to instrument keys.")
+        streamer.subscribe(
+            ["NSE_EQ|INE020B01018", "NSE_EQ|INE467B01029"], "full")
+
+    # Handle incoming market data messages\
+    def on_message(message):
+        print(message)
+
+    streamer.on("open", on_open)
+    streamer.on("message", on_message)
+
+    streamer.connect()
+
+    time.sleep(5)
+    print("Changing subscription mode to ltpc...")
+    streamer.change_mode(
+        ["NSE_EQ|INE020B01018", "NSE_EQ|INE467B01029"], "ltpc")
+
+    time.sleep(5)
+    print("Unsubscribing from instrument keys.")
+    streamer.unsubscribe(["NSE_EQ|INE020B01018", "NSE_EQ|INE467B01029"])
+
+
+if __name__ == "__main__":
+    main()
+```
+
+<br/>
+
+5. Disable Auto-Reconnect
+
+```python
+import upstox_client
+import time
+
+
+def main():
+    configuration = upstox_client.Configuration()
+    access_token = <ACCESS_TOKEN>
+    configuration.access_token = access_token
+
+    streamer = upstox_client.MarketDataStreamerV3(
+        upstox_client.ApiClient(configuration))
+
+    def on_reconnection_halt(message):
+        print(message)
+
+    streamer.on("autoReconnectStopped", on_reconnection_halt)
+
+    # Disable auto-reconnect feature
+    streamer.auto_reconnect(False)
+
+    streamer.connect()
+
+
+if __name__ == "__main__":
+    main()
+```
+
+<br/>
+
+6. Modify Auto-Reconnect parameters
+
+```python
+import upstox_client
+
+
+def main():
+    configuration = upstox_client.Configuration()
+    access_token = <ACCESS_TOKEN>
+    configuration.access_token = access_token
+
+    streamer = upstox_client.MarketDataStreamerV3(
+        upstox_client.ApiClient(configuration))
+
+    # Modify auto-reconnect parameters: enable it, set interval to 10 seconds, and retry count to 3
+    streamer.auto_reconnect(True, 10, 3)
+
+    streamer.connect()
+
+
+if __name__ == "__main__":
+    main()
+```
+
+<br/>
+</p>
+</details>
+
+<details>
+<summary style="cursor: pointer; font-size: 1.2em;">V2</summary>
+<p>
+
 The `MarketDataStreamer` interface is designed for effortless connection to the market WebSocket, enabling users to receive instantaneous updates on various instruments. The following example demonstrates how to quickly set up and start receiving market updates for selected instrument keys:
 
 ```python
@@ -388,6 +669,8 @@ if __name__ == "__main__":
 ```
 
 <br/>
+</p>
+</details>
 
 ### PortfolioDataStreamer
 
@@ -450,8 +733,6 @@ if __name__ == "__main__":
 ```
 
 <br/>
-
-This example demonstrates initializing the PortfolioDataStreamer, connecting it to the WebSocket, and setting up an event listener to receive and print order updates. Replace <ACCESS_TOKEN> with your valid access token to authenticate the session.
 
 ### Exploring the PortfolioDataStreamer Functionality
 
@@ -569,3 +850,4 @@ This example demonstrates initializing the PortfolioDataStreamer, connecting it 
  - [UserFundMarginData](docs/UserFundMarginData.md)
  - [WebsocketAuthRedirectResponse](docs/WebsocketAuthRedirectResponse.md)
  - [WebsocketAuthRedirectResponseData](docs/WebsocketAuthRedirectResponseData.md)
+
