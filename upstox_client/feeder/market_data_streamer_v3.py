@@ -8,8 +8,7 @@ class MarketDataStreamerV3(Streamer):
     Mode = {
         "LTPC": "ltpc",
         "FULL": "full",
-        "OPTION": "option_greeks",
-        "D30": "full_d30"
+        "OPTION": "option_greeks"
     }
     def __init__(self, api_client=None, instrumentKeys=[], mode="ltpc"):
         super().__init__(api_client)
@@ -20,8 +19,7 @@ class MarketDataStreamerV3(Streamer):
         self.subscriptions = {
             self.Mode["LTPC"]: set(),
             self.Mode["FULL"]: set(),
-            self.Mode["OPTION"]: set(),
-            self.Mode["D30"]: set(),
+            self.Mode["OPTION"]: set()
         }
         if mode not in self.Mode.values():
             raise Exception(f"Invalid mode provided {mode}")

@@ -3,8 +3,9 @@ import data_token
 
 configuration = upstox_client.Configuration()
 configuration.access_token = data_token.access_token
+instruments = data_token.sample_instrument_key
 streamer = upstox_client.MarketDataStreamerV3(
-    upstox_client.ApiClient(configuration), instrumentKeys=["NSE_EQ|INE528G01035"], mode="full")
+    upstox_client.ApiClient(configuration), instrumentKeys=instruments[0:70], mode="option_greeks")
 
 streamer.auto_reconnect(True, 5, 10)
 
