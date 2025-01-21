@@ -27,13 +27,12 @@ class TypeWithDefault(type):
         super(TypeWithDefault, cls).__init__(name, bases, dct)
         cls._default = None
 
-    def __call__(cls):
-        if cls._default is None:
-            cls._default = type.__call__(cls)
-        return copy.copy(cls._default)
+    def __call__(cls, *args, **kwargs):
+        return type.__call__(cls, *args, **kwargs)
 
     def set_default(cls, default):
         cls._default = copy.copy(default)
+
 
 
 class Configuration(six.with_metaclass(TypeWithDefault, object)):
@@ -43,13 +42,16 @@ class Configuration(six.with_metaclass(TypeWithDefault, object)):
     Do not edit the class manually.
     """
 
-    def __init__(self):
+    def __init__(self, sandbox=False):
         """Constructor"""
         # Default Base url
-        self.host = "https://api.upstox.com"
+        if sandbox:
+            self.host = "https://api-sandbox.upstox.com"
+            self.order_host = "https://api-sandbox.upstox.com"
+        else:
+            self.host = "https://api.upstox.com"
+            self.order_host = "https://api-hft.upstox.com"
 
-        # Low latency order host
-        self.order_host = "https://api-hft.upstox.com"
 
         # Temp file folder for downloading files
         self.temp_folder_path = None
