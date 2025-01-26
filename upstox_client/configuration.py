@@ -46,6 +46,8 @@ class Configuration(six.with_metaclass(TypeWithDefault, object)):
 
     def __init__(self, sandbox=False):
         """Constructor"""
+
+        self.sandbox = sandbox
         # Default Base url
         if sandbox:
             self.host = "https://api-sandbox.upstox.com"
@@ -110,6 +112,17 @@ class Configuration(six.with_metaclass(TypeWithDefault, object)):
         self.proxy = None
         # Safe chars for path_param
         self.safe_chars_for_path_param = ''
+
+        # valid sandbox endpoints
+        self.sandbox_urls = {
+            "/v2/order/place",
+            "/v2/order/modify",
+            "/v2/order/cancel",
+            "/v2/order/multi/place",
+            "/v3/order/place",
+            "/v3/order/modify",
+            "/v3/order/cancel",
+        }
 
     @property
     def logger_file(self):

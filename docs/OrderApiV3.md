@@ -9,7 +9,7 @@ Method | HTTP request | Description
 [**place_order**](OrderApiV3.md#place_order) | **POST** /v3/order/place | 
 
 # **cancel_order**
-> CancelOrderV3Response cancel_order(order_id, origin=origin)
+> CancelOrderV3Response cancel_order(order_id)
 
 
 
@@ -24,10 +24,9 @@ from pprint import pprint
 # create an instance of the API class
 api_instance = upstox_client.OrderApiV3()
 order_id = 'order_id_example' # str | 
-origin = 'origin_example' # str |  (optional)
 
 try:
-    api_response = api_instance.cancel_order(order_id, origin=origin)
+    api_response = api_instance.cancel_order(order_id)
     pprint(api_response)
 except ApiException as e:
     print("Exception when calling OrderApiV3->cancel_order: %s\n" % e)
@@ -37,8 +36,7 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **order_id** | **str**|  | 
- **origin** | **str**|  | [optional] 
+ **order_id** | **str**|  |
 
 ### Return type
 
@@ -56,7 +54,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **modify_order**
-> ModifyOrderV3Response modify_order(body, origin=origin)
+> ModifyOrderV3Response modify_order(body)
 
 
 
@@ -71,10 +69,9 @@ from pprint import pprint
 # create an instance of the API class
 api_instance = upstox_client.OrderApiV3()
 body = upstox_client.ModifyOrderRequest() # ModifyOrderRequest | 
-origin = 'origin_example' # str |  (optional)
 
 try:
-    api_response = api_instance.modify_order(body, origin=origin)
+    api_response = api_instance.modify_order(body)
     pprint(api_response)
 except ApiException as e:
     print("Exception when calling OrderApiV3->modify_order: %s\n" % e)
@@ -84,8 +81,7 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **body** | [**ModifyOrderRequest**](ModifyOrderRequest.md)|  | 
- **origin** | **str**|  | [optional] 
+ **body** | [**ModifyOrderRequest**](ModifyOrderRequest.md)|  |
 
 ### Return type
 
@@ -103,7 +99,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **place_order**
-> PlaceOrderV3Response place_order(body, origin=origin)
+> PlaceOrderV3Response place_order(body)
 
 
 
@@ -118,10 +114,9 @@ from pprint import pprint
 # create an instance of the API class
 api_instance = upstox_client.OrderApiV3()
 body = upstox_client.PlaceOrderV3Request() # PlaceOrderV3Request | 
-origin = 'origin_example' # str |  (optional)
 
 try:
-    api_response = api_instance.place_order(body, origin=origin)
+    api_response = api_instance.place_order(body)
     pprint(api_response)
 except ApiException as e:
     print("Exception when calling OrderApiV3->place_order: %s\n" % e)
@@ -131,8 +126,7 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **body** | [**PlaceOrderV3Request**](PlaceOrderV3Request.md)|  | 
- **origin** | **str**|  | [optional] 
+ **body** | [**PlaceOrderV3Request**](PlaceOrderV3Request.md)|  |
 
 ### Return type
 

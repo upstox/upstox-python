@@ -53,13 +53,13 @@ try:
 except ApiException as e:
     print("Exception when calling OrderApi->place_order: %s\n" % e.body)
 
-try:
-    api_response = api_instance.get_order_status(order_id="250121112521183")
-except ApiException as e:
-    json_string = e.body.decode('utf-8')
-    data_dict = json.loads(json_string)
-    if data_dict.get('errors')[0].get('errorCode') != "UDAPI100010":
-        print("order details giving wrong response")
+# try:
+#     api_response = api_instance.get_order_status(order_id="250121112521183")
+# except ApiException as e:
+#     json_string = e.body.decode('utf-8')
+#     data_dict = json.loads(json_string)
+#     if data_dict.get('errors')[0].get('errorCode') != "UDAPI100010":
+#         print("order details giving wrong response")
 
 api_instance = upstox_client.OrderApi(upstox_client.ApiClient(configuration))
 order_id = '2501211126016789'
@@ -76,25 +76,25 @@ except ApiException as e:
 
 api_instance = upstox_client.OrderApi(upstox_client.ApiClient(configuration))
 api_version = '2.0'
-try:
-    # Get order book
-    api_response = api_instance.get_order_book(api_version)
-    if api_response.status != "success":
-        print("get order book giving invalid data")
-except ApiException as e:
-    print("Exception when calling OrderApi->get_order_book: %s\n" % e)
+# try:
+#     # Get order book
+#     api_response = api_instance.get_order_book(api_version)
+#     if api_response.status != "success":
+#         print("get order book giving invalid data")
+# except ApiException as e:
+#     print("Exception when calling OrderApi->get_order_book: %s\n" % e)
+# except ValueError as e:
+#     print(e)
 
-api_instance = upstox_client.OrderApi(upstox_client.ApiClient(configuration))
-api_version = '2.0'
 order_id = '25012112309073'
 
-try:
-    api_response = api_instance.get_order_details(api_version, order_id=order_id)
-except ApiException as e:
-    json_string = e.body.decode('utf-8')
-    data_dict = json.loads(json_string)
-    if data_dict.get('errors')[0].get('errorCode') != "UDAPI100010":
-        print("get order details giving wrong response")
+# try:
+#     api_response = api_instance.get_order_details(api_version, order_id=order_id)
+# except ApiException as e:
+#     json_string = e.body.decode('utf-8')
+#     data_dict = json.loads(json_string)
+#     if data_dict.get('errors')[0].get('errorCode') != "UDAPI100010":
+#         print("get order details giving wrong response")
 
 api_instance = upstox_client.OrderApiV3(upstox_client.ApiClient(configuration))
 body = upstox_client.PlaceOrderV3Request(quantity=1, product="D",validity="DAY", price=9.12, tag="string", instrument_token="NSE_EQ|INE669E01016", order_type="LIMIT",transaction_type="BUY", disclosed_quantity=0, trigger_price=0.0, is_amo=True, slice=True)
