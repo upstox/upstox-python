@@ -321,7 +321,7 @@ class ApiClient(object):
         """
 
         if self.configuration.sandbox and (not self.configuration.sandbox_urls.__contains__(resource_path)):
-            raise ValueError(f'URL {resource_path} is not allowed for sandbox.')
+            raise ValueError('This API is not available in sandbox mode.')
 
         if not async_req:
             return self.__call_api(resource_path, method,

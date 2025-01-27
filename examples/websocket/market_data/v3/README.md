@@ -4,7 +4,7 @@ This Python project demonstrates how to connect to the Upstox Websocket API for 
 
 ## Getting Started
 
-These instructions will help you run the sample websocket client.
+These instructions will help you run the sample v3 websocket client.
 
 ### Prerequisites
 
