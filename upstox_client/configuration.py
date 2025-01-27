@@ -27,13 +27,14 @@ class TypeWithDefault(type):
         super(TypeWithDefault, cls).__init__(name, bases, dct)
         cls._default = None
 
-    def __call__(cls):
+    def __call__(cls, *args, **kwargs):
         if cls._default is None:
-            cls._default = type.__call__(cls)
+            cls._default = type.__call__(cls, *args, **kwargs)
         return copy.copy(cls._default)
 
     def set_default(cls, default):
         cls._default = copy.copy(default)
+
 
 
 class Configuration(six.with_metaclass(TypeWithDefault, object)):
@@ -43,13 +44,18 @@ class Configuration(six.with_metaclass(TypeWithDefault, object)):
     Do not edit the class manually.
     """
 
-    def __init__(self):
+    def __init__(self, sandbox=False):
         """Constructor"""
-        # Default Base url
-        self.host = "https://api.upstox.com"
 
-        # Low latency order host
-        self.order_host = "https://api-hft.upstox.com"
+        self.sandbox = sandbox
+        # Default Base url
+        if sandbox:
+            self.host = "https://api-sandbox.upstox.com"
+            self.order_host = "https://api-sandbox.upstox.com"
+        else:
+            self.host = "https://api.upstox.com"
+            self.order_host = "https://api-hft.upstox.com"
+
 
         # Temp file folder for downloading files
         self.temp_folder_path = None
@@ -106,6 +112,17 @@ class Configuration(six.with_metaclass(TypeWithDefault, object)):
         self.proxy = None
         # Safe chars for path_param
         self.safe_chars_for_path_param = ''
+
+        # valid sandbox endpoints
+        self.sandbox_urls = {
+            "/v2/order/place",
+            "/v2/order/modify",
+            "/v2/order/cancel",
+            "/v2/order/multi/place",
+            "/v3/order/place",
+            "/v3/order/modify",
+            "/v3/order/cancel",
+        }
 
     @property
     def logger_file(self):

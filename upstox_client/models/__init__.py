@@ -25,6 +25,7 @@ from upstox_client.models.cancel_or_exit_multi_order_response import CancelOrExi
 from upstox_client.models.cancel_or_exit_order_error_data import CancelOrExitOrderErrorData
 from upstox_client.models.cancel_order_data import CancelOrderData
 from upstox_client.models.cancel_order_response import CancelOrderResponse
+from upstox_client.models.cancel_order_v3_response import CancelOrderV3Response
 from upstox_client.models.convert_position_data import ConvertPositionData
 from upstox_client.models.convert_position_request import ConvertPositionRequest
 from upstox_client.models.convert_position_response import ConvertPositionResponse
@@ -57,6 +58,9 @@ from upstox_client.models.get_user_fund_margin_response import GetUserFundMargin
 from upstox_client.models.historical_candle_data import HistoricalCandleData
 from upstox_client.models.holdings_data import HoldingsData
 from upstox_client.models.holiday_data import HolidayData
+from upstox_client.models.indie_user_init_token_data import IndieUserInitTokenData
+from upstox_client.models.indie_user_init_token_response import IndieUserInitTokenResponse
+from upstox_client.models.indie_user_token_request import IndieUserTokenRequest
 from upstox_client.models.instrument import Instrument
 from upstox_client.models.instrument_data import InstrumentData
 from upstox_client.models.intra_day_candle_data import IntraDayCandleData
@@ -72,11 +76,13 @@ from upstox_client.models.market_status_data import MarketStatusData
 from upstox_client.models.modify_order_data import ModifyOrderData
 from upstox_client.models.modify_order_request import ModifyOrderRequest
 from upstox_client.models.modify_order_response import ModifyOrderResponse
+from upstox_client.models.modify_order_v3_response import ModifyOrderV3Response
 from upstox_client.models.multi_order_data import MultiOrderData
 from upstox_client.models.multi_order_error import MultiOrderError
 from upstox_client.models.multi_order_request import MultiOrderRequest
 from upstox_client.models.multi_order_response import MultiOrderResponse
 from upstox_client.models.multi_order_summary import MultiOrderSummary
+from upstox_client.models.multi_order_v3_data import MultiOrderV3Data
 from upstox_client.models.o_auth_client_exception import OAuthClientException
 from upstox_client.models.o_auth_client_exception_cause import OAuthClientExceptionCause
 from upstox_client.models.o_auth_client_exception_cause_stack_trace import OAuthClientExceptionCauseStackTrace
@@ -85,10 +91,13 @@ from upstox_client.models.ohlc import Ohlc
 from upstox_client.models.option_strike_data import OptionStrikeData
 from upstox_client.models.order_book_data import OrderBookData
 from upstox_client.models.order_data import OrderData
+from upstox_client.models.order_metadata import OrderMetadata
 from upstox_client.models.other_taxes import OtherTaxes
 from upstox_client.models.place_order_data import PlaceOrderData
 from upstox_client.models.place_order_request import PlaceOrderRequest
 from upstox_client.models.place_order_response import PlaceOrderResponse
+from upstox_client.models.place_order_v3_request import PlaceOrderV3Request
+from upstox_client.models.place_order_v3_response import PlaceOrderV3Response
 from upstox_client.models.position_data import PositionData
 from upstox_client.models.post_margin_response import PostMarginResponse
 from upstox_client.models.problem import Problem

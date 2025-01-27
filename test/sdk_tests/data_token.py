@@ -1,5 +1,6 @@
-access_token = ""
 
+access_token = ""
+sandbox_access_token = ""
 
 sample_instrument_key = [
     "NSE_EQ|INE528G01035", "NSE_EQ|INE399C01030", "BSE_EQ|INE055E01034", "NCD_FO|14245", "NSE_EQ|INE169A01031",

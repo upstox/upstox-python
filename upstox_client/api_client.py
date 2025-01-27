@@ -74,7 +74,7 @@ class ApiClient(object):
         # Set default User-Agent.
         self.user_agent = 'Swagger-Codegen/1.0.0/python'
         self.default_headers["X-Upstox-SDK-Language"] = "python"
-        self.default_headers["X-Upstox-SDK-Version"] = "2.10.0"
+        self.default_headers["X-Upstox-SDK-Version"] = "2.11.0"
 
     def __del__(self):
         try:
@@ -319,6 +319,10 @@ class ApiClient(object):
             If parameter async_req is False or missing,
             then the method will return the response directly.
         """
+
+        if self.configuration.sandbox and (not self.configuration.sandbox_urls.__contains__(resource_path)):
+            raise ValueError('This API is not available in sandbox mode.')
+
         if not async_req:
             return self.__call_api(resource_path, method,
                                    path_params, query_params, header_params,
