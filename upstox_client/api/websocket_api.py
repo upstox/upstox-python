@@ -99,9 +99,13 @@ class WebsocketApi(object):
 
         query_params = []
 
+        resource_path = '/v3/feed/market-data-feed'
         header_params = {}
         if 'api_version' in params:
-            header_params['Api-Version'] = params['api_version']  # noqa: E501
+            header_params['Api-Version'] = params['api_version'] # noqa: E501
+            if params['api_version'] == "2.0":
+                resource_path = '/v2/feed/market-data-feed'
+
 
         form_params = []
         local_var_files = {}
@@ -115,7 +119,7 @@ class WebsocketApi(object):
         auth_settings = ['OAUTH2']  # noqa: E501
 
         return self.api_client.call_api(
-            '/v2/feed/market-data-feed', 'GET',
+            resource_path, 'GET',
             path_params,
             query_params,
             header_params,
@@ -194,9 +198,12 @@ class WebsocketApi(object):
 
         query_params = []
 
+        resource_path = '/v3/feed/market-data-feed/authorize'
         header_params = {}
         if 'api_version' in params:
-            header_params['Api-Version'] = params['api_version']  # noqa: E501
+            header_params['Api-Version'] = params['api_version'] # noqa: E501
+            if params['api_version'] == "2.0":
+                resource_path = '/v2/feed/market-data-feed/authorize'
 
         form_params = []
         local_var_files = {}
@@ -209,8 +216,7 @@ class WebsocketApi(object):
         # Authentication setting
         auth_settings = ['OAUTH2']  # noqa: E501
 
-        return self.api_client.call_api(
-            '/v2/feed/market-data-feed/authorize', 'GET',
+        return self.api_client.call_api(resource_path, 'GET',
             path_params,
             query_params,
             header_params,
