@@ -4,7 +4,7 @@ This Python project demonstrates how to connect to the Upstox Websocket API for 
 
 ## Getting Started
 
-We recommend using the v3 WebSocket over the v2 version for enhanced functionality. For an example, please refer to the [V3 Example](https://github.com/upstox/upstox-nodejs/tree/include-v3-url/examples/websocket/market_data/v3).
+We recommend using the v3 WebSocket over the v2 version for enhanced functionality. For an example, please refer to the [V3 Example](v3).
 These instructions will help you run the sample v2 websocket client.
 
 ### Prerequisites
