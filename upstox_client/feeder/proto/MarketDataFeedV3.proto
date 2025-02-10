@@ -4,7 +4,8 @@ package com.upstox.marketdatafeederv3udapi.rpc.proto;
 message LTPC {
   double ltp = 1;
   int64 ltt = 2;
-  double cp = 3; //close price
+  int64 ltq = 3;
+  double cp = 4;
 }
 
 message MarketLevel {
