@@ -131,7 +131,7 @@ body = [
 
 try:
     api_response = api_instance.place_multi_order(body)
-    print(api_response)
+    print( "multi_order=>  " , api_response)
 except ApiException as e:
     print("Exception when calling OrderApi->place_order: %s\n" % e.body)
 
@@ -363,6 +363,75 @@ try:
 except ApiException as e:
     print("Exception when calling MarketHolidaysAndTimingsApi: %s\n" % e)
 
+
+
+api_instance = upstox_client.OrderApiV3(upstox_client.ApiClient(configuration))
+entry_rule = upstox_client.GttRule(strategy="ENTRY", trigger_type="ABOVE", trigger_price=7)
+target_rule = upstox_client.GttRule(strategy="TARGET", trigger_type="IMMEDIATE", trigger_price=9)
+stoploss_rule = upstox_client.GttRule(strategy="STOPLOSS", trigger_type="IMMEDIATE", trigger_price=5)
+rules = [entry_rule, target_rule, stoploss_rule]
+body = upstox_client.GttPlaceOrderRequest(type="MULTIPLE", instrument_token="NSE_EQ|INE669E01016", product="D", quantity=1, rules=rules, transaction_type="BUY")
+try:
+    api_response = api_instance.place_gtt_order(body=body)
+    print(" gtt_order => " , api_response)
+except ApiException as e:
+    print("Exception when calling OrderApi->place_order: %s\n" % e)
+
+body = upstox_client.GttModifyOrderRequest(type="MULTIPLE", gtt_order_id="GTT-C2503030018840", rules=rules, quantity=2)
+try:
+    api_response = api_instance.modify_gtt_order(body=body)
+except ApiException as e:
+    json_string = e.body.decode('utf-8')
+    data_dict = json.loads(json_string)
+    if data_dict.get('errors')[0].get('errorCode') != "UDAPI100010":
+        print("modify gtt giving error")
+
+body = upstox_client.GttCancelOrderRequest(gtt_order_id="GTT-C250303008840")
+try:
+    api_response = api_instance.cancel_gtt_order(body=body)
+    print(api_response)
+except ApiException as e:
+    json_string = e.body.decode('utf-8')
+    data_dict = json.loads(json_string)
+    if data_dict.get('errors')[0].get('errorCode') != "UDAPI100010":
+        print("cancel gtt giving error")
+
+
+try:
+    api_response = api_instance.get_gtt_order_details(gtt_order_id="GTT-C25030300128840")
+    if api_response.status != "success":
+        print("get_option_contracts giving error")
+except ApiException as e:
+    print("Exception when calling OrderApi->place_order: %s\n" % e)
+
+body = upstox_client.PlaceOrderV3Request(quantity=1, product="D",validity="DAY", price=9.12, tag="string", instrument_token="NSE_EQ|INE669E01016", order_type="LIMIT",transaction_type="BUY", disclosed_quantity=0, trigger_price=0.0, is_amo=True, slice=True)
+
+try:
+    api_response = api_instance.place_order(body)
+    print("place order v3 => ", api_response)
+except ApiException as e:
+    print("Exception when calling OrderApi->place_orderV3: %s\n" % e)
+
+body = upstox_client.ModifyOrderRequest(1, "DAY", 9.12, "25030310405859", "LIMIT", 0, 0)
+
+try:
+    api_response = api_instance.modify_order(body)
+    print(api_response)
+except ApiException as e:
+    json_string = e.body.decode('utf-8')
+    data_dict = json.loads(json_string)
+    if data_dict.get('errors')[0].get('errorCode') != "UDAPI100010":
+        print("modify v3 giving error")
+
+try:
+    api_response = api_instance.cancel_order("2501211050101")
+    print(api_response)
+except ApiException as e:
+    json_string = e.body.decode('utf-8')
+    data_dict = json.loads(json_string)
+    if data_dict.get('errors')[0].get('errorCode') != "UDAPI100010":
+        print("cancel v3 giving error")
+
 api_instance = upstox_client.OptionsApi(upstox_client.ApiClient(configuration))
 
 try:
@@ -409,6 +478,16 @@ except ApiException as e:
     
 api_instance = upstox_client.LoginApi(upstox_client.ApiClient(configuration))
 api_version = '2.0'
+
+body = upstox_client.IndieUserTokenRequest(client_secret="9rmbdvjsb")
+try:
+    api_response = api_instance.init_token_request_for_indie_user(body,client_id="fd33050-ac87-4ecb-b4e1-4ec994c70c32")
+    print(api_response)
+except ApiException as e:
+    json_string = e.body.decode('utf-8')
+    data_dict = json.loads(json_string)
+    if data_dict.get('errors')[0].get('errorCode') != "UDAPI100069":
+        print("indie token request giving error")
 
 try:
     # Logout

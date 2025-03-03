@@ -18,7 +18,7 @@ this_directory = Path(__file__).parent
 long_description = (this_directory / "README.md").read_text()
 
 NAME = "upstox-python-sdk"
-VERSION = "2.12.0"
+VERSION = "2.13.0"
 # To install the library, run the following
 #
 # python setup.py install

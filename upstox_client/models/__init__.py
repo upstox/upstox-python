@@ -36,6 +36,7 @@ from upstox_client.models.exchange_timing_data import ExchangeTimingData
 from upstox_client.models.get_brokerage_response import GetBrokerageResponse
 from upstox_client.models.get_exchange_timing_response import GetExchangeTimingResponse
 from upstox_client.models.get_full_market_quote_response import GetFullMarketQuoteResponse
+from upstox_client.models.get_gtt_order_response import GetGttOrderResponse
 from upstox_client.models.get_historical_candle_response import GetHistoricalCandleResponse
 from upstox_client.models.get_holdings_response import GetHoldingsResponse
 from upstox_client.models.get_holiday_response import GetHolidayResponse
@@ -55,6 +56,13 @@ from upstox_client.models.get_trade_response import GetTradeResponse
 from upstox_client.models.get_trade_wise_profit_and_loss_data_response import GetTradeWiseProfitAndLossDataResponse
 from upstox_client.models.get_trade_wise_profit_and_loss_meta_data_response import GetTradeWiseProfitAndLossMetaDataResponse
 from upstox_client.models.get_user_fund_margin_response import GetUserFundMarginResponse
+from upstox_client.models.gtt_cancel_order_request import GttCancelOrderRequest
+from upstox_client.models.gtt_modify_order_request import GttModifyOrderRequest
+from upstox_client.models.gtt_order_data import GttOrderData
+from upstox_client.models.gtt_order_details import GttOrderDetails
+from upstox_client.models.gtt_place_order_request import GttPlaceOrderRequest
+from upstox_client.models.gtt_rule import GttRule
+from upstox_client.models.gtt_trigger_order_response import GttTriggerOrderResponse
 from upstox_client.models.historical_candle_data import HistoricalCandleData
 from upstox_client.models.holdings_data import HoldingsData
 from upstox_client.models.holiday_data import HolidayData
@@ -109,6 +117,7 @@ from upstox_client.models.profit_and_loss_meta_data import ProfitAndLossMetaData
 from upstox_client.models.profit_and_loss_meta_data_wrapper import ProfitAndLossMetaDataWrapper
 from upstox_client.models.profit_and_loss_other_charges_taxes import ProfitAndLossOtherChargesTaxes
 from upstox_client.models.put_call_option_chain_data import PutCallOptionChainData
+from upstox_client.models.rule import Rule
 from upstox_client.models.token_request import TokenRequest
 from upstox_client.models.token_response import TokenResponse
 from upstox_client.models.trade_data import TradeData
