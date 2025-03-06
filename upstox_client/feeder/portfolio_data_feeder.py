@@ -7,7 +7,7 @@ from .feeder import Feeder
 class PortfolioDataFeeder(Feeder):
 
     def __init__(self, api_client=None, on_open=None, on_message=None, on_error=None, on_close=None, order_update=True,
-                 position_update=False, holding_update=False):
+                 position_update=False, holding_update=False, gtt_update=False):
         super().__init__(api_client=api_client)
         self.api_client = api_client
         self.on_open = on_open
@@ -19,6 +19,7 @@ class PortfolioDataFeeder(Feeder):
         self.order_update = order_update
         self.position_update = position_update
         self.holding_update = holding_update
+        self.gtt_update = gtt_update
 
     def connect(self):
         if self.ws and self.ws.sock:
@@ -51,6 +52,8 @@ class PortfolioDataFeeder(Feeder):
             update_types.append("holding")
         if self.position_update:
             update_types.append("position")
+        if self.gtt_update:
+            update_types.append("gtt_order")
 
         if update_types:
             ws_url += "?update_types=" + "%2C".join(update_types)
