@@ -30,6 +30,7 @@ class Rule(object):
     swagger_types = {
         'strategy': 'str',
         'status': 'str',
+        'message': 'str',
         'trigger_type': 'str',
         'trigger_price': 'float',
         'transaction_type': 'str',
@@ -39,16 +40,18 @@ class Rule(object):
     attribute_map = {
         'strategy': 'strategy',
         'status': 'status',
+        'message': 'message',
         'trigger_type': 'trigger_type',
         'trigger_price': 'trigger_price',
         'transaction_type': 'transaction_type',
         'order_id': 'order_id'
     }
 
-    def __init__(self, strategy=None, status=None, trigger_type=None, trigger_price=None, transaction_type=None, order_id=None):  # noqa: E501
+    def __init__(self, strategy=None, status=None, message=None, trigger_type=None, trigger_price=None, transaction_type=None, order_id=None):  # noqa: E501
         """Rule - a model defined in Swagger"""  # noqa: E501
         self._strategy = None
         self._status = None
+        self._message = None
         self._trigger_type = None
         self._trigger_price = None
         self._transaction_type = None
@@ -58,6 +61,8 @@ class Rule(object):
             self.strategy = strategy
         if status is not None:
             self.status = status
+        if message is not None:
+            self.message = message
         if trigger_type is not None:
             self.trigger_type = trigger_type
         if trigger_price is not None:
@@ -108,6 +113,27 @@ class Rule(object):
         """
 
         self._status = status
+
+    @property
+    def message(self):
+        """Gets the message of this Rule.  # noqa: E501
+
+
+        :return: The message of this Rule.  # noqa: E501
+        :rtype: str
+        """
+        return self._message
+
+    @message.setter
+    def message(self, message):
+        """Sets the message of this Rule.
+
+
+        :param message: The message of this Rule.  # noqa: E501
+        :type: str
+        """
+
+        self._message = message
 
     @property
     def trigger_type(self):
