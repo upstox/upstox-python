@@ -165,7 +165,7 @@ def main():
     access_token = <ACCESS_TOKEN>
     configuration.access_token = access_token
 
-    streamer = upstox_client.MarketDataStreamerV3(
+    streamer = upstox_client.MarketDataStreamer(
         upstox_client.ApiClient(configuration), ["NSE_INDEX|Nifty 50", "NSE_INDEX|Nifty Bank"], "full")
 
     streamer.on("message", on_message)
@@ -218,7 +218,7 @@ def main():
     access_token = <ACCESS_TOKEN>
     configuration.access_token = access_token
 
-    streamer = upstox_client.MarketDataStreamerV3(
+    streamer = upstox_client.MarketDataStreamer(
         upstox_client.ApiClient(configuration))
 
     def on_open():
@@ -251,7 +251,7 @@ def main():
     access_token = <ACCESS_TOKEN>
     configuration.access_token = access_token
 
-    streamer = upstox_client.MarketDataStreamerV3(
+    streamer = upstox_client.MarketDataStreamer(
         upstox_client.ApiClient(configuration))
 
     def on_open():
@@ -291,7 +291,7 @@ def main():
     access_token = <ACCESS_TOKEN>
     configuration.access_token = access_token
 
-    streamer = upstox_client.MarketDataStreamerV3(
+    streamer = upstox_client.MarketDataStreamer(
         upstox_client.ApiClient(configuration))
 
     def on_open():
@@ -330,7 +330,7 @@ def main():
     access_token = <ACCESS_TOKEN>
     configuration.access_token = access_token
 
-    streamer = upstox_client.MarketDataStreamerV3(
+    streamer = upstox_client.MarketDataStreamer(
         upstox_client.ApiClient(configuration))
 
     def on_open():
@@ -375,7 +375,7 @@ def main():
     access_token = <ACCESS_TOKEN>
     configuration.access_token = access_token
 
-    streamer = upstox_client.MarketDataStreamerV3(
+    streamer = upstox_client.MarketDataStreamer(
         upstox_client.ApiClient(configuration))
 
     def on_reconnection_halt(message):
@@ -406,7 +406,7 @@ def main():
     access_token = <ACCESS_TOKEN>
     configuration.access_token = access_token
 
-    streamer = upstox_client.MarketDataStreamerV3(
+    streamer = upstox_client.MarketDataStreamer(
         upstox_client.ApiClient(configuration))
 
     # Modify auto-reconnect parameters: enable it, set interval to 10 seconds, and retry count to 3
