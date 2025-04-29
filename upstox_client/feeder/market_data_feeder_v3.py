@@ -10,7 +10,8 @@ class MarketDataFeederV3(Feeder):
     Mode = {
         "LTPC": "ltpc",
         "FULL": "full",
-        "OPTION": "option_greeks"
+        "OPTION": "option_greeks",
+        "D30": "full_d30"
     }
 
     Method = {
