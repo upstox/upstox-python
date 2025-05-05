@@ -137,7 +137,7 @@ class MultiOrderRequest(object):
         """
         if product is None:
             raise ValueError("Invalid value for `product`, must not be `None`")  # noqa: E501
-        allowed_values = ["I", "D"]  # noqa: E501
+        allowed_values = ["I", "D","MTF"]  # noqa: E501
         if product not in allowed_values:
             raise ValueError(
                 "Invalid value for `product` ({0}), must be one of {1}"  # noqa: E501
