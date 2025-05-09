@@ -90,9 +90,16 @@ Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
 *ChargeApi* | [**get_brokerage**](docs/ChargeApi.md#get_brokerage) | **GET** /v2/charges/brokerage | Brokerage details
 *ChargeApi* | [**post_margin**](docs/ChargeApi.md#post_margin) | **POST** /v2/charges/margin | Calculate Margin
-*HistoryApi* | [**get_historical_candle_data**](docs/HistoryApi.md#get_historical_candle_data) | **GET** /v2/historical-candle/{instrumentKey}/{interval}/{to_date} | Historical candle data
-*HistoryApi* | [**get_historical_candle_data1**](docs/HistoryApi.md#get_historical_candle_data1) | **GET** /v2/historical-candle/{instrumentKey}/{interval}/{to_date}/{from_date} | Historical candle data
-*HistoryApi* | [**get_intra_day_candle_data**](docs/HistoryApi.md#get_intra_day_candle_data) | **GET** /v2/historical-candle/intraday/{instrumentKey}/{interval} | Intra day candle data
+*ExpiredInstrumentApi* | [**get_expired_future_contracts**](docs/ExpiredInstrumentApi.md#get_expired_future_contracts) | **GET** /v2/expired-instruments/future/contract | Expired instruments - Get future contracts
+*ExpiredInstrumentApi* | [**get_expired_historical_candle_data**](docs/ExpiredInstrumentApi.md#get_expired_historical_candle_data) | **GET** /v2/expired-instruments/historical-candle/{expired_instrument_key}/{interval}/{to_date}/{from_date} | Expired Historical candle data
+*ExpiredInstrumentApi* | [**get_expired_option_contracts**](docs/ExpiredInstrumentApi.md#get_expired_option_contracts) | **GET** /v2/expired-instruments/option/contract | Get expired option contracts
+*ExpiredInstrumentApi* | [**get_expiries**](docs/ExpiredInstrumentApi.md#get_expiries) | **GET** /v2/expired-instruments/expiries | Expired instruments - Get expiries
+*HistoryApi* | [**get_historical_candle_data2**](docs/HistoryApi.md#get_historical_candle_data2) | **GET** /v2/historical-candle/{instrumentKey}/{interval}/{to_date} | Historical candle data
+*HistoryApi* | [**get_historical_candle_data3**](docs/HistoryApi.md#get_historical_candle_data3) | **GET** /v2/historical-candle/{instrumentKey}/{interval}/{to_date}/{from_date} | Historical candle data
+*HistoryApi* | [**get_intra_day_candle_data1**](docs/HistoryApi.md#get_intra_day_candle_data1) | **GET** /v2/historical-candle/intraday/{instrumentKey}/{interval} | Intra day candle data
+*HistoryV3Api* | [**get_historical_candle_data**](docs/HistoryV3Api.md#get_historical_candle_data) | **GET** /v3/historical-candle/{instrumentKey}/{unit}/{interval}/{to_date} | Historical candle data
+*HistoryV3Api* | [**get_historical_candle_data1**](docs/HistoryV3Api.md#get_historical_candle_data1) | **GET** /v3/historical-candle/{instrumentKey}/{unit}/{interval}/{to_date}/{from_date} | Historical candle data
+*HistoryV3Api* | [**get_intra_day_candle_data**](docs/HistoryV3Api.md#get_intra_day_candle_data) | **GET** /v3/historical-candle/intraday/{instrumentKey}/{unit}/{interval} | Intra day candle data
 *LoginApi* | [**authorize**](docs/LoginApi.md#authorize) | **GET** /v2/login/authorization/dialog | Authorize API
 *LoginApi* | [**init_token_request_for_indie_user**](docs/LoginApi.md#init_token_request_for_indie_user) | **POST** /v3/login/auth/token/request/{client_id} | Init token API
 *LoginApi* | [**logout**](docs/LoginApi.md#logout) | **DELETE** /v2/logout | Logout
@@ -104,6 +111,9 @@ Class | Method | HTTP request | Description
 *MarketQuoteApi* | [**get_full_market_quote**](docs/MarketQuoteApi.md#get_full_market_quote) | **GET** /v2/market-quote/quotes | Market quotes and instruments - Full market quotes
 *MarketQuoteApi* | [**get_market_quote_ohlc**](docs/MarketQuoteApi.md#get_market_quote_ohlc) | **GET** /v2/market-quote/ohlc | Market quotes and instruments - OHLC quotes
 *MarketQuoteApi* | [**ltp**](docs/MarketQuoteApi.md#ltp) | **GET** /v2/market-quote/ltp | Market quotes and instruments - LTP quotes.
+*MarketQuoteV3Api* | [**get_ltp**](docs/MarketQuoteV3Api.md#get_ltp) | **GET** /v3/market-quote/ltp | Market quotes and instruments - LTP quotes.
+*MarketQuoteV3Api* | [**get_market_quote_ohlc**](docs/MarketQuoteV3Api.md#get_market_quote_ohlc) | **GET** /v3/market-quote/ohlc | Market quotes and instruments - OHLC quotes
+*MarketQuoteV3Api* | [**get_market_quote_option_greek**](docs/MarketQuoteV3Api.md#get_market_quote_option_greek) | **GET** /v3/market-quote/option-greek | Market quotes and instruments - Option Greek
 *OptionsApi* | [**get_option_contracts**](docs/OptionsApi.md#get_option_contracts) | **GET** /v2/option/contract | Get option contracts
 *OptionsApi* | [**get_put_call_option_chain**](docs/OptionsApi.md#get_put_call_option_chain) | **GET** /v2/option/chain | Get option chain
 *OrderApi* | [**cancel_multi_order**](docs/OrderApi.md#cancel_multi_order) | **DELETE** /v2/order/multi/cancel | Cancel multi order
@@ -119,6 +129,7 @@ Class | Method | HTTP request | Description
 *OrderApi* | [**place_order**](docs/OrderApi.md#place_order) | **POST** /v2/order/place | Place order
 *PortfolioApi* | [**convert_positions**](docs/PortfolioApi.md#convert_positions) | **PUT** /v2/portfolio/convert-position | Convert Positions
 *PortfolioApi* | [**get_holdings**](docs/PortfolioApi.md#get_holdings) | **GET** /v2/portfolio/long-term-holdings | Get Holdings
+*PortfolioApi* | [**get_mtf_positions**](docs/PortfolioApi.md#get_mtf_positions) | **GET** /v3/portfolio/mtf-positions | Get MTF positions
 *PortfolioApi* | [**get_positions**](docs/PortfolioApi.md#get_positions) | **GET** /v2/portfolio/short-term-positions | Get Positions
 *PostTradeApi* | [**get_trades_by_date_range**](docs/PostTradeApi.md#get_trades_by_date_range) | **GET** /v2/charges/historical-trades | Get historical trades
 *TradeProfitAndLossApi* | [**get_profit_and_loss_charges**](docs/TradeProfitAndLossApi.md#get_profit_and_loss_charges) | **GET** /v2/trade/profit-loss/charges | Get profit and loss on trades
@@ -809,15 +820,22 @@ if __name__ == "__main__":
  - [DepthMap](docs/DepthMap.md)
  - [DpPlan](docs/DpPlan.md)
  - [ExchangeTimingData](docs/ExchangeTimingData.md)
+ - [ExpiredFutureData](docs/ExpiredFutureData.md)
  - [GetBrokerageResponse](docs/GetBrokerageResponse.md)
  - [GetExchangeTimingResponse](docs/GetExchangeTimingResponse.md)
+ - [GetExpiredFuturesContractResponse](docs/GetExpiredFuturesContractResponse.md)
+ - [GetExpiriesResponse](docs/GetExpiriesResponse.md)
  - [GetFullMarketQuoteResponse](docs/GetFullMarketQuoteResponse.md)
+ - [GetGttOrderResponse](docs/GetGttOrderResponse.md)
  - [GetHistoricalCandleResponse](docs/GetHistoricalCandleResponse.md)
  - [GetHoldingsResponse](docs/GetHoldingsResponse.md)
  - [GetHolidayResponse](docs/GetHolidayResponse.md)
  - [GetIntraDayCandleResponse](docs/GetIntraDayCandleResponse.md)
  - [GetMarketQuoteLastTradedPriceResponse](docs/GetMarketQuoteLastTradedPriceResponse.md)
+ - [GetMarketQuoteLastTradedPriceResponseV3](docs/GetMarketQuoteLastTradedPriceResponseV3.md)
  - [GetMarketQuoteOHLCResponse](docs/GetMarketQuoteOHLCResponse.md)
+ - [GetMarketQuoteOHLCResponseV3](docs/GetMarketQuoteOHLCResponseV3.md)
+ - [GetMarketQuoteOptionGreekResponseV3](docs/GetMarketQuoteOptionGreekResponseV3.md)
  - [GetMarketStatusResponse](docs/GetMarketStatusResponse.md)
  - [GetOptionChainResponse](docs/GetOptionChainResponse.md)
  - [GetOptionContractResponse](docs/GetOptionContractResponse.md)
@@ -831,6 +849,13 @@ if __name__ == "__main__":
  - [GetTradeWiseProfitAndLossDataResponse](docs/GetTradeWiseProfitAndLossDataResponse.md)
  - [GetTradeWiseProfitAndLossMetaDataResponse](docs/GetTradeWiseProfitAndLossMetaDataResponse.md)
  - [GetUserFundMarginResponse](docs/GetUserFundMarginResponse.md)
+ - [GttCancelOrderRequest](docs/GttCancelOrderRequest.md)
+ - [GttModifyOrderRequest](docs/GttModifyOrderRequest.md)
+ - [GttOrderData](docs/GttOrderData.md)
+ - [GttOrderDetails](docs/GttOrderDetails.md)
+ - [GttPlaceOrderRequest](docs/GttPlaceOrderRequest.md)
+ - [GttRule](docs/GttRule.md)
+ - [GttTriggerOrderResponse](docs/GttTriggerOrderResponse.md)
  - [HistoricalCandleData](docs/HistoricalCandleData.md)
  - [HoldingsData](docs/HoldingsData.md)
  - [HolidayData](docs/HolidayData.md)
@@ -846,8 +871,11 @@ if __name__ == "__main__":
  - [MarginRequest](docs/MarginRequest.md)
  - [MarketData](docs/MarketData.md)
  - [MarketQuoteOHLC](docs/MarketQuoteOHLC.md)
+ - [MarketQuoteOHLCV3](docs/MarketQuoteOHLCV3.md)
+ - [MarketQuoteOptionGreekV3](docs/MarketQuoteOptionGreekV3.md)
  - [MarketQuoteSymbol](docs/MarketQuoteSymbol.md)
  - [MarketQuoteSymbolLtp](docs/MarketQuoteSymbolLtp.md)
+ - [MarketQuoteSymbolLtpV3](docs/MarketQuoteSymbolLtpV3.md)
  - [MarketStatusData](docs/MarketStatusData.md)
  - [ModifyOrderData](docs/ModifyOrderData.md)
  - [ModifyOrderRequest](docs/ModifyOrderRequest.md)
@@ -864,6 +892,7 @@ if __name__ == "__main__":
  - [OAuthClientExceptionCauseStackTrace](docs/OAuthClientExceptionCauseStackTrace.md)
  - [OAuthClientExceptionCauseSuppressed](docs/OAuthClientExceptionCauseSuppressed.md)
  - [Ohlc](docs/Ohlc.md)
+ - [OhlcV3](docs/OhlcV3.md)
  - [OptionStrikeData](docs/OptionStrikeData.md)
  - [OrderBookData](docs/OrderBookData.md)
  - [OrderData](docs/OrderData.md)
@@ -885,6 +914,7 @@ if __name__ == "__main__":
  - [ProfitAndLossMetaDataWrapper](docs/ProfitAndLossMetaDataWrapper.md)
  - [ProfitAndLossOtherChargesTaxes](docs/ProfitAndLossOtherChargesTaxes.md)
  - [PutCallOptionChainData](docs/PutCallOptionChainData.md)
+ - [Rule](docs/Rule.md)
  - [TokenRequest](docs/TokenRequest.md)
  - [TokenResponse](docs/TokenResponse.md)
  - [TradeData](docs/TradeData.md)
