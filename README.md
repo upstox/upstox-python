@@ -197,9 +197,10 @@ Feel free to adjust the access token placeholder and any other specifics to bett
 - **ltpc**: ltpc provides information solely about the most recent trade, encompassing details such as the last trade price, time of the last trade, quantity traded, and the closing price from the previous day.
 - **full**: The full option offers comprehensive information, including the latest trade prices, D5 depth, 1-minute, 30-minute, and daily candlestick data, along with some additional details. 
 - **option_greeks**: Contains only option greeks.
+- **full_d30**: full_d30 includes Full mode data plus 30 market level quotes.      
 
 #### Functions
-1. **constructor MarketDataStreamerV3(apiClient, instrumentKeys, mode)**: Initializes the streamer with optional instrument keys and mode (`full`, `ltpc` or `option_greeks`).
+1. **constructor MarketDataStreamerV3(apiClient, instrumentKeys, mode)**: Initializes the streamer with optional instrument keys and mode (`full`, `ltpc`, `option_greeks` or `full_d30`).
 2. **connect()**: Establishes the WebSocket connection.
 3. **subscribe(instrumentKeys, mode)**: Subscribes to updates for given instrument keys in the specified mode. Both parameters are mandatory.
 4. **unsubscribe(instrumentKeys)**: Stops updates for the specified instrument keys.
