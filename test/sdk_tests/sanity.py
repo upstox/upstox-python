@@ -133,7 +133,7 @@ try:
     api_response = api_instance.place_multi_order(body)
     print( "multi_order=>  " , api_response)
 except ApiException as e:
-    print("Exception when calling OrderApi->place_order: %s\n" % e.body)
+    print("Exception when calling OrderApi->multi_place_order: %s\n" % e.body)
 
 
 try:
@@ -375,7 +375,7 @@ try:
     api_response = api_instance.place_gtt_order(body=body)
     print(" gtt_order => " , api_response)
 except ApiException as e:
-    print("Exception when calling OrderApi->place_order: %s\n" % e)
+    print("Exception when calling OrderApi->gtt_place_order: %s\n" % e)
 
 body = upstox_client.GttModifyOrderRequest(type="MULTIPLE", gtt_order_id="GTT-C2503030018840", rules=rules, quantity=2)
 try:
@@ -402,7 +402,7 @@ try:
     if api_response.status != "success":
         print("get_option_contracts giving error")
 except ApiException as e:
-    print("Exception when calling OrderApi->place_order: %s\n" % e)
+    print("Exception when calling OrderApi->get_gtt_order_details: %s\n" % e)
 
 body = upstox_client.PlaceOrderV3Request(quantity=1, product="D",validity="DAY", price=9.12, tag="string", instrument_token="NSE_EQ|INE669E01016", order_type="LIMIT",transaction_type="BUY", disclosed_quantity=0, trigger_price=0.0, is_amo=True, slice=True)
 
@@ -539,7 +539,8 @@ except ApiException as e:
 apiInstance = upstox_client.ExpiredInstrumentApi(upstox_client.ApiClient(configuration))
 try:
     response = apiInstance.get_expiries("NSE_INDEX|Nifty 50")
-    print(response)
+    if api_response.status != "success":
+        print("error in get_expiries")
 except ApiException as e:
     print("Exception when calling expired instrument v3 api: %s\n" % e)
 
@@ -547,21 +548,24 @@ except ApiException as e:
 
 try:
     response = apiInstance.get_expired_option_contracts("NSE_INDEX|Nifty 50", "2025-04-30")
-    print(response)
+    if api_response.status != "success":
+        print("error in get_expired_option_contracts")
 except ApiException as e:
     print("Exception when calling expired instrument v3 api: %s\n" % e)
 
 
 try:
     response = apiInstance.get_expired_future_contracts("NSE_INDEX|Nifty 50", "2025-04-24")
-    print(response)
+    if api_response.status != "success":
+        print("error in get_expired_future_contracts")
 except ApiException as e:
     print("Exception when calling expired instrument v3 api: %s\n" % e)
 
 
 try:
     response = apiInstance.get_expired_historical_candle_data("NSE_FO|54452|24-04-2025", "1minute", "2025-04-24", "2025-04-24")
-    print(response)
+    if api_response.status != "success":
+        print("error in get_expired_historical_candle_data")
 except ApiException as e:
     print("Exception when calling expired instrument v3 api: %s\n" % e)
 

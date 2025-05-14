@@ -321,7 +321,7 @@ class PortfolioApi(object):
             _request_timeout=params.get('_request_timeout'),
             collection_formats=collection_formats)
 
-    def get_positions(self, **kwargs):  # noqa: E501
+    def get_positions(self, api_version, **kwargs):  # noqa: E501
         """Get Positions  # noqa: E501
 
         Fetches the current positions for the user for the current day.  # noqa: E501
