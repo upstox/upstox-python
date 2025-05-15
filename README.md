@@ -36,7 +36,7 @@ Then import the package:
 ```python
 import upstox_client 
 ```
-
+ 
 ### Setuptools
 
 Install via [Setuptools](http://pypi.python.org/pypi/setuptools).
