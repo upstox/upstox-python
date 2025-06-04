@@ -130,13 +130,6 @@ class ProfileData(object):
         :param exchanges: The exchanges of this ProfileData.  # noqa: E501
         :type: list[str]
         """
-        allowed_values = ["NSE", "NFO", "CDS", "BSE", "BFO", "BCD", "MCX", "NSCOM"]  # noqa: E501
-        if not set(exchanges).issubset(set(allowed_values)):
-            raise ValueError(
-                "Invalid values for `exchanges` [{0}], must be a subset of [{1}]"  # noqa: E501
-                .format(", ".join(map(str, set(exchanges) - set(allowed_values))),  # noqa: E501
-                        ", ".join(map(str, allowed_values)))
-            )
 
         self._exchanges = exchanges
 
@@ -160,13 +153,6 @@ class ProfileData(object):
         :param products: The products of this ProfileData.  # noqa: E501
         :type: list[str]
         """
-        allowed_values = ["I", "D", "CO", "OCO", "MTF"]  # noqa: E501
-        if not set(products).issubset(set(allowed_values)):
-            raise ValueError(
-                "Invalid values for `products` [{0}], must be a subset of [{1}]"  # noqa: E501
-                .format(", ".join(map(str, set(products) - set(allowed_values))),  # noqa: E501
-                        ", ".join(map(str, allowed_values)))
-            )
 
         self._products = products
 

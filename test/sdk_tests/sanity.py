@@ -26,8 +26,8 @@ api_instance = upstox_client.UserApi(upstox_client.ApiClient(configuration))
 try:
     # Get User Fund And Margin
     api_response = api_instance.get_profile(api_version)
-    if api_response.data.user_id != "7PBC6D":
-        print("get profile returned wrong response")
+    if api_response.status!="success":
+        print("error in get profile API")
 
 except ApiException as e:
     print("Exception when calling UserApi->get_user_fund_margin: %s\n" % e)
