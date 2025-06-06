@@ -187,12 +187,6 @@ class OrderData(object):
         :param exchange: The exchange of this OrderData.  # noqa: E501
         :type: str
         """
-        allowed_values = ["NSE", "NFO", "CDS", "BSE", "BFO", "BCD", "MCX"]  # noqa: E501
-        if exchange not in allowed_values:
-            raise ValueError(
-                "Invalid value for `exchange` ({0}), must be one of {1}"  # noqa: E501
-                .format(exchange, allowed_values)
-            )
 
         self._exchange = exchange
 
@@ -239,12 +233,6 @@ class OrderData(object):
         :param product: The product of this OrderData.  # noqa: E501
         :type: str
         """
-        allowed_values = ["I", "D", "CO", "OCO", "MTF"]  # noqa: E501
-        if product not in allowed_values:
-            raise ValueError(
-                "Invalid value for `product` ({0}), must be one of {1}"  # noqa: E501
-                .format(product, allowed_values)
-            )
 
         self._product = product
 
