@@ -377,6 +377,17 @@ try:
 except ApiException as e:
     print("Exception when calling OrderApi->gtt_place_order: %s\n" % e)
 
+entry_rule = upstox_client.GttRule(strategy="ENTRY", trigger_type="BELOW", trigger_price=60)
+target_rule = upstox_client.GttRule(strategy="TARGET", trigger_type="IMMEDIATE", trigger_price=90)
+stoploss_rule = upstox_client.GttRule(strategy="STOPLOSS", trigger_type="IMMEDIATE", trigger_price=50, trailing_gap=3)
+rules = [entry_rule, target_rule, stoploss_rule]
+body = upstox_client.GttPlaceOrderRequest(type="MULTIPLE", instrument_token="NSE_EQ|INE584A01023", product="MTF", quantity=1, rules=rules, transaction_type="BUY")
+try:
+    api_response = api_instance.place_gtt_order(body=body)
+    print(" tsl gtt_order => " , api_response)
+except ApiException as e:
+    print("Exception when calling OrderApi->place_order: %s\n" % e)
+
 body = upstox_client.GttModifyOrderRequest(type="MULTIPLE", gtt_order_id="GTT-C2503030018840", rules=rules, quantity=2)
 try:
     api_response = api_instance.modify_gtt_order(body=body)
