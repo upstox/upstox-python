@@ -30,24 +30,29 @@ class GttRule(object):
     swagger_types = {
         'strategy': 'str',
         'trigger_type': 'str',
-        'trigger_price': 'float'
+        'trigger_price': 'float',
+        'trailing_gap': 'float'
     }
 
     attribute_map = {
         'strategy': 'strategy',
         'trigger_type': 'trigger_type',
-        'trigger_price': 'trigger_price'
+        'trigger_price': 'trigger_price',
+        'trailing_gap': 'trailing_gap'
     }
 
-    def __init__(self, strategy=None, trigger_type=None, trigger_price=None):  # noqa: E501
+    def __init__(self, strategy=None, trigger_type=None, trigger_price=None, trailing_gap=None):  # noqa: E501
         """GttRule - a model defined in Swagger"""  # noqa: E501
         self._strategy = None
         self._trigger_type = None
         self._trigger_price = None
+        self._trailing_gap = None
         self.discriminator = None
         self.strategy = strategy
         self.trigger_type = trigger_type
         self.trigger_price = trigger_price
+        if trailing_gap is not None:
+            self.trailing_gap = trailing_gap
 
     @property
     def strategy(self):
@@ -135,6 +140,29 @@ class GttRule(object):
             raise ValueError("Invalid value for `trigger_price`, must not be `None`")  # noqa: E501
 
         self._trigger_price = trigger_price
+
+    @property
+    def trailing_gap(self):
+        """Gets the trailing_gap of this GttRule.  # noqa: E501
+
+        Optional parameter defining the trailing gap for the GTT order  # noqa: E501
+
+        :return: The trailing_gap of this GttRule.  # noqa: E501
+        :rtype: float
+        """
+        return self._trailing_gap
+
+    @trailing_gap.setter
+    def trailing_gap(self, trailing_gap):
+        """Sets the trailing_gap of this GttRule.
+
+        Optional parameter defining the trailing gap for the GTT order  # noqa: E501
+
+        :param trailing_gap: The trailing_gap of this GttRule.  # noqa: E501
+        :type: float
+        """
+
+        self._trailing_gap = trailing_gap
 
     def to_dict(self):
         """Returns the model properties as a dict"""

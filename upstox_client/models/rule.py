@@ -34,7 +34,8 @@ class Rule(object):
         'trigger_type': 'str',
         'trigger_price': 'float',
         'transaction_type': 'str',
-        'order_id': 'str'
+        'order_id': 'str',
+        'trailing_gap': 'float'
     }
 
     attribute_map = {
@@ -44,10 +45,11 @@ class Rule(object):
         'trigger_type': 'trigger_type',
         'trigger_price': 'trigger_price',
         'transaction_type': 'transaction_type',
-        'order_id': 'order_id'
+        'order_id': 'order_id',
+        'trailing_gap': 'trailing_gap'
     }
 
-    def __init__(self, strategy=None, status=None, message=None, trigger_type=None, trigger_price=None, transaction_type=None, order_id=None):  # noqa: E501
+    def __init__(self, strategy=None, status=None, message=None, trigger_type=None, trigger_price=None, transaction_type=None, order_id=None, trailing_gap=None):  # noqa: E501
         """Rule - a model defined in Swagger"""  # noqa: E501
         self._strategy = None
         self._status = None
@@ -56,6 +58,7 @@ class Rule(object):
         self._trigger_price = None
         self._transaction_type = None
         self._order_id = None
+        self._trailing_gap = None
         self.discriminator = None
         if strategy is not None:
             self.strategy = strategy
@@ -71,6 +74,8 @@ class Rule(object):
             self.transaction_type = transaction_type
         if order_id is not None:
             self.order_id = order_id
+        if trailing_gap is not None:
+            self.trailing_gap = trailing_gap
 
     @property
     def strategy(self):
@@ -218,6 +223,27 @@ class Rule(object):
         """
 
         self._order_id = order_id
+
+    @property
+    def trailing_gap(self):
+        """Gets the trailing_gap of this Rule.  # noqa: E501
+
+
+        :return: The trailing_gap of this Rule.  # noqa: E501
+        :rtype: float
+        """
+        return self._trailing_gap
+
+    @trailing_gap.setter
+    def trailing_gap(self, trailing_gap):
+        """Sets the trailing_gap of this Rule.
+
+
+        :param trailing_gap: The trailing_gap of this Rule.  # noqa: E501
+        :type: float
+        """
+
+        self._trailing_gap = trailing_gap
 
     def to_dict(self):
         """Returns the model properties as a dict"""

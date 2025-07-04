@@ -121,7 +121,7 @@ class GttPlaceOrderRequest(object):
     def product(self):
         """Gets the product of this GttPlaceOrderRequest.  # noqa: E501
 
-        Signifies if the order was either Intraday, Delivery, CO or OCO  # noqa: E501
+        Signifies if the order was either Intraday, Delivery or MTF  # noqa: E501
 
         :return: The product of this GttPlaceOrderRequest.  # noqa: E501
         :rtype: str
@@ -132,14 +132,14 @@ class GttPlaceOrderRequest(object):
     def product(self, product):
         """Sets the product of this GttPlaceOrderRequest.
 
-        Signifies if the order was either Intraday, Delivery, CO or OCO  # noqa: E501
+        Signifies if the order was either Intraday, Delivery or MTF  # noqa: E501
 
         :param product: The product of this GttPlaceOrderRequest.  # noqa: E501
         :type: str
         """
         if product is None:
             raise ValueError("Invalid value for `product`, must not be `None`")  # noqa: E501
-        allowed_values = ["I", "D"]  # noqa: E501
+        allowed_values = ["I", "D", "MTF"]  # noqa: E501
         if product not in allowed_values:
             raise ValueError(
                 "Invalid value for `product` ({0}), must be one of {1}"  # noqa: E501
