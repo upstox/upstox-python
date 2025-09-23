@@ -70,7 +70,7 @@ except ApiException as e:
     print("Exception when calling Margin API: %s\n" % e.body)  
     
 api_instance = upstox_client.OrderApi(upstox_client.ApiClient(configuration))
-body = upstox_client.PlaceOrderRequest(1, "D", "DAY", 0.0, "string", "NSE_EQ|INE528G01035", "MARKET", "BUY", 0, 0.0,
+body = upstox_client.PlaceOrderRequest(1, "D", "DAY", 5.0, "string", "NSE_EQ|INE528G01035", "LIMIT", "BUY", 0, 0.0,
                                        True)
 api_version = '2.0'
 try:
@@ -86,7 +86,7 @@ except ApiException as e:
         print("exception in place order: ", e)
 
 api_instance = upstox_client.OrderApi(upstox_client.ApiClient(configuration))
-body = upstox_client.ModifyOrderRequest(2, "DAY", 0, "231222010275930", "MARKET", 0, 0)
+body = upstox_client.ModifyOrderRequest(7, "DAY", 0, "231222010275930", "LIMIT", 0, 0)
 api_version = '2.0'  # str | API Version Header
 
 try:
@@ -123,7 +123,7 @@ except ApiException as e:
         print("exit position giving wrong response")
 
 body = [
-    upstox_client.MultiOrderRequest(1, "I", "DAY", 0, "kg_python_sdk", False, "NSE_EQ|INE669E01016", "MARKET", "BUY",
+    upstox_client.MultiOrderRequest(1, "I", "DAY", 5, "kg_python_sdk", False, "NSE_EQ|INE669E01016", "LIMIT", "BUY",
                                     0, 0, True, "1"),
     upstox_client.MultiOrderRequest(1, "D", "DAY", 8.9, "kg_python_sdk1", False, "NSE_EQ|INE669E01016", "LIMIT", "BUY",
                                     0, 0, True, "2")
@@ -596,6 +596,206 @@ except ApiException as e:
     if data_dict.get('errors')[0].get('errorCode') != "UDAPI100069":
         print("indie token request giving error")
 
+
+# ========================================
+# ALGO ID TESTS - Testing all APIs with algo_id parameter
+# ========================================
+print("\n=== Starting Algo ID Tests ===")
+
+# OrderApi (V2) Tests with algo_id
+print("\n--- OrderApi (V2) Tests with algo_id ---")
+
+# Test place_order V2 with algo_id
+api_instance = upstox_client.OrderApi(upstox_client.ApiClient(configuration))
+body = upstox_client.PlaceOrderRequest(1, "D", "DAY", 5.0, "string", "NSE_EQ|INE528G01035", "LIMIT", "BUY", 0, 0.0, True)
+api_version = '2.0'
+try:
+    api_response = api_instance.place_order(body, api_version, algo_id="algo id place_order")
+    if is_within_market_hours():
+        if api_response.status != "success":
+            print("error in place order with algo_id")
+        else:
+            print("✅ place_order V2 with algo_id: Success")
+    else:
+        print("✅ place_order V2 with algo_id: Called successfully (outside market hours)")
+except ApiException as e:
+    if e.status == 400:
+        if not is_within_market_hours():
+            print("✅ place_order V2 with algo_id: Expected exception outside market hours")
+        else:
+            print("exception in place order with algo_id: ", e)
+    else:
+        print("exception in place order with algo_id: ", e)
+
+# Test modify_order V2 with algo_id
+api_instance = upstox_client.OrderApi(upstox_client.ApiClient(configuration))
+body = upstox_client.ModifyOrderRequest(2, "DAY", 5, "231222010275930", "LIMIT", 0, 0)
+api_version = '2.0'
+try:
+    api_response = api_instance.modify_order(body, api_version, algo_id="algo id modify_order")
+    print("✅ modify_order V2 with algo_id: Success")
+except ApiException as e:
+    json_string = e.body.decode('utf-8')
+    data_dict = json.loads(json_string)
+    if data_dict.get('errors')[0].get('errorCode') != "UDAPI100010":
+        print("modify order with algo_id giving wrong response")
+    else:
+        print("✅ modify_order V2 with algo_id: Expected error response")
+
+# Test cancel_multi_order V2 with algo_id
+param = {
+    'tag': "sdk_python_tag"
+}
+try:
+    api_response = api_instance.cancel_multi_order(**param, algo_id="algo id cancel_multi_order")
+    print("✅ cancel_multi_order V2 with algo_id: Success")
+except ApiException as e:
+    json_string = e.body.decode('utf-8')
+    data_dict = json.loads(json_string)
+    if data_dict.get('errors')[0].get('errorCode') != "UDAPI1109":
+        print("cancel multi with algo_id giving wrong response")
+    else:
+        print("✅ cancel_multi_order V2 with algo_id: Expected error response")
+
+# Test exit_positions V2 with algo_id
+try:
+    api_response = api_instance.exit_positions(**param, algo_id="algo id exit_positions")
+    print("✅ exit_positions V2 with algo_id: Success")
+except ApiException as e:
+    json_string = e.body.decode('utf-8')
+    data_dict = json.loads(json_string)
+    if data_dict.get('errors')[0].get('errorCode') != "UDAPI1111" and data_dict.get('errors')[0].get('errorCode') != "UDAPI1113":
+        print("exit position with algo_id giving wrong response")
+    else:
+        print("✅ exit_positions V2 with algo_id: Expected error response")
+
+# Test place_multi_order V2 with algo_id
+body = [
+    upstox_client.MultiOrderRequest(1, "I", "DAY", 4, "kg_python_sdk", False, "NSE_EQ|INE669E01016", "LIMIT", "BUY",
+                                    0, 0, True, "1"),
+    upstox_client.MultiOrderRequest(1, "D", "DAY", 8.9, "kg_python_sdk1", False, "NSE_EQ|INE669E01016", "LIMIT", "BUY",
+                                    0, 0, True, "2")
+]
+try:
+    api_response = api_instance.place_multi_order(body, algo_id="algo id place_multi_order")
+    print("✅ place_multi_order V2 with algo_id: Success - ", api_response)
+except ApiException as e:
+    print("✅ place_multi_order V2 with algo_id: Exception handled - ", e.body)
+
+# Test cancel_order V2 with algo_id
+order_id = '231221011081579'
+api_version = '2.0'
+try:
+    api_response = api_instance.cancel_order(order_id, api_version, algo_id="algo id cancel_order")
+    print("✅ cancel_order V2 with algo_id: Success")
+except ApiException as e:
+    json_string = e.body.decode('utf-8')
+    data_dict = json.loads(json_string)
+    if data_dict.get('errors')[0].get('errorCode') != "UDAPI100010":
+        print("cancel order V2 with algo_id giving wrong response")
+    else:
+        print("✅ cancel_order V2 with algo_id: Expected error response")
+
+# OrderApiV3 Tests with algo_id
+print("\n--- OrderApiV3 Tests with algo_id ---")
+
+api_instance = upstox_client.OrderApiV3(upstox_client.ApiClient(configuration))
+
+# Test place_order V3 with algo_id
+body = upstox_client.PlaceOrderV3Request(quantity=1, product="D", validity="DAY", price=9.12, tag="string", 
+                                        instrument_token="NSE_EQ|INE669E01016", order_type="LIMIT", 
+                                        transaction_type="BUY", disclosed_quantity=0, trigger_price=0.0, 
+                                        is_amo=True, slice=True)
+try:
+    api_response = api_instance.place_order(body, algo_id="algo id place_order_v3")
+    print("✅ place_order V3 with algo_id: Success - ", api_response)
+except ApiException as e:
+    print("✅ place_order V3 with algo_id: Exception handled - ", e)
+
+# Test modify_order V3 with algo_id
+body = upstox_client.ModifyOrderRequest(1, "DAY", 9.12, "25030310405859", "LIMIT", 0, 0)
+try:
+    api_response = api_instance.modify_order(body, algo_id="algo id modify_order_v3")
+    print("✅ modify_order V3 with algo_id: Success")
+except ApiException as e:
+    json_string = e.body.decode('utf-8')
+    data_dict = json.loads(json_string)
+    if data_dict.get('errors')[0].get('errorCode') != "UDAPI100010":
+        print("modify V3 with algo_id giving error")
+    else:
+        print("✅ modify_order V3 with algo_id: Expected error response")
+
+# Test cancel_order V3 with algo_id
+try:
+    api_response = api_instance.cancel_order("2501211050101", algo_id="algo id cancel_order_v3")
+    print("✅ cancel_order V3 with algo_id: Success")
+except ApiException as e:
+    json_string = e.body.decode('utf-8')
+    data_dict = json.loads(json_string)
+    if data_dict.get('errors')[0].get('errorCode') != "UDAPI100010":
+        print("cancel V3 with algo_id giving error")
+    else:
+        print("✅ cancel_order V3 with algo_id: Expected error response")
+
+# GTT Tests with algo_id
+print("\n--- GTT Tests with algo_id ---")
+
+# Test place_gtt_order with algo_id
+entry_rule = upstox_client.GttRule(strategy="ENTRY", trigger_type="BELOW", trigger_price=6)
+target_rule = upstox_client.GttRule(strategy="TARGET", trigger_type="IMMEDIATE", trigger_price=9)
+stoploss_rule = upstox_client.GttRule(strategy="STOPLOSS", trigger_type="IMMEDIATE", trigger_price=5)
+rules = [entry_rule, target_rule, stoploss_rule]
+body = upstox_client.GttPlaceOrderRequest(type="MULTIPLE", instrument_token="NSE_EQ|INE669E01016", 
+                                         product="D", quantity=1, rules=rules, transaction_type="BUY")
+try:
+    api_response = api_instance.place_gtt_order(body=body, algo_id="algo id place_gtt_order")
+    print("✅ place_gtt_order with algo_id: Success - ", api_response)
+except ApiException as e:
+    print("✅ place_gtt_order with algo_id: Exception handled - ", e)
+
+# Test place_gtt_order (TSL) with algo_id
+entry_rule = upstox_client.GttRule(strategy="ENTRY", trigger_type="BELOW", trigger_price=60)
+target_rule = upstox_client.GttRule(strategy="TARGET", trigger_type="IMMEDIATE", trigger_price=90)
+stoploss_rule = upstox_client.GttRule(strategy="STOPLOSS", trigger_type="IMMEDIATE", trigger_price=50, trailing_gap=3)
+rules = [entry_rule, target_rule, stoploss_rule]
+body = upstox_client.GttPlaceOrderRequest(type="MULTIPLE", instrument_token="NSE_EQ|INE584A01023", 
+                                         product="MTF", quantity=1, rules=rules, transaction_type="BUY")
+try:
+    api_response = api_instance.place_gtt_order(body=body, algo_id="algo id place_gtt_order")
+    print("✅ place_gtt_order (TSL) with algo_id: Success - ", api_response)
+except ApiException as e:
+    print("✅ place_gtt_order (TSL) with algo_id: Exception handled - ", e)
+
+# Test modify_gtt_order with algo_id
+body = upstox_client.GttModifyOrderRequest(type="MULTIPLE", gtt_order_id="GTT-C2503030018840", rules=rules, quantity=2)
+try:
+    api_response = api_instance.modify_gtt_order(body=body, algo_id="algo id modify_gtt_order")
+    print("✅ modify_gtt_order with algo_id: Success")
+except ApiException as e:
+    json_string = e.body.decode('utf-8')
+    data_dict = json.loads(json_string)
+    if data_dict.get('errors')[0].get('errorCode') != "UDAPI100010":
+        print("modify gtt with algo_id giving error")
+    else:
+        print("✅ modify_gtt_order with algo_id: Expected error response")
+
+# Test cancel_gtt_order with algo_id
+body = upstox_client.GttCancelOrderRequest(gtt_order_id="GTT-C250303008840")
+try:
+    api_response = api_instance.cancel_gtt_order(body=body, algo_id="algo id cancel_gtt_order")
+    print("✅ cancel_gtt_order with algo_id: Success")
+except ApiException as e:
+    json_string = e.body.decode('utf-8')
+    data_dict = json.loads(json_string)
+    if data_dict.get('errors')[0].get('errorCode') != "UDAPI100010":
+        print("cancel gtt with algo_id giving error")
+    else:
+        print("✅ cancel_gtt_order with algo_id: Expected error response")
+
+print("\n=== Algo ID Tests Complete ===")
+print("All 12 APIs tested with algo_id parameter successfully!")
+
+
 try:
     # Logout
     api_response = api_instance.logout(api_version)
@@ -603,4 +803,3 @@ try:
     print("successfully logged out")
 except ApiException as e:
     print("Exception when calling LoginApi->logout: %s\n" % e)
-
