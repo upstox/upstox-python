@@ -47,6 +47,7 @@ coverage.xml
 .hypothesis/
 venv/
 myenv/
+venv_new/
 .python-version
 
 # Translations
@@ -73,3 +74,6 @@ git_push.sh
 
 #Intellij
 .idea/
+
+#cursor
+.cursor/

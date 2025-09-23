@@ -67,12 +67,13 @@ class OrderApi(object):
         :param async_req bool
         :param str tag: The tag associated with the orders for which the orders must be cancelled
         :param str segment: The segment for which the orders must be cancelled
+        :param str algo_id: Algorithm ID for the order (optional)
         :return: CancelOrExitMultiOrderResponse
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['tag', 'segment']  # noqa: E501
+        all_params = ['tag', 'segment', 'algo_id']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -99,6 +100,8 @@ class OrderApi(object):
             query_params.append(('segment', params['segment']))  # noqa: E501
 
         header_params = {}
+        if 'algo_id' in params:
+            header_params['X-Algo-Id'] = params['algo_id']  # noqa: E501
 
         form_params = []
         local_var_files = {}
@@ -162,12 +165,13 @@ class OrderApi(object):
         :param async_req bool
         :param str order_id: The order ID for which the order must be cancelled (required)
         :param str api_version: API Version Header (required)
+        :param str algo_id: Algorithm ID for the order (optional)
         :return: CancelOrderResponse
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['order_id', 'api_version']  # noqa: E501
+        all_params = ['order_id', 'api_version', 'algo_id']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -202,6 +206,8 @@ class OrderApi(object):
         header_params = {}
         if 'api_version' in params:
             header_params['Api-Version'] = params['api_version']  # noqa: E501
+        if 'algo_id' in params:
+            header_params['X-Algo-Id'] = params['algo_id']  # noqa: E501
 
         form_params = []
         local_var_files = {}
@@ -265,12 +271,13 @@ class OrderApi(object):
         :param async_req bool
         :param str tag: The tag associated with the positions for which the positions must be exit
         :param str segment: The segment for which the positions must be exit
+        :param str algo_id: Algorithm ID for the order (optional)
         :return: CancelOrExitMultiOrderResponse
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['tag', 'segment']  # noqa: E501
+        all_params = ['tag', 'segment', 'algo_id']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -297,6 +304,8 @@ class OrderApi(object):
             query_params.append(('segment', params['segment']))  # noqa: E501
 
         header_params = {}
+        if 'algo_id' in params:
+            header_params['X-Algo-Id'] = params['algo_id']  # noqa: E501
 
         form_params = []
         local_var_files = {}
@@ -847,12 +856,13 @@ class OrderApi(object):
         :param async_req bool
         :param ModifyOrderRequest body: (required)
         :param str api_version: API Version Header (required)
+        :param str algo_id: Algorithm ID for the order (optional)
         :return: ModifyOrderResponse
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['body', 'api_version']  # noqa: E501
+        all_params = ['body', 'api_version', 'algo_id']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -885,6 +895,8 @@ class OrderApi(object):
         header_params = {}
         if 'api_version' in params:
             header_params['Api-Version'] = params['api_version']  # noqa: E501
+        if 'algo_id' in params:
+            header_params['X-Algo-Id'] = params['algo_id']  # noqa: E501
 
         form_params = []
         local_var_files = {}
@@ -952,12 +964,13 @@ class OrderApi(object):
 
         :param async_req bool
         :param list[MultiOrderRequest] body: (required)
+        :param str algo_id: Algorithm ID for the order (optional)
         :return: MultiOrderResponse
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['body']  # noqa: E501
+        all_params = ['body', 'algo_id']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -984,6 +997,8 @@ class OrderApi(object):
         query_params = []
 
         header_params = {}
+        if 'algo_id' in params:
+            header_params['X-Algo-Id'] = params['algo_id']  # noqa: E501
 
         form_params = []
         local_var_files = {}
@@ -1053,12 +1068,13 @@ class OrderApi(object):
         :param async_req bool
         :param PlaceOrderRequest body: (required)
         :param str api_version: API Version Header (required)
+        :param str algo_id: Algorithm ID for the order (optional)
         :return: PlaceOrderResponse
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['body', 'api_version']  # noqa: E501
+        all_params = ['body', 'api_version', 'algo_id']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -1091,6 +1107,8 @@ class OrderApi(object):
         header_params = {}
         if 'api_version' in params:
             header_params['Api-Version'] = params['api_version']  # noqa: E501
+        if 'algo_id' in params:
+            header_params['X-Algo-Id'] = params['algo_id']  # noqa: E501
 
         form_params = []
         local_var_files = {}
