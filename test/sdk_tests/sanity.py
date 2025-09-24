@@ -581,22 +581,6 @@ except ApiException as e:
     print("Exception when calling expired instrument v3 api: %s\n" % e)
 
 
-
-
-api_instance = upstox_client.LoginApi(upstox_client.ApiClient(configuration))
-api_version = '2.0'
-
-body = upstox_client.IndieUserTokenRequest(client_secret="9rmbdvjsb")
-try:
-    api_response = api_instance.init_token_request_for_indie_user(body,client_id="fd33050-ac87-4ecb-b4e1-4ec994c70c32")
-    print(api_response)
-except ApiException as e:
-    json_string = e.body.decode('utf-8')
-    data_dict = json.loads(json_string)
-    if data_dict.get('errors')[0].get('errorCode') != "UDAPI100069":
-        print("indie token request giving error")
-
-
 # ========================================
 # ALGO ID TESTS - Testing all APIs with algo_id parameter
 # ========================================
@@ -795,6 +779,19 @@ except ApiException as e:
 print("\n=== Algo ID Tests Complete ===")
 print("All 12 APIs tested with algo_id parameter successfully!")
 
+
+api_instance = upstox_client.LoginApi(upstox_client.ApiClient(configuration))
+api_version = '2.0'
+
+body = upstox_client.IndieUserTokenRequest(client_secret="9rmbdvjsb")
+try:
+    api_response = api_instance.init_token_request_for_indie_user(body,client_id="fd33050-ac87-4ecb-b4e1-4ec994c70c32")
+    print(api_response)
+except ApiException as e:
+    json_string = e.body.decode('utf-8')
+    data_dict = json.loads(json_string)
+    if data_dict.get('errors')[0].get('errorCode') != "UDAPI100069":
+        print("indie token request giving error")
 
 try:
     # Logout
