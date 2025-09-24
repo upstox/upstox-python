@@ -5,7 +5,7 @@ configuration = upstox_client.Configuration()
 configuration.access_token = data_token.access_token
 instruments = data_token.sample_instrument_key
 streamer = upstox_client.MarketDataStreamerV3(
-    upstox_client.ApiClient(configuration), instrumentKeys=["NSE_INDEX|Nifty 50"], mode="full_d30")
+    upstox_client.ApiClient(configuration), instrumentKeys=["NSE_INDEX|Nifty 50", "NSE_INDEX|Nifty Bank"], mode="full")
 
 streamer.auto_reconnect(True, 5, 10)
 
