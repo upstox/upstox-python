@@ -65,13 +65,13 @@ class OrderApiV3(object):
 
         :param async_req bool
         :param GttCancelOrderRequest body: (required)
-        :param str algo_id: Algorithm ID for the order (optional)
+        :param str algo_name: Algorithm name for the order (optional)
         :return: GttTriggerOrderResponse
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['body', 'algo_id']  # noqa: E501
+        all_params = ['body', 'algo_name']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -98,8 +98,8 @@ class OrderApiV3(object):
         query_params = []
 
         header_params = {}
-        if 'algo_id' in params:
-            header_params['X-Algo-Id'] = params['algo_id']  # noqa: E501
+        if 'algo_name' in params:
+            header_params['X-Algo-Name'] = params['algo_name']  # noqa: E501
 
         form_params = []
         local_var_files = {}
@@ -167,13 +167,13 @@ class OrderApiV3(object):
         :param async_req bool
         :param str order_id: (required)
         :param str origin:
-        :param str algo_id: Algorithm ID for the order (optional)
+        :param str algo_name: Algorithm name for the order (optional)
         :return: CancelOrderV3Response
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['order_id', 'origin', 'algo_id']  # noqa: E501
+        all_params = ['order_id', 'origin', 'algo_name']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -204,8 +204,8 @@ class OrderApiV3(object):
         header_params = {}
         if 'origin' in params:
             header_params['Origin'] = params['origin']  # noqa: E501
-        if 'algo_id' in params:
-            header_params['X-Algo-Id'] = params['algo_id']  # noqa: E501
+        if 'algo_name' in params:
+            header_params['X-Algo-Name'] = params['algo_name']  # noqa: E501
 
         form_params = []
         local_var_files = {}
@@ -358,13 +358,13 @@ class OrderApiV3(object):
 
         :param async_req bool
         :param GttModifyOrderRequest body: (required)
-        :param str algo_id: Algorithm ID for the order (optional)
+        :param str algo_name: Algorithm name for the order (optional)
         :return: GttTriggerOrderResponse
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['body', 'algo_id']  # noqa: E501
+        all_params = ['body', 'algo_name']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -391,8 +391,8 @@ class OrderApiV3(object):
         query_params = []
 
         header_params = {}
-        if 'algo_id' in params:
-            header_params['X-Algo-Id'] = params['algo_id']  # noqa: E501
+        if 'algo_name' in params:
+            header_params['X-Algo-Name'] = params['algo_name']  # noqa: E501
 
         form_params = []
         local_var_files = {}
@@ -460,13 +460,13 @@ class OrderApiV3(object):
         :param async_req bool
         :param ModifyOrderRequest body: (required)
         :param str origin:
-        :param str algo_id: Algorithm ID for the order (optional)
+        :param str algo_name: Algorithm name for the order (optional)
         :return: ModifyOrderV3Response
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['body', 'origin', 'algo_id']  # noqa: E501
+        all_params = ['body', 'origin', 'algo_name']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -495,8 +495,8 @@ class OrderApiV3(object):
         header_params = {}
         if 'origin' in params:
             header_params['Origin'] = params['origin']  # noqa: E501
-        if 'algo_id' in params:
-            header_params['X-Algo-Id'] = params['algo_id']  # noqa: E501
+        if 'algo_name' in params:
+            header_params['X-Algo-Name'] = params['algo_name']  # noqa: E501
 
         form_params = []
         local_var_files = {}
@@ -564,13 +564,13 @@ class OrderApiV3(object):
 
         :param async_req bool
         :param GttPlaceOrderRequest body: (required)
-        :param str algo_id: Algorithm ID for the order (optional)
+        :param str algo_name: Algorithm name for the order (optional)
         :return: GttTriggerOrderResponse
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['body', 'algo_id']  # noqa: E501
+        all_params = ['body', 'algo_name']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -597,8 +597,8 @@ class OrderApiV3(object):
         query_params = []
 
         header_params = {}
-        if 'algo_id' in params:
-            header_params['X-Algo-Id'] = params['algo_id']  # noqa: E501
+        if 'algo_name' in params:
+            header_params['X-Algo-Name'] = params['algo_name']  # noqa: E501
 
         form_params = []
         local_var_files = {}
@@ -666,13 +666,13 @@ class OrderApiV3(object):
         :param async_req bool
         :param PlaceOrderV3Request body: (required)
         :param str origin:
-        :param str algo_id: Algorithm ID for the order (optional)
+        :param str algo_name: Algorithm name for the order (optional)
         :return: PlaceOrderV3Response
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['body', 'origin', 'algo_id']  # noqa: E501
+        all_params = ['body', 'origin', 'algo_name']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -701,8 +701,8 @@ class OrderApiV3(object):
         header_params = {}
         if 'origin' in params:
             header_params['Origin'] = params['origin']  # noqa: E501
-        if 'algo_id' in params:
-            header_params['X-Algo-Id'] = params['algo_id']  # noqa: E501
+        if 'algo_name' in params:
+            header_params['X-Algo-Name'] = params['algo_name']  # noqa: E501
 
         form_params = []
         local_var_files = {}
