@@ -74,7 +74,7 @@ class ApiClient(object):
         # Set default User-Agent.
         self.user_agent = 'Swagger-Codegen/1.0.0/python'
         self.default_headers["X-Upstox-SDK-Language"] = "python"
-        self.default_headers["X-Upstox-SDK-Version"] = "2.18.0"
+        self.default_headers["X-Upstox-SDK-Version"] = "2.19.0"
 
     def __del__(self):
         try:

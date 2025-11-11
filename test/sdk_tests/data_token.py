@@ -2,6 +2,8 @@
 access_token = ""
 sandbox_access_token = ""
 
+algo_name_header="Name"
+
 sample_instrument_key = [
     "NSE_EQ|INE528G01035", "NSE_EQ|INE399C01030", "BSE_EQ|INE055E01034", "NCD_FO|14245", "NSE_EQ|INE169A01031",
     "NSE_EQ|INE437A01024", "NSE_EQ|INE044A01036", "NSE_EQ|INE868B01028", "NSE_EQ|INE202E08219", "NSE_EQ|INE044A01036",
