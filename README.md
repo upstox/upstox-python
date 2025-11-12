@@ -73,9 +73,9 @@ except ApiException as e:
 ```
 To learn more about the sandbox environment and the available sandbox APIs, please visit the [Upstox API documentation - Sandbox](https://upstox.com/developer/api-documentation/sandbox).
 
-## Algo ID Support
+## Algo Name Support
 
-The SDK supports passing an algorithm ID for order tracking and management. When provided, the SDK will pass the algo ID as `X-Algo-Id` header.
+The SDK supports passing an algorithm name for order tracking and management. When provided, the SDK will pass the algo name as `X-Algo-Name` header.
 
 ```python
 import upstox_client
@@ -85,19 +85,19 @@ configuration = upstox_client.Configuration()
 configuration.access_token = 'ACCESS_TOKEN'
 
 api_instance = upstox_client.OrderApiV3(upstox_client.ApiClient(configuration))
-body = upstox_client.PlaceOrderV3Request(quantity=1, product="D", validity="DAY", price=0, 
-                                        instrument_token="NSE_EQ|INE528G01035", order_type="MARKET", 
+body = upstox_client.PlaceOrderV3Request(quantity=1, product="D", validity="DAY", price=20, 
+                                        instrument_token="NSE_EQ|INE528G01035", order_type="LIMIT", 
                                         transaction_type="BUY", disclosed_quantity=0, trigger_price=0, 
                                         is_amo=False, slice=True)
 
 try:
-    api_response = api_instance.place_order(body, algo_id="your-algo-id")
+    api_response = api_instance.place_order(body, algo_name="your-algo-name")
     print(api_response)
 except ApiException as e:
     print("Exception when calling OrderApiV3->place_order: %s\n" % e)
 ```
 
-Other order methods (modify, cancel, etc.) follow the same pattern by accepting an optional `algo_id` as a keyword parameter.
+Other order methods (modify, cancel, etc.) follow the same pattern by accepting an optional `algo_name` as a keyword parameter.
 
 ## Examples
 
