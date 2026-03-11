@@ -31,28 +31,33 @@ class GttRule(object):
         'strategy': 'str',
         'trigger_type': 'str',
         'trigger_price': 'float',
-        'trailing_gap': 'float'
+        'trailing_gap': 'float',
+        'market_protection': 'float'
     }
 
     attribute_map = {
         'strategy': 'strategy',
         'trigger_type': 'trigger_type',
         'trigger_price': 'trigger_price',
-        'trailing_gap': 'trailing_gap'
+        'trailing_gap': 'trailing_gap',
+        'market_protection': 'market_protection'
     }
 
-    def __init__(self, strategy=None, trigger_type=None, trigger_price=None, trailing_gap=None):  # noqa: E501
+    def __init__(self, strategy=None, trigger_type=None, trigger_price=None, trailing_gap=None, market_protection=None):  # noqa: E501
         """GttRule - a model defined in Swagger"""  # noqa: E501
         self._strategy = None
         self._trigger_type = None
         self._trigger_price = None
         self._trailing_gap = None
+        self._market_protection = None
         self.discriminator = None
         self.strategy = strategy
         self.trigger_type = trigger_type
         self.trigger_price = trigger_price
         if trailing_gap is not None:
             self.trailing_gap = trailing_gap
+        if market_protection is not None:
+            self.market_protection = market_protection
 
     @property
     def strategy(self):
@@ -163,6 +168,28 @@ class GttRule(object):
         """
 
         self._trailing_gap = trailing_gap
+
+    @property
+    def market_protection(self):
+        """Gets the market_protection of this GttRule.  # noqa: E501
+
+        Optional market price protection (percentage).  # noqa: E501
+
+        :return: The market_protection of this GttRule.  # noqa: E501
+        :rtype: float
+        """
+        return self._market_protection
+
+    @market_protection.setter
+    def market_protection(self, market_protection):
+        """Sets the market_protection of this GttRule.
+
+        Optional market price protection (percentage).  # noqa: E501
+
+        :param market_protection: The market_protection of this GttRule.  # noqa: E501
+        :type: float
+        """
+        self._market_protection = market_protection
 
     def to_dict(self):
         """Returns the model properties as a dict"""

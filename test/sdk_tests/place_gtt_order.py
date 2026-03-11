@@ -9,7 +9,7 @@ api_instance = upstox_client.OrderApiV3(upstox_client.ApiClient(configuration))
 
 
 
-entry_rule = upstox_client.GttRule(strategy="ENTRY", trigger_type="ABOVE", trigger_price=7)
+entry_rule = upstox_client.GttRule(strategy="ENTRY", trigger_type="ABOVE", trigger_price=7, market_protection=0)
 target_rule = upstox_client.GttRule(strategy="TARGET", trigger_type="IMMEDIATE", trigger_price=9)
 stoploss_rule = upstox_client.GttRule(strategy="STOPLOSS", trigger_type="IMMEDIATE", trigger_price=5)
 rules = [entry_rule, target_rule, stoploss_rule]

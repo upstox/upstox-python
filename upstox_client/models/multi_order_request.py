@@ -40,7 +40,8 @@ class MultiOrderRequest(object):
         'disclosed_quantity': 'int',
         'trigger_price': 'float',
         'is_amo': 'bool',
-        'correlation_id': 'str'
+        'correlation_id': 'str',
+        'market_protection': 'float'
     }
 
     attribute_map = {
@@ -56,10 +57,11 @@ class MultiOrderRequest(object):
         'disclosed_quantity': 'disclosed_quantity',
         'trigger_price': 'trigger_price',
         'is_amo': 'is_amo',
-        'correlation_id': 'correlation_id'
+        'correlation_id': 'correlation_id',
+        'market_protection': 'market_protection'
     }
 
-    def __init__(self, quantity=None, product=None, validity=None, price=None, tag=None, slice=None, instrument_token=None, order_type=None, transaction_type=None, disclosed_quantity=None, trigger_price=None, is_amo=None, correlation_id=None):  # noqa: E501
+    def __init__(self, quantity=None, product=None, validity=None, price=None, tag=None, slice=None, instrument_token=None, order_type=None, transaction_type=None, disclosed_quantity=None, trigger_price=None, is_amo=None, correlation_id=None, market_protection=None):  # noqa: E501
         """MultiOrderRequest - a model defined in Swagger"""  # noqa: E501
         self._quantity = None
         self._product = None
@@ -74,6 +76,7 @@ class MultiOrderRequest(object):
         self._trigger_price = None
         self._is_amo = None
         self._correlation_id = None
+        self._market_protection = None
         self.discriminator = None
         self.quantity = quantity
         self.product = product
@@ -89,6 +92,8 @@ class MultiOrderRequest(object):
         self.trigger_price = trigger_price
         self.is_amo = is_amo
         self.correlation_id = correlation_id
+        if market_protection is not None:
+            self.market_protection = market_protection
 
     @property
     def quantity(self):
@@ -434,6 +439,28 @@ class MultiOrderRequest(object):
             raise ValueError("Invalid value for `correlation_id`, must not be `None`")  # noqa: E501
 
         self._correlation_id = correlation_id
+
+    @property
+    def market_protection(self):
+        """Gets the market_protection of this MultiOrderRequest.  # noqa: E501
+
+        Optional market price protection (percentage).  # noqa: E501
+
+        :return: The market_protection of this MultiOrderRequest.  # noqa: E501
+        :rtype: float
+        """
+        return self._market_protection
+
+    @market_protection.setter
+    def market_protection(self, market_protection):
+        """Sets the market_protection of this MultiOrderRequest.
+
+        Optional market price protection (percentage).  # noqa: E501
+
+        :param market_protection: The market_protection of this MultiOrderRequest.  # noqa: E501
+        :type: float
+        """
+        self._market_protection = market_protection
 
     def to_dict(self):
         """Returns the model properties as a dict"""
