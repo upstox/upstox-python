@@ -166,7 +166,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **token**
-> TokenResponse token(api_version, code=code, client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri, grant_type=grant_type)
+> TokenResponse token(api_version, code=code, client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri, grant_type=grant_type, refresh_extended_token=refresh_extended_token)
 
 Get token API
 
@@ -188,10 +188,11 @@ client_id = 'client_id_example' # str |  (optional)
 client_secret = 'client_secret_example' # str |  (optional)
 redirect_uri = 'redirect_uri_example' # str |  (optional)
 grant_type = 'grant_type_example' # str |  (optional)
+refresh_extended_token = True # bool |  (optional)
 
 try:
     # Get token API
-    api_response = api_instance.token(api_version, code=code, client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri, grant_type=grant_type)
+    api_response = api_instance.token(api_version, code=code, client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri, grant_type=grant_type, refresh_extended_token=refresh_extended_token)
     pprint(api_response)
 except ApiException as e:
     print("Exception when calling LoginApi->token: %s\n" % e)
@@ -207,6 +208,7 @@ Name | Type | Description  | Notes
  **client_secret** | **str**|  | [optional] 
  **redirect_uri** | **str**|  | [optional] 
  **grant_type** | **str**|  | [optional] 
+ **refresh_extended_token** | **bool**|  | [optional] 
 
 ### Return type
 
