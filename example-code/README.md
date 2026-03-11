@@ -39,19 +39,6 @@ Samples are grouped by API area. Each `.md` file contains one or more Python sni
 | **charges/** | Brokerage details. |
 | **trade-profit-and-loss/** | P&amp;L report, report metadata, trade charges. |
 
-### Orders subfolder
-
-The **orders/** folder has a dedicated [README](orders/README.md) with an index of all order examples (place, modify, cancel, order book, trades, etc.) and direct links to each snippet.
-
-## How to use
-
-1. Install the SDK: `pip install upstox-python-sdk`
-2. Get credentials and an access token (see **login/** examples).
-3. Open the `.md` file for the API you need (e.g. `orders/code/place-order.md`).
-4. Copy the relevant Python block, replace `{your_access_token}` and any other placeholders, and run.
-
-For production, keep credentials and tokens in environment variables or a secrets manager; do not hardcode them.
-
 ## Documentation
 
 - [Upstox API Documentation](https://upstox.com/developer/api-documentation)
