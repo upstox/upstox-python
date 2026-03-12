@@ -12,4 +12,4 @@ Links to all login-related examples in the `code/` folder.
 
 ## 3. Logout
 
-- 3.1 [Example](code/logout.md#example)
+- 3.1 [Logout Request](code/logout.md#logout-request)
