@@ -4,7 +4,7 @@
 
 ## Introduction
 
-The official Python client for communicating with the <a href="https://upstox.com/uplink/">Upstox API</a>.
+The official Python client for communicating with the <a href="https://upstox.com/developer/api-documentation/open-api">Upstox API</a>.
 
 Upstox API is a set of rest APIs that provide data required to build a complete investment and trading platform. Execute orders in real time, manage user portfolio, stream live market data (using Websocket), and more, with the easy to understand API collection. 
 
