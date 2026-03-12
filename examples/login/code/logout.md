@@ -1,4 +1,4 @@
-## Example
+## Logout Request
 
 ```python
 import upstox_client
