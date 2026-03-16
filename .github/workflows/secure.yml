@@ -1,12 +1,10 @@
 on:
   workflow_dispatch: {}
   pull_request:
-    branches:
-      - main
+    branches: [main, master]
     types: [opened, synchronize, reopened, labeled]
   push:
-    branches:
-      - main
+    branches: [main, master]
     paths:
       - .github/workflows/secure.yml
   schedule:
