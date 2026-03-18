@@ -7,6 +7,7 @@ from upstox_client.api.charge_api import ChargeApi
 from upstox_client.api.expired_instrument_api import ExpiredInstrumentApi
 from upstox_client.api.history_api import HistoryApi
 from upstox_client.api.history_v3_api import HistoryV3Api
+from upstox_client.api.instruments_api import InstrumentsApi
 from upstox_client.api.login_api import LoginApi
 from upstox_client.api.market_holidays_and_timings_api import MarketHolidaysAndTimingsApi
 from upstox_client.api.market_quote_api import MarketQuoteApi
