@@ -369,7 +369,6 @@ class LoginApi(object):
         :param str client_secret:
         :param str redirect_uri:
         :param str grant_type:
-        :param bool refresh_extended_token:
         :return: TokenResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -397,13 +396,12 @@ class LoginApi(object):
         :param str client_secret:
         :param str redirect_uri:
         :param str grant_type:
-        :param bool refresh_extended_token:
         :return: TokenResponse
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['api_version', 'code', 'client_id', 'client_secret', 'redirect_uri', 'grant_type', 'refresh_extended_token']  # noqa: E501
+        all_params = ['api_version', 'code', 'client_id', 'client_secret', 'redirect_uri', 'grant_type']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -445,8 +443,6 @@ class LoginApi(object):
             form_params.append(('redirect_uri', params['redirect_uri']))  # noqa: E501
         if 'grant_type' in params:
             form_params.append(('grant_type', params['grant_type']))  # noqa: E501
-        if 'refresh_extended_token' in params and params['refresh_extended_token'] is not None:
-            form_params.append(('refresh_extended_token', 'true' if params['refresh_extended_token'] else 'false'))  # noqa: E501
 
         body_params = None
         # HTTP header `Accept`
