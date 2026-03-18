@@ -77,6 +77,9 @@ from upstox_client.models.indie_user_init_token_response import IndieUserInitTok
 from upstox_client.models.indie_user_token_request import IndieUserTokenRequest
 from upstox_client.models.instrument import Instrument
 from upstox_client.models.instrument_data import InstrumentData
+from upstox_client.models.search_instrument_response import SearchInstrumentResponse
+from upstox_client.models.search_meta_data import SearchMetaData
+from upstox_client.models.search_page import SearchPage
 from upstox_client.models.intra_day_candle_data import IntraDayCandleData
 from upstox_client.models.logout_response import LogoutResponse
 from upstox_client.models.margin import Margin

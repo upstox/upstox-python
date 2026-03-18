@@ -19,6 +19,7 @@ from upstox_client.api.charge_api import ChargeApi
 from upstox_client.api.expired_instrument_api import ExpiredInstrumentApi
 from upstox_client.api.history_api import HistoryApi
 from upstox_client.api.history_v3_api import HistoryV3Api
+from upstox_client.api.instruments_api import InstrumentsApi
 from upstox_client.api.login_api import LoginApi
 from upstox_client.api.market_holidays_and_timings_api import MarketHolidaysAndTimingsApi
 from upstox_client.api.market_quote_api import MarketQuoteApi
@@ -101,6 +102,9 @@ from upstox_client.models.indie_user_init_token_response import IndieUserInitTok
 from upstox_client.models.indie_user_token_request import IndieUserTokenRequest
 from upstox_client.models.instrument import Instrument
 from upstox_client.models.instrument_data import InstrumentData
+from upstox_client.models.search_instrument_response import SearchInstrumentResponse
+from upstox_client.models.search_meta_data import SearchMetaData
+from upstox_client.models.search_page import SearchPage
 from upstox_client.models.intra_day_candle_data import IntraDayCandleData
 from upstox_client.models.logout_response import LogoutResponse
 from upstox_client.models.margin import Margin
