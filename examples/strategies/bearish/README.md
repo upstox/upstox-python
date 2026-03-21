@@ -227,3 +227,61 @@ Max loss        : Grows point-for-point as Nifty rises — no cap
 ```bash
 python3 code/short_synthetic_future.py
 ```
+
+---
+
+## Put Ratio Back Spread — [code/put_ratio_back_spread.py](code/put_ratio_back_spread.py)
+
+**When to use:** You expect a sharp, significant fall in Nifty. You want to benefit from a big downside move while keeping entry cost low — ideally entering for free or a small credit.
+
+**What it does:** Sells one ATM put and uses that premium to buy two OTM puts (ATM-1). The sold ATM put finances most or all of the cost of the two bought puts. The trade has a zone of maximum loss around the short strike but profits substantially if Nifty falls sharply below the long put strikes. If Nifty stays flat or rises, you keep the small net credit (if any).
+
+Think of it as paying for a big downside move with the premium collected from selling a closer put. The more Nifty falls, the more you profit — because you hold two long puts.
+
+**Example:**
+- Nifty is at 23,100. Sell 23100 PE (₹130), Buy 2× 23050 PE (₹95 each). Net credit = ₹130 − ₹190 = **−₹60 net debit** (or credit depending on premiums).
+- Nifty closes at 23,050 at expiry → short put loses ₹50, long puts expire worthless, loss = 50 + 60 = **₹110** (max loss zone)
+- Nifty falls to 22,800 at expiry → short put loses ₹300, 2 long puts gain 2×250 = ₹500, net = 500 − 300 − 60 = **₹140 profit**
+- Nifty stays above 23,100 at expiry → all puts expire worthless, loss = **₹60** (net debit paid)
+
+```
+You profit when : Nifty falls significantly below ATM-1 strike
+Max profit      : Grows as Nifty falls sharply — 2 long puts accelerate gains
+Max loss        : At the long put strike (ATM-1) — limited, predictable zone
+```
+
+> **Put Ratio Back Spread vs Buy Put:** Back spread profits much more on a large crash due to 2× long puts, at a lower entry cost. The trade-off is a loss zone near the short strike if Nifty falls only slightly.
+
+**Run:**
+```bash
+python3 code/put_ratio_back_spread.py
+```
+
+---
+
+## Risk Reversal — [code/risk_reversal.py](code/risk_reversal.py)
+
+**When to use:** You have a clear bearish view and want downside exposure at very low cost — or even for free — by funding the put with a sold call.
+
+**What it does:** Sells an OTM call (ATM+1) and uses that premium to buy an OTM put (ATM-1). Since both options are out of the money, the premiums are often close, making this a near-zero-cost trade. You profit as Nifty falls below the put strike, and lose as it rises above the call strike. Between the two strikes, the trade is roughly flat.
+
+Think of it as a directional bet where you fund the downside protection by giving up upside participation. You don't pay much to enter, but your loss is unlimited if Nifty rallies.
+
+**Example:**
+- Nifty is at 23,100. Sell 23150 CE (₹110), Buy 23050 PE (₹95). Net credit = ₹15.
+- Nifty falls to 22,800 at expiry → put gains ₹250, call expires worthless, profit = 250 + 15 = **₹265 per unit**
+- Nifty rises to 23,400 at expiry → call loses ₹250, put expires worthless, loss = 250 − 15 = **₹235 per unit**
+- Nifty closes between 23,050 and 23,150 at expiry → both expire worthless, profit = **₹15** (net credit kept)
+
+```
+You profit when : Nifty closes below 23,035 (put strike − net credit)
+Max profit      : Grows as Nifty falls below the put strike — no cap
+Max loss        : Grows as Nifty rises above the call strike — no cap
+```
+
+> **Risk Reversal vs Buy Put:** Risk reversal costs far less (often near zero) but gives up upside if the market rallies sharply. Buy put has capped loss at the premium paid but costs more upfront.
+
+**Run:**
+```bash
+python3 code/risk_reversal.py
+```

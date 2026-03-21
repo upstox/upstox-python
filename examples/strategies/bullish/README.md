@@ -227,3 +227,61 @@ Max loss        : Unlimited — grows point-for-point as Nifty falls
 ```bash
 python3 code/long_synthetic_future.py
 ```
+
+---
+
+## Call Ratio Back Spread — [code/call_ratio_back_spread.py](code/call_ratio_back_spread.py)
+
+**When to use:** You expect a sharp, significant rally in Nifty. You want to benefit from a big upside move while keeping entry cost low — ideally entering for free or a small credit.
+
+**What it does:** Sells one ATM call and uses that premium to buy two OTM calls (ATM+1). The sold ATM call finances most or all of the cost of the two bought calls. The trade has a zone of maximum loss around the short strike but profits substantially if Nifty rallies sharply above the long call strikes. If Nifty stays flat or falls, you keep the small net credit (if any).
+
+Think of it as paying for a big upside move with the premium collected from selling a closer call. The more Nifty rises, the more you profit — because you hold two long calls.
+
+**Example:**
+- Nifty is at 23,100. Sell 23100 CE (₹150), Buy 2× 23150 CE (₹110 each). Net credit = ₹150 − ₹220 = **−₹70 net debit**.
+- Nifty closes at 23,150 at expiry → short call loses ₹50, long calls expire worthless, loss = 50 + 70 = **₹120** (max loss zone)
+- Nifty rises to 23,400 at expiry → short call loses ₹300, 2 long calls gain 2×250 = ₹500, net = 500 − 300 − 70 = **₹130 profit**
+- Nifty stays below 23,100 at expiry → all calls expire worthless, loss = **₹70** (net debit paid)
+
+```
+You profit when : Nifty rallies significantly above ATM+1 strike
+Max profit      : Grows as Nifty rises sharply — 2 long calls accelerate gains
+Max loss        : At the long call strike (ATM+1) — limited, predictable zone
+```
+
+> **Call Ratio Back Spread vs Buy Call:** Back spread profits much more on a large rally due to 2× long calls, at a lower entry cost. The trade-off is a loss zone near the short strike if Nifty rises only slightly.
+
+**Run:**
+```bash
+python3 code/call_ratio_back_spread.py
+```
+
+---
+
+## Range Forward — [code/range_forward.py](code/range_forward.py)
+
+**When to use:** You have a clear bullish view and want upside exposure at very low cost — or even for free — by funding the call with a sold put.
+
+**What it does:** Sells an OTM put (ATM-1) and uses that premium to buy an OTM call (ATM+1). Since both options are out of the money, the premiums are often close, making this a near-zero-cost trade. You profit as Nifty rises above the call strike, and lose as it falls below the put strike. Between the two strikes, the trade is roughly flat.
+
+Think of it as a directional bet where you fund the upside participation by giving up downside protection. You don't pay much to enter, but your loss is unlimited if Nifty falls sharply.
+
+**Example:**
+- Nifty is at 23,100. Sell 23050 PE (₹95), Buy 23150 CE (₹110). Net debit = ₹15.
+- Nifty rises to 23,400 at expiry → call gains ₹250, put expires worthless, profit = 250 − 15 = **₹235 per unit**
+- Nifty falls to 22,800 at expiry → call expires worthless, put loses ₹250, loss = 250 + 15 = **₹265 per unit**
+- Nifty closes between 23,050 and 23,150 at expiry → both expire worthless, loss = **₹15** (net debit paid)
+
+```
+You profit when : Nifty closes above 23,165 (call strike + net debit)
+Max profit      : Grows as Nifty rises above the call strike — no cap
+Max loss        : Grows as Nifty falls below the put strike — no cap
+```
+
+> **Range Forward vs Buy Call:** Range forward costs far less (often near zero) but creates downside risk if the market falls sharply. Buy call has capped loss at the premium paid but costs more upfront.
+
+**Run:**
+```bash
+python3 code/range_forward.py
+```

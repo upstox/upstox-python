@@ -179,3 +179,64 @@ Max loss        : ₹90 per unit — the net premium paid
 ```bash
 python3 code/long_iron_condor.py
 ```
+
+---
+
+## Strip — [code/strip.py](code/strip.py)
+
+**When to use:** You expect a big move in Nifty but lean towards a fall being more likely. You want to profit in either direction but earn more if the market drops.
+
+**What it does:** Buys one ATM call and two ATM puts at the same strike. It's like a long straddle but with an extra put — so the downside pays out twice as much as the upside. You pay more premium than a straddle, but the additional put doubles your profit for every point Nifty falls below the breakeven. If Nifty rallies instead, you still profit, just at a slower rate.
+
+Think of it as a straddle with a bearish tilt — you're not sure which way it goes, but you're guessing down is more likely.
+
+**Example:**
+- Nifty is at 23,100. Buy 23100 CE (₹150) + Buy 2× 23100 PE (₹130 each). Total cost = ₹410.
+- Nifty falls to 22,700 at expiry → call worthless, 2 puts gain 2×400 = ₹800, profit = 800 − 410 = **₹390 per unit**
+- Nifty rises to 23,600 at expiry → puts worthless, call gains ₹500, profit = 500 − 410 = **₹90 per unit**
+- Nifty closes at 23,100 at expiry → all options expire worthless, loss = **₹410 per unit**
+
+```
+Upper breakeven : Strike + Total premium = 23,100 + 410 = 23,510
+Lower breakeven : Strike − (Total premium ÷ 2) = 23,100 − 205 = 22,895
+Max profit      : Unlimited on both sides — larger on the downside (2× puts)
+Max loss        : ₹410 per unit — if Nifty closes exactly at the ATM strike
+```
+
+> **Strip vs Long Straddle:** Strip profits more on a big fall, less on a big rise. Use it when you expect volatility but have a slight bearish bias.
+
+**Run:**
+```bash
+python3 code/strip.py
+```
+
+---
+
+## Strap — [code/strap.py](code/strap.py)
+
+**When to use:** You expect a big move in Nifty but lean towards a rise being more likely. You want to profit in either direction but earn more if the market rallies.
+
+**What it does:** Buys two ATM calls and one ATM put at the same strike. It's like a long straddle but with an extra call — so the upside pays out twice as much as the downside. You pay more premium than a straddle, but the additional call doubles your profit for every point Nifty rises above the breakeven. If Nifty falls instead, you still profit, just at a slower rate.
+
+Think of it as a straddle with a bullish tilt — you're not sure which way it goes, but you're guessing up is more likely.
+
+**Example:**
+- Nifty is at 23,100. Buy 2× 23100 CE (₹150 each) + Buy 23100 PE (₹130). Total cost = ₹430.
+- Nifty rises to 23,600 at expiry → put worthless, 2 calls gain 2×500 = ₹1000, profit = 1000 − 430 = **₹570 per unit**
+- Nifty falls to 22,700 at expiry → calls worthless, put gains ₹400, profit = 400 − 430 = **−₹30** (small loss — needs a bigger fall)
+- Nifty falls to 22,670 at expiry → put gains ₹430, profit = **₹0** (lower breakeven)
+- Nifty closes at 23,100 at expiry → all options expire worthless, loss = **₹430 per unit**
+
+```
+Upper breakeven : Strike + (Total premium ÷ 2) = 23,100 + 215 = 23,315
+Lower breakeven : Strike − Total premium = 23,100 − 430 = 22,670
+Max profit      : Unlimited on both sides — larger on the upside (2× calls)
+Max loss        : ₹430 per unit — if Nifty closes exactly at the ATM strike
+```
+
+> **Strap vs Long Straddle:** Strap profits more on a big rally, less on a big fall. Use it when you expect volatility but have a slight bullish bias.
+
+**Run:**
+```bash
+python3 code/strap.py
+```
