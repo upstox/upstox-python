@@ -108,7 +108,7 @@ The [`examples/`](examples/) folder contains ready-to-run scripts covering commo
 |--------|-------------|
 | [`examples/login/`](examples/login/) | OAuth2 authorization flow and access token generation |
 | [`examples/orders/`](examples/orders/) | Place, modify, cancel, and retrieve orders |
-| [`examples/market_quote/`](examples/market_quote/) | Fetch live quotes, OHLC, and market depth |
+| [`examples/market_quote/`](examples/market-quote/) | Fetch live quotes, OHLC, and market depth |
 | [`examples/portfolio/`](examples/portfolio/) | View holdings, positions, and P&L |
 | [`examples/strategies/`](examples/strategies/) | 33 options trading strategies across four categories |
 
