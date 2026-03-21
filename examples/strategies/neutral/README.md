@@ -124,3 +124,35 @@ Max loss     : Net premium paid ≈ ₹15 per unit — fully defined, cannot los
 ```bash
 python3 code/batman.py
 ```
+
+---
+
+## Short Iron Condor — [code/short_iron_condor.py](code/short_iron_condor.py)
+
+**When to use:** You expect Nifty to stay within a range — wider than a straddle, with fully capped risk on both sides. One of the most popular neutral strategies among options traders.
+
+**What it does:** Sells an OTM call (ATM+1) and an OTM put (ATM-1) to collect premium, then buys a further OTM call (ATM+2) and put (ATM-2) as wings to cap the maximum loss. You collect net premium upfront. As long as Nifty stays between the two short strikes, both short options expire worthless and you keep the full premium. If Nifty breaks out, the long wings limit how much you can lose.
+
+Think of it as a short strangle with insurance. You give up a little premium to buy the wings, but in return your loss is always capped — no matter how far the market moves.
+
+**Example:**
+- Nifty is at 23,100.
+- Sell 23150 CE (₹110) + Sell 23050 PE (₹95) = ₹205 collected
+- Buy 23200 CE (₹60) + Buy 23000 PE (₹55) = ₹115 paid for wings
+- Net credit = ₹90. Wing width = 50 points on each side.
+- Nifty closes between 23,050 and 23,150 at expiry → all short options expire worthless, profit = **₹90 per unit**
+- Nifty rises to 23,300 at expiry → call spread fully against you, loss = 50 − 90 → net **still profit ₹40** (within wing)
+- Nifty rises beyond 23,200 → max loss kicks in = wing width − net credit = 50 − 90 → since credit > wing, net profit still positive here; adjust wing width for realistic scenarios
+
+```
+You profit when : Nifty closes between 22,960 and 23,240 (short strikes ± net credit)
+Max profit      : ₹90 per unit — if Nifty closes between 23,050 and 23,150
+Max loss        : Wing width − Net credit = 50 − 90 → capped at wing boundary
+```
+
+> **Iron Condor vs Short Strangle:** The condor collects less premium but gives you defined, capped risk. The strangle earns more but has unlimited loss potential. For most traders, the condor is the safer, more manageable choice.
+
+**Run:**
+```bash
+python3 code/short_iron_condor.py
+```

@@ -109,3 +109,121 @@ Max loss        : ₹15 per unit — capped by the bought put
 ```bash
 python3 code/bull_put_spread.py
 ```
+
+---
+
+## Bull Butterfly — [code/bull_butterfly.py](code/bull_butterfly.py)
+
+**When to use:** You expect Nifty to rise to a specific level by expiry — not too much, not too little. You want a low-cost trade with a sharp profit peak right at your target price.
+
+**What it does:** Uses three call strikes — buy one ATM call, sell two ATM+1 calls, and buy one ATM+2 call. The two sold calls bring in premium that makes this cheaper than a plain bull call spread. The sweet spot is Nifty closing exactly at ATM+1 (the middle strike) at expiry. If Nifty goes too far above or falls below, both max profit and max loss are fully capped.
+
+Think of it as a sniper trade — low cost, defined risk, but you need Nifty to land close to your target strike to get the best payout.
+
+**Example:**
+- Nifty is at 23,100. Buy 23100 CE (₹150), Sell 2× 23150 CE (₹110 each), Buy 23200 CE (₹75).
+- Net cost = (150 + 75) − (110 × 2) = **₹5 per unit**
+- Nifty closes at 23,150 at expiry → max profit = spread width − net cost = 50 − 5 = **₹45 per unit**
+- Nifty closes at 23,100 or below → all calls expire worthless, you lose **₹5**
+- Nifty closes at 23,200 or above → gains and losses cancel out, you lose **₹5**
+
+```
+You profit when : Nifty closes between 23,105 and 23,195 (approx)
+Max profit      : ₹45 per unit — if Nifty closes exactly at 23,150 (ATM+1)
+Max loss        : ₹5 per unit — the small net premium you paid
+```
+
+> **Why use this over a Bull Call Spread?** Much cheaper entry. The trade-off is that your profit is concentrated at one specific price — the middle strike.
+
+**Run:**
+```bash
+python3 code/bull_butterfly.py
+```
+
+---
+
+## Bull Condor — [code/bull_condor.py](code/bull_condor.py)
+
+**When to use:** You expect Nifty to rise moderately into a specific range — not too little, not too much. You want defined risk at a lower cost than a simple call spread.
+
+**What it does:** Uses four call strikes in order — buy ATM, sell ATM+1, sell ATM+2, buy ATM+3. The two short calls in the middle bring in premium that reduces your net cost. Maximum profit is earned when Nifty closes anywhere between the two short strikes (ATM+1 and ATM+2) at expiry. Both max profit and max loss are fully capped.
+
+Think of it as a bull call spread with an extra layer — you give up some profit potential to make the trade cheaper to enter.
+
+**Example:**
+- Nifty is at 23,100. Buy 23100 CE (₹150), Sell 23150 CE (₹110), Sell 23200 CE (₹75), Buy 23250 CE (₹45).
+- Net cost = (150 + 45) − (110 + 75) = **₹10 per unit**
+- Nifty closes between 23,150 and 23,200 at expiry → max profit = spread width − net cost = 50 − 10 = **₹40 per unit**
+- Nifty closes at 23,100 or below → all calls expire worthless, you lose **₹10**
+- Nifty closes at 23,250 or above → all spreads cancel out, you lose **₹10**
+
+```
+You profit when : Nifty closes between 23,110 and 23,240 (approx)
+Max profit      : ₹40 per unit — if Nifty closes between 23,150 and 23,200
+Max loss        : ₹10 per unit — the net premium you paid
+```
+
+> **Why use this over a Bull Call Spread?** Lower upfront cost. You cap your upside further but pay significantly less to enter the trade.
+
+**Run:**
+```bash
+python3 code/bull_condor.py
+```
+
+---
+
+## Long Calendar with Calls — [code/long_calendar_call.py](code/long_calendar_call.py)
+
+**When to use:** You expect Nifty to stay near its current level in the short term but move up over the coming week. You want to use time decay to your advantage.
+
+**What it does:** Sells a current-week ATM call and buys a next-week ATM call at the same strike. The near-term call loses value faster (time decay is quicker closer to expiry), so you profit from that decay while still holding a longer-dated call that benefits if Nifty rises after the near-term expiry.
+
+Think of it as a two-phase trade — first earn from the near-term option expiring, then ride any upside through the longer-dated call you still own.
+
+**Example:**
+- Nifty is at 23,100. Sell current-week 23100 CE for ₹80, Buy next-week 23100 CE for ₹150. Net cost = ₹70.
+- Nifty stays near 23,100 through current-week expiry → near-term call expires worthless, you keep ₹80. You still own the next-week call worth ₹150 (or more if Nifty rises).
+- Nifty rises to 23,400 after current-week expiry → next-week call gains value significantly, overall profit grows.
+- Nifty falls sharply → both calls lose value, max loss is the ₹70 net cost you paid.
+
+```
+You profit when : Nifty stays near ATM through near-term expiry, then rises
+Max profit      : Varies — depends on how much the far-term call gains after near-term expires
+Max loss        : ₹70 per unit — the net premium you paid (difference between the two calls)
+```
+
+> **Key difference from other strategies:** This trade spans two expiries. You are not just betting on direction — you are also betting on *when* the move happens.
+
+**Run:**
+```bash
+python3 code/long_calendar_call.py
+```
+
+---
+
+## Long Synthetic Future — [code/long_synthetic_future.py](code/long_synthetic_future.py)
+
+**When to use:** You have a strong bullish view and want the same profit/loss profile as buying a futures contract, but using options instead.
+
+**What it does:** Buys an ATM call and sells an ATM put at the same strike and expiry. The premium collected from the sold put largely offsets the cost of the bought call, making this a near-zero-cost position. From this point, the trade behaves exactly like a long futures position — you profit point-for-point as Nifty rises, and lose point-for-point as it falls.
+
+Think of it as a futures position built from options. You get the same unlimited upside and unlimited downside, but with the flexibility of options (no daily MTM settlement like futures).
+
+**Example:**
+- Nifty is at 23,100. Buy 23100 CE for ₹150, Sell 23100 PE for ₹130. Net cost = ₹20.
+- Nifty rises to 23,500 at expiry → call pays ₹400, put expires worthless, profit = 400 − 20 = **₹380 per unit**
+- Nifty falls to 22,700 at expiry → call expires worthless, put is exercised against you, loss = 400 + 20 = **₹420 per unit**
+- Nifty closes exactly at 23,100 → both expire worthless, you lose only **₹20** (net cost paid)
+
+```
+You profit when : Nifty closes above 23,120 (strike + net cost)
+Max profit      : Unlimited — grows point-for-point as Nifty rises
+Max loss        : Unlimited — grows point-for-point as Nifty falls
+```
+
+> **How is this different from just buying a futures contract?** The payoff is identical, but you avoid daily mark-to-market settlements. However, the risk is just as large — do not use this strategy without a clear stop-loss plan.
+
+**Run:**
+```bash
+python3 code/long_synthetic_future.py
+```
