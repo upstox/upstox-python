@@ -48,54 +48,54 @@ Each strategy script searches for the required Nifty 50 option legs using the In
 
 | File | Strategy | Legs |
 |------|----------|------|
-| [buy_call.py](strategies/bullish/code/buy_call.py) | [**Buy Call**](strategies/bullish/code/buy_call.py) | BUY ATM CE |
-| [sell_put.py](strategies/bullish/code/sell_put.py) | [**Sell Put**](strategies/bullish/code/sell_put.py) | SELL ATM PE |
-| [bull_call_spread.py](strategies/bullish/code/bull_call_spread.py) | [**Bull Call Spread**](strategies/bullish/code/bull_call_spread.py) | BUY ATM CE + SELL ATM+1 CE |
-| [bull_put_spread.py](strategies/bullish/code/bull_put_spread.py) | [**Bull Put Spread**](strategies/bullish/code/bull_put_spread.py) | SELL ATM PE + BUY ATM-1 PE |
-| [bull_butterfly.py](strategies/bullish/code/bull_butterfly.py) | [**Bull Butterfly**](strategies/bullish/code/bull_butterfly.py) | BUY ATM CE + SELL 2× ATM+1 CE + BUY ATM+2 CE |
-| [bull_condor.py](strategies/bullish/code/bull_condor.py) | [**Bull Condor**](strategies/bullish/code/bull_condor.py) | BUY ATM CE + SELL ATM+1 CE + SELL ATM+2 CE + BUY ATM+3 CE |
-| [long_calendar_call.py](strategies/bullish/code/long_calendar_call.py) | [**Long Calendar with Calls**](strategies/bullish/code/long_calendar_call.py) | SELL current-week ATM CE + BUY next-week ATM CE |
-| [long_synthetic_future.py](strategies/bullish/code/long_synthetic_future.py) | [**Long Synthetic Future**](strategies/bullish/code/long_synthetic_future.py) | BUY ATM CE + SELL ATM PE |
-| [call_ratio_back_spread.py](strategies/bullish/code/call_ratio_back_spread.py) | [**Call Ratio Back Spread**](strategies/bullish/code/call_ratio_back_spread.py) | SELL 1× ATM CE + BUY 2× ATM+1 CE |
-| [range_forward.py](strategies/bullish/code/range_forward.py) | [**Range Forward**](strategies/bullish/code/range_forward.py) | SELL ATM-1 PE + BUY ATM+1 CE |
+| [buy_call.py](strategies/bullish/code/buy_call.py) | [**Buy Call**](strategies/bullish/README.md#buy-call--codebuy_callpy) | BUY ATM CE |
+| [sell_put.py](strategies/bullish/code/sell_put.py) | [**Sell Put**](strategies/bullish/README.md#sell-put--codesell_putpy) | SELL ATM PE |
+| [bull_call_spread.py](strategies/bullish/code/bull_call_spread.py) | [**Bull Call Spread**](strategies/bullish/README.md#bull-call-spread--codebull_call_spreadpy) | BUY ATM CE + SELL ATM+1 CE |
+| [bull_put_spread.py](strategies/bullish/code/bull_put_spread.py) | [**Bull Put Spread**](strategies/bullish/README.md#bull-put-spread--codebull_put_spreadpy) | SELL ATM PE + BUY ATM-1 PE |
+| [bull_butterfly.py](strategies/bullish/code/bull_butterfly.py) | [**Bull Butterfly**](strategies/bullish/README.md#bull-butterfly--codebull_butterflypy) | BUY ATM CE + SELL 2× ATM+1 CE + BUY ATM+2 CE |
+| [bull_condor.py](strategies/bullish/code/bull_condor.py) | [**Bull Condor**](strategies/bullish/README.md#bull-condor--codebull_condorpy) | BUY ATM CE + SELL ATM+1 CE + SELL ATM+2 CE + BUY ATM+3 CE |
+| [long_calendar_call.py](strategies/bullish/code/long_calendar_call.py) | [**Long Calendar with Calls**](strategies/bullish/README.md#long-calendar-with-calls--codelong_calendar_callpy) | SELL current-week ATM CE + BUY next-week ATM CE |
+| [long_synthetic_future.py](strategies/bullish/code/long_synthetic_future.py) | [**Long Synthetic Future**](strategies/bullish/README.md#long-synthetic-future--codelong_synthetic_futurepy) | BUY ATM CE + SELL ATM PE |
+| [call_ratio_back_spread.py](strategies/bullish/code/call_ratio_back_spread.py) | [**Call Ratio Back Spread**](strategies/bullish/README.md#call-ratio-back-spread--codecall_ratio_back_spreadpy) | SELL 1× ATM CE + BUY 2× ATM+1 CE |
+| [range_forward.py](strategies/bullish/code/range_forward.py) | [**Range Forward**](strategies/bullish/README.md#range-forward--coderange_forwardpy) | SELL ATM-1 PE + BUY ATM+1 CE |
 
 #### [Bearish](strategies/bearish/)
 
 | File | Strategy | Legs |
 |------|----------|------|
-| [buy_put.py](strategies/bearish/code/buy_put.py) | [**Buy Put**](strategies/bearish/code/buy_put.py) | BUY ATM PE |
-| [sell_call.py](strategies/bearish/code/sell_call.py) | [**Sell Call**](strategies/bearish/code/sell_call.py) | SELL ATM CE |
-| [bear_call_spread.py](strategies/bearish/code/bear_call_spread.py) | [**Bear Call Spread**](strategies/bearish/code/bear_call_spread.py) | SELL ATM CE + BUY ATM+1 CE |
-| [bear_put_spread.py](strategies/bearish/code/bear_put_spread.py) | [**Bear Put Spread**](strategies/bearish/code/bear_put_spread.py) | BUY ATM PE + SELL ATM-1 PE |
-| [bear_butterfly.py](strategies/bearish/code/bear_butterfly.py) | [**Bear Butterfly**](strategies/bearish/code/bear_butterfly.py) | BUY ATM PE + SELL 2× ATM-1 PE + BUY ATM-2 PE |
-| [bear_condor.py](strategies/bearish/code/bear_condor.py) | [**Bear Condor**](strategies/bearish/code/bear_condor.py) | BUY ATM PE + SELL ATM-1 PE + SELL ATM-2 PE + BUY ATM-3 PE |
-| [long_calendar_put.py](strategies/bearish/code/long_calendar_put.py) | [**Long Calendar with Puts**](strategies/bearish/code/long_calendar_put.py) | SELL current-week ATM PE + BUY next-week ATM PE |
-| [short_synthetic_future.py](strategies/bearish/code/short_synthetic_future.py) | [**Short Synthetic Future**](strategies/bearish/code/short_synthetic_future.py) | SELL ATM CE + BUY ATM PE |
-| [put_ratio_back_spread.py](strategies/bearish/code/put_ratio_back_spread.py) | [**Put Ratio Back Spread**](strategies/bearish/code/put_ratio_back_spread.py) | SELL 1× ATM PE + BUY 2× ATM-1 PE |
-| [risk_reversal.py](strategies/bearish/code/risk_reversal.py) | [**Risk Reversal**](strategies/bearish/code/risk_reversal.py) | SELL ATM+1 CE + BUY ATM-1 PE |
+| [buy_put.py](strategies/bearish/code/buy_put.py) | [**Buy Put**](strategies/bearish/README.md#buy-put--codebuy_putpy) | BUY ATM PE |
+| [sell_call.py](strategies/bearish/code/sell_call.py) | [**Sell Call**](strategies/bearish/README.md#sell-call--codesell_callpy) | SELL ATM CE |
+| [bear_call_spread.py](strategies/bearish/code/bear_call_spread.py) | [**Bear Call Spread**](strategies/bearish/README.md#bear-call-spread--codebear_call_spreadpy) | SELL ATM CE + BUY ATM+1 CE |
+| [bear_put_spread.py](strategies/bearish/code/bear_put_spread.py) | [**Bear Put Spread**](strategies/bearish/README.md#bear-put-spread--codebear_put_spreadpy) | BUY ATM PE + SELL ATM-1 PE |
+| [bear_butterfly.py](strategies/bearish/code/bear_butterfly.py) | [**Bear Butterfly**](strategies/bearish/README.md#bear-butterfly--codebear_butterflypy) | BUY ATM PE + SELL 2× ATM-1 PE + BUY ATM-2 PE |
+| [bear_condor.py](strategies/bearish/code/bear_condor.py) | [**Bear Condor**](strategies/bearish/README.md#bear-condor--codebear_condorpy) | BUY ATM PE + SELL ATM-1 PE + SELL ATM-2 PE + BUY ATM-3 PE |
+| [long_calendar_put.py](strategies/bearish/code/long_calendar_put.py) | [**Long Calendar with Puts**](strategies/bearish/README.md#long-calendar-with-puts--codelong_calendar_putpy) | SELL current-week ATM PE + BUY next-week ATM PE |
+| [short_synthetic_future.py](strategies/bearish/code/short_synthetic_future.py) | [**Short Synthetic Future**](strategies/bearish/README.md#short-synthetic-future--codeshort_synthetic_futurepy) | SELL ATM CE + BUY ATM PE |
+| [put_ratio_back_spread.py](strategies/bearish/code/put_ratio_back_spread.py) | [**Put Ratio Back Spread**](strategies/bearish/README.md#put-ratio-back-spread--codeput_ratio_back_spreadpy) | SELL 1× ATM PE + BUY 2× ATM-1 PE |
+| [risk_reversal.py](strategies/bearish/code/risk_reversal.py) | [**Risk Reversal**](strategies/bearish/README.md#risk-reversal--coderisk_reversalpy) | SELL ATM+1 CE + BUY ATM-1 PE |
 
 #### [Neutral](strategies/neutral/)
 
 | File | Strategy | Legs |
 |------|----------|------|
-| [short_straddle.py](strategies/neutral/code/short_straddle.py) | [**Short Straddle**](strategies/neutral/code/short_straddle.py) | SELL ATM CE + SELL ATM PE |
-| [short_strangle.py](strategies/neutral/code/short_strangle.py) | [**Short Strangle**](strategies/neutral/code/short_strangle.py) | SELL ATM+1 CE + SELL ATM-1 PE |
-| [iron_butterfly.py](strategies/neutral/code/iron_butterfly.py) | [**Iron Butterfly**](strategies/neutral/code/iron_butterfly.py) | SELL ATM CE + SELL ATM PE + BUY ATM+2 CE + BUY ATM-2 PE |
-| [batman.py](strategies/neutral/code/batman.py) | [**Batman**](strategies/neutral/code/batman.py) | BUY ATM CE + SELL 2× ATM+1 CE + BUY ATM+2 CE + BUY ATM PE + SELL 2× ATM-1 PE + BUY ATM-2 PE |
-| [short_iron_condor.py](strategies/neutral/code/short_iron_condor.py) | [**Short Iron Condor**](strategies/neutral/code/short_iron_condor.py) | SELL ATM+1 CE + BUY ATM+2 CE + SELL ATM-1 PE + BUY ATM-2 PE |
+| [short_straddle.py](strategies/neutral/code/short_straddle.py) | [**Short Straddle**](strategies/neutral/README.md#short-straddle--codeshort_straddlepy) | SELL ATM CE + SELL ATM PE |
+| [short_strangle.py](strategies/neutral/code/short_strangle.py) | [**Short Strangle**](strategies/neutral/README.md#short-strangle--codeshort_stranglepy) | SELL ATM+1 CE + SELL ATM-1 PE |
+| [iron_butterfly.py](strategies/neutral/code/iron_butterfly.py) | [**Iron Butterfly**](strategies/neutral/README.md#iron-butterfly--codeiron_butterflypy) | SELL ATM CE + SELL ATM PE + BUY ATM+2 CE + BUY ATM-2 PE |
+| [batman.py](strategies/neutral/code/batman.py) | [**Batman**](strategies/neutral/README.md#batman--codebatmanpy) | BUY ATM CE + SELL 2× ATM+1 CE + BUY ATM+2 CE + BUY ATM PE + SELL 2× ATM-1 PE + BUY ATM-2 PE |
+| [short_iron_condor.py](strategies/neutral/code/short_iron_condor.py) | [**Short Iron Condor**](strategies/neutral/README.md#short-iron-condor--codeshort_iron_condorpy) | SELL ATM+1 CE + BUY ATM+2 CE + SELL ATM-1 PE + BUY ATM-2 PE |
 
 #### [Others](strategies/others/)
 
 | File | Strategy | Legs |
 |------|----------|------|
-| [long_straddle.py](strategies/others/code/long_straddle.py) | [**Long Straddle**](strategies/others/code/long_straddle.py) | BUY ATM CE + BUY ATM PE |
-| [long_strangle.py](strategies/others/code/long_strangle.py) | [**Long Strangle**](strategies/others/code/long_strangle.py) | BUY ATM+1 CE + BUY ATM-1 PE |
-| [call_ratio_spread.py](strategies/others/code/call_ratio_spread.py) | [**Call Ratio Spread**](strategies/others/code/call_ratio_spread.py) | BUY 1× ATM CE + SELL 2× ATM+1 CE |
-| [put_ratio_spread.py](strategies/others/code/put_ratio_spread.py) | [**Put Ratio Spread**](strategies/others/code/put_ratio_spread.py) | BUY 1× ATM PE + SELL 2× ATM-1 PE |
-| [long_iron_butterfly.py](strategies/others/code/long_iron_butterfly.py) | [**Long Iron Butterfly**](strategies/others/code/long_iron_butterfly.py) | BUY ATM CE + BUY ATM PE + SELL ATM+2 CE + SELL ATM-2 PE |
-| [long_iron_condor.py](strategies/others/code/long_iron_condor.py) | [**Long Iron Condor**](strategies/others/code/long_iron_condor.py) | BUY ATM+1 CE + SELL ATM+2 CE + BUY ATM-1 PE + SELL ATM-2 PE |
-| [strip.py](strategies/others/code/strip.py) | [**Strip**](strategies/others/code/strip.py) | BUY 1× ATM CE + BUY 2× ATM PE |
-| [strap.py](strategies/others/code/strap.py) | [**Strap**](strategies/others/code/strap.py) | BUY 2× ATM CE + BUY 1× ATM PE |
+| [long_straddle.py](strategies/others/code/long_straddle.py) | [**Long Straddle**](strategies/others/README.md#long-straddle--codelong_straddlepy) | BUY ATM CE + BUY ATM PE |
+| [long_strangle.py](strategies/others/code/long_strangle.py) | [**Long Strangle**](strategies/others/README.md#long-strangle--codelong_stranglepy) | BUY ATM+1 CE + BUY ATM-1 PE |
+| [call_ratio_spread.py](strategies/others/code/call_ratio_spread.py) | [**Call Ratio Spread**](strategies/others/README.md#call-ratio-spread--codecall_ratio_spreadpy) | BUY 1× ATM CE + SELL 2× ATM+1 CE |
+| [put_ratio_spread.py](strategies/others/code/put_ratio_spread.py) | [**Put Ratio Spread**](strategies/others/README.md#put-ratio-spread--codeput_ratio_spreadpy) | BUY 1× ATM PE + SELL 2× ATM-1 PE |
+| [long_iron_butterfly.py](strategies/others/code/long_iron_butterfly.py) | [**Long Iron Butterfly**](strategies/others/README.md#long-iron-butterfly--codelong_iron_butterflypy) | BUY ATM CE + BUY ATM PE + SELL ATM+2 CE + SELL ATM-2 PE |
+| [long_iron_condor.py](strategies/others/code/long_iron_condor.py) | [**Long Iron Condor**](strategies/others/README.md#long-iron-condor--codelong_iron_condorpy) | BUY ATM+1 CE + SELL ATM+2 CE + BUY ATM-1 PE + SELL ATM-2 PE |
+| [strip.py](strategies/others/code/strip.py) | [**Strip**](strategies/others/README.md#strip--codestrippy) | BUY 1× ATM CE + BUY 2× ATM PE |
+| [strap.py](strategies/others/code/strap.py) | [**Strap**](strategies/others/README.md#strap--codestrappy) | BUY 2× ATM CE + BUY 1× ATM PE |
 
 ## Documentation
 
