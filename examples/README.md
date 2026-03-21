@@ -38,6 +38,38 @@ Samples are grouped by API area. Each `.md` file contains one or more Python sni
 | [**margins/**](margins/) | Margin details. |
 | [**charges/**](charges/) | Brokerage details. |
 | [**trade-profit-and-loss/**](trade-profit-and-loss/) | P&amp;L report, report metadata, trade charges. |
+| [**strategies/**](strategies/) | Ready-to-run options strategy examples for Nifty 50 (bullish, bearish, neutral). |
+
+### Options Strategies
+
+Each strategy script searches for the required Nifty 50 option legs using the Instruments API and places market orders via the v3 Order API.
+
+#### [Bullish](strategies/bullish/)
+
+| File | Strategy | Legs |
+|------|----------|------|
+| [buy_call.py](strategies/bullish/buy_call.py) | **Buy Call** | BUY ATM CE |
+| [sell_put.py](strategies/bullish/sell_put.py) | **Sell Put** | SELL ATM PE |
+| [bull_call_spread.py](strategies/bullish/bull_call_spread.py) | **Bull Call Spread** | BUY ATM CE + SELL ATM+1 CE |
+| [bull_put_spread.py](strategies/bullish/bull_put_spread.py) | **Bull Put Spread** | SELL ATM PE + BUY ATM-1 PE |
+
+#### [Bearish](strategies/bearish/)
+
+| File | Strategy | Legs |
+|------|----------|------|
+| [buy_put.py](strategies/bearish/buy_put.py) | **Buy Put** | BUY ATM PE |
+| [sell_call.py](strategies/bearish/sell_call.py) | **Sell Call** | SELL ATM CE |
+| [bear_call_spread.py](strategies/bearish/bear_call_spread.py) | **Bear Call Spread** | SELL ATM CE + BUY ATM+1 CE |
+| [bear_put_spread.py](strategies/bearish/bear_put_spread.py) | **Bear Put Spread** | BUY ATM PE + SELL ATM-1 PE |
+
+#### [Neutral](strategies/neutral/)
+
+| File | Strategy | Legs |
+|------|----------|------|
+| [short_straddle.py](strategies/neutral/short_straddle.py) | **Short Straddle** | SELL ATM CE + SELL ATM PE |
+| [short_strangle.py](strategies/neutral/short_strangle.py) | **Short Strangle** | SELL ATM+1 CE + SELL ATM-1 PE |
+| [iron_butterfly.py](strategies/neutral/iron_butterfly.py) | **Iron Butterfly** | SELL ATM CE + SELL ATM PE + BUY ATM+2 CE + BUY ATM-2 PE |
+| [batman.py](strategies/neutral/batman.py) | **Batman** | BUY ATM CE + SELL 2× ATM+1 CE + BUY ATM+2 CE + BUY ATM PE + SELL 2× ATM-1 PE + BUY ATM-2 PE |
 
 ## Documentation
 
