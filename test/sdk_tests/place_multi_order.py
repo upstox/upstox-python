@@ -7,9 +7,9 @@ configuration.access_token = data_token.access_token
 api_instance = upstox_client.OrderApi(upstox_client.ApiClient(configuration))
 body = [
     upstox_client.MultiOrderRequest(1, "MTF", "DAY", 0, "kg_python_sdk", False, "NSE_EQ|INE669E01016", "MARKET", "BUY",
-                                    0, 0, True, "1"),
+                                    0, 0, True, "1", market_protection=0),
     upstox_client.MultiOrderRequest(1, "D", "DAY", 8.9, "kg_python_sdk1", False, "NSE_EQ|INE669E01016", "LIMIT", "BUY",
-                                    0, 0, True, "2")
+                                    0, 0, True, "2", market_protection=0)
 ]
 
 try:

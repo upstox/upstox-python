@@ -34,7 +34,8 @@ class ModifyOrderRequest(object):
         'order_id': 'str',
         'order_type': 'str',
         'disclosed_quantity': 'int',
-        'trigger_price': 'float'
+        'trigger_price': 'float',
+        'market_protection': 'float'
     }
 
     attribute_map = {
@@ -44,10 +45,11 @@ class ModifyOrderRequest(object):
         'order_id': 'order_id',
         'order_type': 'order_type',
         'disclosed_quantity': 'disclosed_quantity',
-        'trigger_price': 'trigger_price'
+        'trigger_price': 'trigger_price',
+        'market_protection': 'market_protection'
     }
 
-    def __init__(self, quantity=None, validity=None, price=None, order_id=None, order_type=None, disclosed_quantity=None, trigger_price=None):  # noqa: E501
+    def __init__(self, quantity=None, validity=None, price=None, order_id=None, order_type=None, disclosed_quantity=None, trigger_price=None, market_protection=None):  # noqa: E501
         """ModifyOrderRequest - a model defined in Swagger"""  # noqa: E501
         self._quantity = None
         self._validity = None
@@ -56,6 +58,7 @@ class ModifyOrderRequest(object):
         self._order_type = None
         self._disclosed_quantity = None
         self._trigger_price = None
+        self._market_protection = None
         self.discriminator = None
         if quantity is not None:
             self.quantity = quantity
@@ -66,6 +69,8 @@ class ModifyOrderRequest(object):
         if disclosed_quantity is not None:
             self.disclosed_quantity = disclosed_quantity
         self.trigger_price = trigger_price
+        if market_protection is not None:
+            self.market_protection = market_protection
 
     @property
     def quantity(self):
@@ -249,6 +254,28 @@ class ModifyOrderRequest(object):
             raise ValueError("Invalid value for `trigger_price`, must not be `None`")  # noqa: E501
 
         self._trigger_price = trigger_price
+
+    @property
+    def market_protection(self):
+        """Gets the market_protection of this ModifyOrderRequest.  # noqa: E501
+
+        Optional market price protection (percentage).  # noqa: E501
+
+        :return: The market_protection of this ModifyOrderRequest.  # noqa: E501
+        :rtype: float
+        """
+        return self._market_protection
+
+    @market_protection.setter
+    def market_protection(self, market_protection):
+        """Sets the market_protection of this ModifyOrderRequest.
+
+        Optional market price protection (percentage).  # noqa: E501
+
+        :param market_protection: The market_protection of this ModifyOrderRequest.  # noqa: E501
+        :type: float
+        """
+        self._market_protection = market_protection
 
     def to_dict(self):
         """Returns the model properties as a dict"""

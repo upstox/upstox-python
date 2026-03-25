@@ -39,7 +39,8 @@ class PlaceOrderV3Request(object):
         'transaction_type': 'str',
         'disclosed_quantity': 'int',
         'trigger_price': 'float',
-        'is_amo': 'bool'
+        'is_amo': 'bool',
+        'market_protection': 'float'
     }
 
     attribute_map = {
@@ -54,10 +55,11 @@ class PlaceOrderV3Request(object):
         'transaction_type': 'transaction_type',
         'disclosed_quantity': 'disclosed_quantity',
         'trigger_price': 'trigger_price',
-        'is_amo': 'is_amo'
+        'is_amo': 'is_amo',
+        'market_protection': 'market_protection'
     }
 
-    def __init__(self, quantity=None, product=None, validity=None, price=None, tag=None, slice=None, instrument_token=None, order_type=None, transaction_type=None, disclosed_quantity=None, trigger_price=None, is_amo=None):  # noqa: E501
+    def __init__(self, quantity=None, product=None, validity=None, price=None, tag=None, slice=None, instrument_token=None, order_type=None, transaction_type=None, disclosed_quantity=None, trigger_price=None, is_amo=None, market_protection=None):  # noqa: E501
         """PlaceOrderV3Request - a model defined in Swagger"""  # noqa: E501
         self._quantity = None
         self._product = None
@@ -71,6 +73,7 @@ class PlaceOrderV3Request(object):
         self._disclosed_quantity = None
         self._trigger_price = None
         self._is_amo = None
+        self._market_protection = None
         self.discriminator = None
         self.quantity = quantity
         self.product = product
@@ -86,6 +89,8 @@ class PlaceOrderV3Request(object):
         self.disclosed_quantity = disclosed_quantity
         self.trigger_price = trigger_price
         self.is_amo = is_amo
+        if market_protection is not None:
+            self.market_protection = market_protection
 
     @property
     def quantity(self):
@@ -402,6 +407,28 @@ class PlaceOrderV3Request(object):
             raise ValueError("Invalid value for `is_amo`, must not be `None`")  # noqa: E501
 
         self._is_amo = is_amo
+
+    @property
+    def market_protection(self):
+        """Gets the market_protection of this PlaceOrderV3Request.  # noqa: E501
+
+        Optional market price protection (percentage).  # noqa: E501
+
+        :return: The market_protection of this PlaceOrderV3Request.  # noqa: E501
+        :rtype: float
+        """
+        return self._market_protection
+
+    @market_protection.setter
+    def market_protection(self, market_protection):
+        """Sets the market_protection of this PlaceOrderV3Request.
+
+        Optional market price protection (percentage).  # noqa: E501
+
+        :param market_protection: The market_protection of this PlaceOrderV3Request.  # noqa: E501
+        :type: float
+        """
+        self._market_protection = market_protection
 
     def to_dict(self):
         """Returns the model properties as a dict"""
