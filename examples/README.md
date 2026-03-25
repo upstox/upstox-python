@@ -13,3 +13,9 @@ Python script to connect to the Upstox Websocket API for streaming live market d
 Python scripts to connect to the Upstox WebSocket API for streaming live order updates. It fetches the order updates and prints them to the console.
 
 [Order updates using Upstox's websocket](websocket/order_updates/)
+
+---
+
+### Interactive Examples
+
+For 47 complete, runnable CLI scripts covering instrument search, futures spreads, options strategies, options analytics, arbitrage, historical analysis, and more, see the [interactive-examples/](../interactive-examples/) directory.
