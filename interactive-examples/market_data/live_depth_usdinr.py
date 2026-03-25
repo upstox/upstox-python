@@ -45,7 +45,7 @@ def pad_to(s: str, width: int) -> str:
 
 # ── Instrument discovery ───────────────────────────────────────────────────────
 
-def find_usdinr(client, exchange: str) -> dict | None:
+def find_usdinr(client, exchange: str):
     """Return the nearest-expiry USDINR future for the given exchange (CDS or BCD)."""
     resp = search_instrument(
         client, "USDINR",
