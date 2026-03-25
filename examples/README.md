@@ -99,7 +99,7 @@ Each strategy script searches for the required Nifty 50 option legs using the In
 
 ## Interactive Examples
 
-For 47 complete, runnable CLI scripts covering instrument search, futures spreads, options strategies, options analytics, arbitrage, historical analysis, and more, see the [interactive-examples/](../interactive-examples/) directory.
+For 47 complete, runnable CLI scripts covering instrument search, futures spreads, options strategies, options analytics, arbitrage, historical analysis, and more, see the [interactive_examples/](../interactive_examples/) directory.
 
 ## Documentation
 
