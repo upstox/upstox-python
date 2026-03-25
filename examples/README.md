@@ -97,6 +97,10 @@ Each strategy script searches for the required Nifty 50 option legs using the In
 | [strip.py](strategies/others/code/strip.py) | [**Strip**](strategies/others/README.md#strip--codestrippy) | BUY 1× ATM CE + BUY 2× ATM PE |
 | [strap.py](strategies/others/code/strap.py) | [**Strap**](strategies/others/README.md#strap--codestrappy) | BUY 2× ATM CE + BUY 1× ATM PE |
 
+## Interactive Examples
+
+For 47 complete, runnable CLI scripts covering instrument search, futures spreads, options strategies, options analytics, arbitrage, historical analysis, and more, see the [interactive-examples/](../interactive-examples/) directory.
+
 ## Documentation
 
 - [Upstox API Documentation](https://upstox.com/developer/api-documentation)

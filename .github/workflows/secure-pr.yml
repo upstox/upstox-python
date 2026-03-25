@@ -1,0 +1,167 @@
+on:
+  workflow_dispatch: {}
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened, labeled]
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/secure-pr.yml
+  schedule:
+    - cron: '54 13 * * *'
+
+name: Security Check Scan
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  guard_whitelist_expiry:
+    if: ${{ github.event_name == 'pull_request' }}
+    name: checking eta
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download complete whitelist
+        run: |
+          curl -s -X POST "${{ secrets.WHITELIST_CALLBACK_URL }}" \
+               -H "Content-Type: application/json" \
+               -H "X-API-KEY: ${{ secrets.sg_wh_api_key }}" \
+               -d '{"pr_url":""}' \
+               -o all.json
+
+      - name: Check for expired entries
+        run: |
+          TODAY=$(date +%F)
+          REPO_FULL="https://github.com/${GITHUB_REPOSITORY}"
+          EXPIRED=$(jq -r --arg t "$TODAY" --arg repo "$REPO_FULL" \
+            '(.exemptions // []) | map(select(.eta <= $t and (.pr_url | startswith($repo)))) | length' all.json)
+
+          if [ "$EXPIRED" -gt 0 ]; then
+            echo "::error ::🔒 $EXPIRED whitelist exemption(s) for this repository (${GITHUB_REPOSITORY}) are past their ETA."
+            echo "❌ Please remove or update the expired entries from the whitelist file before merging this PR."
+            exit 1
+          fi
+
+  sec_checks:
+    if: ${{ github.event_name == 'pull_request' }}
+    name: Run required verification
+    needs: guard_whitelist_expiry
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check whitelist
+        id: check_whitelist
+        run: |
+          curl -s -X POST "${{ secrets.WHITELIST_CALLBACK_URL }}" \
+               -H "Content-Type: application/json" \
+               -H "X-API-KEY: ${{ secrets.sg_wh_api_key }}" \
+               -d '{"pr_url":"'"${{ github.event.pull_request.html_url }}"'"}' \
+               -o response.json
+
+          echo "=== Raw response ==="
+          cat response.json || echo "response.json is empty"
+          echo "===================="
+
+          PR_URL="${{ github.event.pull_request.html_url }}"
+          PR_CLEAN=$(echo "$PR_URL" | xargs)
+
+          if jq -e --arg pr "$PR_CLEAN" '.exemptions[]? | select(.pr_url == $pr)' response.json > /dev/null 2>&1; then
+            echo "whitelisted=true" >> $GITHUB_OUTPUT
+            echo "✅ PR is whitelisted. Skipping scan."
+            exit 0
+          else
+            echo "whitelisted=false" >> $GITHUB_OUTPUT
+            echo "🔍 PR not whitelisted. Proceeding to scan."
+          fi
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-semgrep
+          
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install security check
+        run: pip install semgrep
+
+      - name: Fix Git and fetch base branch
+        run: |
+          git config --global --add safe.directory $GITHUB_WORKSPACE
+          git fetch origin ${{ github.base_ref }}
+
+      - name: Run diff check
+        if: ${{ steps.check_whitelist.outputs.whitelisted == 'false' }}
+        run: |
+          echo "🚀 Running diff scan against origin/${{ github.base_ref }}"
+          semgrep scan \
+            --config p/gitleaks \
+            --config p/secrets \
+            --baseline-commit origin/${{ github.base_ref }} \
+            --error
+
+      - name: Save JSON results
+        if: ${{ steps.check_whitelist.outputs.whitelisted == 'false' }}
+        run: |
+          semgrep scan \
+            --config p/gitleaks \
+            --config p/secrets \
+            --baseline-commit origin/${{ github.base_ref }} \
+            --json > semgrep-results.json
+
+      - name: Dump results to logs
+        if: ${{ steps.check_whitelist.outputs.whitelisted == 'false' }}
+        run: cat semgrep-results.json
+
+  notify_blocked:
+    needs: sec_checks
+    if: ${{ always() && github.event_name == 'pull_request' && needs.sec_checks.result == 'failure' }}
+    name: Notify if blocked
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Export Slack webhook (no-op)
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: echo "webhook ready"
+
+      - name: Send Slack alert
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          PR_URL=${{ github.event.pull_request.html_url }}
+          REPO=${{ github.repository }}
+          ACTOR=${{ github.actor }}
+
+          PAYLOAD=$(printf '{
+            "text": ":rotating_light: *Security check failed* <%s|PR #%s> in *%s* (triggered by *%s*).\nIf this is a false positive, run this command:\n\n`/github-whitelist-pr %s reason:\\"<reason>\\" eta:\\"YYYY-MM-DD\\" bug:\\"SEC-1234\\" tribe:\\"<t-tribe-name>\\"`"
+          }' "$PR_URL" "$PR_NUMBER" "$REPO" "$ACTOR" "$PR_URL")
+
+          curl -X POST -H 'Content-Type: application/json' \
+               --data "$PAYLOAD" \
+               "$SLACK_WEBHOOK_URL"
+
+  approve:
+    if: ${{ github.event_name == 'pull_request' && needs.sec_checks.result == 'success' }}
+    needs: sec_checks
+    name: Auto-approve if security check passes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Approve PR
+        run: gh pr review --approve "${{ github.event.pull_request.html_url }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_SECURITYREVIEWUSER }}

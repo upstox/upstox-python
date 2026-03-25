@@ -114,6 +114,10 @@ The [`examples/`](examples/) folder contains ready-to-run scripts covering commo
 
 ### Options Strategy Examples
 
+## Interactive Examples
+
+The [interactive-examples/](interactive-examples/) directory contains 47 ready-to-run CLI scripts across 8 categories: instrument search, futures basis, options strategies, options analytics, arbitrage, historical analysis, portfolio screening, and market data. See the [interactive-examples README](interactive-examples/README.md) for details.
+
 The [`examples/strategies/`](examples/strategies/) folder is organized by market outlook:
 
 | Category | Strategies |
