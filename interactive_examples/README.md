@@ -10,7 +10,7 @@
 ## Quick Start
 
 ```bash
-cd interactive-examples
+cd interactive_examples
 pip install -r requirements.txt
 python instrument_search/search_equity.py --token <TOKEN> --query RELIANCE
 ```
@@ -207,7 +207,7 @@ python market_data/live_depth_mcx.py --token <TOKEN>    # Ctrl-C to stop
 ## Project Structure
 
 ```
-interactive-examples/
+interactive_examples/
 ├── utils.py                          # Shared helpers — SDK client, search, quotes, history
 ├── test_runner.py                    # Automated test harness for all examples
 ├── requirements.txt
