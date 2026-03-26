@@ -30,7 +30,7 @@ Or run locally:
 git clone https://github.com/upstox/python-examples
 cd python-examples
 pip install -r requirements.txt
-streamlit run app.py
+streamlit run streamlit_app.py
 ```
 
 ---
@@ -228,20 +228,20 @@ python market_data/live_depth_mcx.py --token <TOKEN>    # Ctrl-C to stop
 
 ## 🌐 Deploy the Streamlit App
 
-The `app.py` wraps all 39 examples in a browser UI with interactive inputs and charts.
+The `streamlit_app.py` wraps all 39 examples in a browser UI with interactive inputs and charts.
 
 ### Streamlit Cloud (free, ~5 minutes)
 
 1. Fork / push this repo to GitHub
-2. Go to [share.streamlit.io](https://share.streamlit.io) → **New app**
-3. Select this repo, branch `main`, file `app.py`
+2. Go to [share.streamlit.io](https://share.streamlit.io) → **New streamlit_app**
+3. Select this repo, branch `main`, file `streamlit_app.py`
 4. Click **Deploy** — you get a shareable URL instantly
 
 ### Run locally
 
 ```bash
 pip install -r requirements.txt
-streamlit run app.py
+streamlit run streamlit_app.py
 ```
 
 ---
