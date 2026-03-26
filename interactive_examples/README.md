@@ -17,6 +17,27 @@ python instrument_search/search_equity.py --token <TOKEN> --query RELIANCE
 
 ---
 
+
+## 🚀 Try it Online
+
+A Streamlit web app wraps every example with a UI — paste your token and run:
+
+> **[▶ Open Live App](https://upstox-python-examples.streamlit.app)** *(coming soon — deploy steps below)*
+
+Or run locally:
+
+```bash
+git clone https://github.com/upstox/python-examples
+cd python-examples
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+---
+
+
+
+
 ## Getting a Token
 
 | Token | How to get | Valid for | Can trade? |
@@ -200,6 +221,27 @@ python market_data/market_holidays.py --token <TOKEN>
 python market_data/intraday_chart.py --token <TOKEN> --query SENSEX --interval 5
 python market_data/live_depth.py --token <TOKEN>        # Ctrl-C to stop
 python market_data/live_depth_mcx.py --token <TOKEN>    # Ctrl-C to stop
+```
+
+---
+
+
+## 🌐 Deploy the Streamlit App
+
+The `app.py` wraps all 39 examples in a browser UI with interactive inputs and charts.
+
+### Streamlit Cloud (free, ~5 minutes)
+
+1. Fork / push this repo to GitHub
+2. Go to [share.streamlit.io](https://share.streamlit.io) → **New app**
+3. Select this repo, branch `main`, file `app.py`
+4. Click **Deploy** — you get a shareable URL instantly
+
+### Run locally
+
+```bash
+pip install -r requirements.txt
+streamlit run app.py
 ```
 
 ---
