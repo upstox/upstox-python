@@ -480,7 +480,7 @@ elif example == "MCX Crude Spread":
 
     if st.button("▶ Run", type="primary"):
         with st.spinner("Fetching MCX futures…"):
-            futures = get_futures_sorted(client, query, exchange="MCX", exact_symbol=False)
+            futures = get_futures_sorted(client, query, exchange="MCX", exact_symbol=False, segment="COMM")
         if len(futures) < 2:
             st.error(f"Need at least 2 futures for '{query}'. Try CRUDEOIL or NATURALGAS.")
             st.stop()
@@ -1228,9 +1228,9 @@ elif example == "Currency Futures Spread":
 
     if st.button("▶ Run", type="primary"):
         with st.spinner("Fetching currency futures…"):
-            futures = get_futures_sorted(client, pair, exchange="NSE", exact_symbol=True)
+            futures = get_futures_sorted(client, pair, exchange="NSE", exact_symbol=True, segment="CURR")
             if not futures:
-                futures = get_futures_sorted(client, pair, exchange="BSE", exact_symbol=True)
+                futures = get_futures_sorted(client, pair, exchange="BSE", exact_symbol=True, segment="CURR")
 
         if len(futures) < 2:
             st.error(f"Need at least 2 contracts for '{pair}'.")
@@ -1822,9 +1822,16 @@ elif example == "Market Holidays":
             partial_notes = []
             fully_open    = set()
             for e in open_e:
-                exch      = getattr(e, "exchange", e.get("exchange", "")) if not isinstance(e, str) else e
-                start_ms  = getattr(e, "start_time", e.get("start_time", 0)) if not isinstance(e, str) else 0
-                end_ms    = getattr(e, "end_time",   e.get("end_time",   0)) if not isinstance(e, str) else 0
+                if isinstance(e, str):
+                    exch, start_ms, end_ms = e, 0, 0
+                elif isinstance(e, dict):
+                    exch     = e.get("exchange", "")
+                    start_ms = e.get("start_time", 0)
+                    end_ms   = e.get("end_time", 0)
+                else:
+                    exch     = getattr(e, "exchange", "")
+                    start_ms = getattr(e, "start_time", 0)
+                    end_ms   = getattr(e, "end_time", 0)
                 label     = session_label(exch, start_ms, end_ms)
                 if "only" in label or "Muhurat" in label or "muhurat" in label:
                     partial_notes.append(f"{exch}: {label}")
@@ -1978,7 +1985,8 @@ elif example == "Intraday Chart":
 elif example == "Live Depth (5-level)":
     client = require_client()
 
-    st.info("WebSocket streaming is not available in the web UI. This view polls the REST API instead.")
+    st.warning("⚠️ Live WebSocket streaming is not supported in the web UI. Please run this example locally via the command line.")
+    st.stop()
 
     SENSEX_IDX    = "BSE_INDEX|SENSEX"
     NIFTY_IDX     = "NSE_INDEX|Nifty 50"
@@ -2057,7 +2065,8 @@ elif example == "Live Depth (5-level)":
 elif example == "Live Depth MCX":
     client = require_client()
 
-    st.info("WebSocket streaming is not available in the web UI. This view polls the REST API instead.")
+    st.warning("⚠️ Live WebSocket streaming is not supported in the web UI. Please run this example locally via the command line.")
+    st.stop()
 
     MCX_QUERIES = [("GOLD", "MCX_FO"), ("SILVER", "MCX_FO"), ("CRUDEOIL", "MCX_FO"), ("NATURALGAS", "MCX_FO")]
 
@@ -2117,7 +2126,8 @@ elif example == "Live Depth MCX":
 elif example == "Live Depth USDINR":
     client = require_client()
 
-    st.info("WebSocket streaming is not available in the web UI. This view polls the REST API instead.")
+    st.warning("⚠️ Live WebSocket streaming is not supported in the web UI. Please run this example locally via the command line.")
+    st.stop()
 
     auto_refresh = st.checkbox("Auto-refresh (every 3s)", value=False)
 
