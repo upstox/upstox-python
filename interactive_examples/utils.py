@@ -116,6 +116,7 @@ def get_futures_sorted(
     query: str,
     exchange: str = "NSE",
     exact_symbol: bool = False,
+    segment: str = "FO",
 ):
     """
     Search for futures contracts and return them sorted by expiry (nearest first).
@@ -124,6 +125,9 @@ def get_futures_sorted(
     matches *query* (case-insensitive) are returned — useful when searching
     'NIFTY' to avoid picking up NIFTYNXT50, BANKNIFTY, etc.
 
+    Use segment="COMM" for MCX commodity futures (e.g. CRUDEOIL, NATURALGAS).
+    Use segment="FO" (default) for NSE/BSE equity futures.
+
     Returns list of instrument dicts, each with keys like:
       instrument_key, trading_symbol, expiry, lot_size, underlying_symbol
     """
@@ -131,7 +135,7 @@ def get_futures_sorted(
         api_client,
         query,
         exchanges=exchange,
-        segments="FO",
+        segments=segment,
         instrument_types="FUT",
         records=30,
     )
