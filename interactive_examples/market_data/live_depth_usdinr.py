@@ -52,6 +52,7 @@ def find_usdinr(client, exchange: str):
         exchanges="NSE" if exchange == "CDS" else "BSE",
         segments="CURR",
         instrument_types="FUT",
+        expiry="current_month",
         records=10,
     )
     instruments = resp.data or []
