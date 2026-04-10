@@ -26,7 +26,7 @@ Samples are grouped by API area. Each `.md` file contains one or more Python sni
 | Folder | Description |
 |--------|-------------|
 | [**login/**](login/) | Authentication: get token from auth code, access-token request, logout. |
-| [**user/**](user/) | User profile, fund and margin details. |
+| [**user/**](user/) | User profile, fund and margin details, IP management, kill switch. |
 | [**orders/**](orders/) | Order lifecycle: place (single/multi, v2 & v3), modify, cancel, order book, order details, order history, trades, historical trades, exit all positions. |
 | [**portfolio/**](portfolio/) | Positions, holdings, MTF positions, convert positions. |
 | [**market-quote/**](market-quote/) | LTP, full market quotes, OHLC (v2 & v3), option Greeks. |
