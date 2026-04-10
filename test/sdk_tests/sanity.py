@@ -59,7 +59,7 @@ except ApiException as e:
     print("Exception when calling UserApi->get_user_ips: %s\n" % e)
 
 api_instance = upstox_client.UserApi(upstox_client.ApiClient(configuration))
-body = upstox_client.UpdateUserIpRequest(primary_ip="127.0.0.1")
+body = upstox_client.UpdateUserIpRequest(primary_ip="1.2.3.4")
 try:
     api_response = api_instance.update_user_ip(body)
     if api_response.status != "success":

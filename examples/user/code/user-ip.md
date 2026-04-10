@@ -28,7 +28,7 @@ configuration.access_token = '{your_access_token}'
 
 api_instance = upstox_client.UserApi(upstox_client.ApiClient(configuration))
 
-body = upstox_client.UpdateUserIpRequest(primary_ip="127.0.0.1")
+body = upstox_client.UpdateUserIpRequest(primary_ip="1.2.3.4")
 
 try:
     # Update User IP
