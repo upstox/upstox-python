@@ -42,6 +42,51 @@ try:
 except ApiException as e:
     print("Exception when calling UserApi->get_user_fund_margin: %s\n" % e)
 
+api_instance = upstox_client.UserApi(upstox_client.ApiClient(configuration))
+try:
+    api_response = api_instance.get_user_fund_margin_v3()
+    if api_response.data is None:
+        print("Wrong response from get_user_fund_margin_v3")
+except ApiException as e:
+    print("Exception when calling UserApi->get_user_fund_margin_v3: %s\n" % e)
+
+api_instance = upstox_client.UserApi(upstox_client.ApiClient(configuration))
+try:
+    api_response = api_instance.get_user_ips()
+    if api_response.status != "success":
+        print("Wrong response from get_user_ips")
+except ApiException as e:
+    print("Exception when calling UserApi->get_user_ips: %s\n" % e)
+
+api_instance = upstox_client.UserApi(upstox_client.ApiClient(configuration))
+body = upstox_client.UpdateUserIpRequest(primary_ip="127.0.0.1")
+try:
+    api_response = api_instance.update_user_ip(body)
+    if api_response.status != "success":
+        print("Wrong response from update_user_ip")
+except ApiException as e:
+    json_string = e.body.decode('utf-8')
+    data_dict = json.loads(json_string)
+    if data_dict.get('errors')[0].get('errorCode') not in ["UDAPI100068", "UDAPI100069"]:
+        print("update_user_ip giving wrong response")
+
+api_instance = upstox_client.UserApi(upstox_client.ApiClient(configuration))
+try:
+    api_response = api_instance.get_kill_switch()
+    if api_response.status != "success":
+        print("Wrong response from get_kill_switch")
+except ApiException as e:
+    print("Exception when calling UserApi->get_kill_switch: %s\n" % e)
+
+api_instance = upstox_client.UserApi(upstox_client.ApiClient(configuration))
+body = [upstox_client.KillSwitchSegmentUpdateRequest(segment="NSE_EQ", action="DISABLE")]
+try:
+    api_response = api_instance.update_kill_switch(body)
+    if api_response.status != "success":
+        print("Wrong response from update_kill_switch")
+except ApiException as e:
+    print("Exception when calling UserApi->update_kill_switch: %s\n" % e)
+
 api_instance = upstox_client.ChargeApi(upstox_client.ApiClient(configuration))
 instrument_token = 'NSE_EQ|INE669E01016'
 quantity = 10
