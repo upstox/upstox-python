@@ -16,6 +16,7 @@ from __future__ import absolute_import
 # import models into model package
 from upstox_client.models.analytics_data import AnalyticsData
 from upstox_client.models.api_gateway_error_response import ApiGatewayErrorResponse
+from upstox_client.models.available_to_trade import AvailableToTrade
 from upstox_client.models.batch_execution_summary import BatchExecutionSummary
 from upstox_client.models.brokerage_data import BrokerageData
 from upstox_client.models.brokerage_taxes import BrokerageTaxes
@@ -24,11 +25,16 @@ from upstox_client.models.cancel_or_exit_multi_order_data import CancelOrExitMul
 from upstox_client.models.cancel_or_exit_multi_order_response import CancelOrExitMultiOrderResponse
 from upstox_client.models.cancel_or_exit_order_error_data import CancelOrExitOrderErrorData
 from upstox_client.models.cancel_order_data import CancelOrderData
+from upstox_client.models.cash_available_to_trade import CashAvailableToTrade
+from upstox_client.models.cash_breakdown import CashBreakdown
+from upstox_client.models.cash_margin_used import CashMarginUsed
+from upstox_client.models.cash_unavailable_to_trade import CashUnavailableToTrade
 from upstox_client.models.cancel_order_response import CancelOrderResponse
 from upstox_client.models.cancel_order_v3_response import CancelOrderV3Response
 from upstox_client.models.convert_position_data import ConvertPositionData
 from upstox_client.models.convert_position_request import ConvertPositionRequest
 from upstox_client.models.convert_position_response import ConvertPositionResponse
+from upstox_client.models.delivery_margin import DeliveryMargin
 from upstox_client.models.depth import Depth
 from upstox_client.models.depth_map import DepthMap
 from upstox_client.models.dp_plan import DpPlan
@@ -62,6 +68,7 @@ from upstox_client.models.get_trade_response import GetTradeResponse
 from upstox_client.models.get_trade_wise_profit_and_loss_data_response import GetTradeWiseProfitAndLossDataResponse
 from upstox_client.models.get_trade_wise_profit_and_loss_meta_data_response import GetTradeWiseProfitAndLossMetaDataResponse
 from upstox_client.models.get_user_fund_margin_response import GetUserFundMarginResponse
+from upstox_client.models.get_user_fund_margin_v3_response import GetUserFundMarginV3Response
 from upstox_client.models.gtt_cancel_order_request import GttCancelOrderRequest
 from upstox_client.models.gtt_modify_order_request import GttModifyOrderRequest
 from upstox_client.models.gtt_order_data import GttOrderData
@@ -81,9 +88,14 @@ from upstox_client.models.search_instrument_response import SearchInstrumentResp
 from upstox_client.models.search_meta_data import SearchMetaData
 from upstox_client.models.search_page import SearchPage
 from upstox_client.models.intra_day_candle_data import IntraDayCandleData
+from upstox_client.models.kill_switch_response import KillSwitchResponse
+from upstox_client.models.kill_switch_segment_data import KillSwitchSegmentData
+from upstox_client.models.kill_switch_segment_update_request import KillSwitchSegmentUpdateRequest
 from upstox_client.models.logout_response import LogoutResponse
+from upstox_client.models.loss import Loss
 from upstox_client.models.margin import Margin
 from upstox_client.models.margin_data import MarginData
+from upstox_client.models.margin_from_pledge import MarginFromPledge
 from upstox_client.models.margin_request import MarginRequest
 from upstox_client.models.market_data import MarketData
 from upstox_client.models.market_quote_ohlc import MarketQuoteOHLC
@@ -119,6 +131,9 @@ from upstox_client.models.place_order_request import PlaceOrderRequest
 from upstox_client.models.place_order_response import PlaceOrderResponse
 from upstox_client.models.place_order_v3_request import PlaceOrderV3Request
 from upstox_client.models.place_order_v3_response import PlaceOrderV3Response
+from upstox_client.models.pledge_available_to_trade import PledgeAvailableToTrade
+from upstox_client.models.pledge_margin_used import PledgeMarginUsed
+from upstox_client.models.pledge_unavailable_to_trade import PledgeUnavailableToTrade
 from upstox_client.models.position_data import PositionData
 from upstox_client.models.post_margin_response import PostMarginResponse
 from upstox_client.models.problem import Problem
@@ -140,6 +155,12 @@ from upstox_client.models.trade_history_response_page_data import TradeHistoryRe
 from upstox_client.models.trade_history_response_trade_data import TradeHistoryResponseTradeData
 from upstox_client.models.trade_wise_meta_data import TradeWiseMetaData
 from upstox_client.models.trade_wise_profit_and_loss_data import TradeWiseProfitAndLossData
+from upstox_client.models.unavailable_to_trade import UnavailableToTrade
+from upstox_client.models.unsettled_profit import UnsettledProfit
+from upstox_client.models.update_user_ip_request import UpdateUserIpRequest
 from upstox_client.models.user_fund_margin_data import UserFundMarginData
+from upstox_client.models.user_fund_margin_v3_data import UserFundMarginV3Data
+from upstox_client.models.user_ip_response import UserIpResponse
+from upstox_client.models.user_ip_response_data import UserIpResponseData
 from upstox_client.models.websocket_auth_redirect_response import WebsocketAuthRedirectResponse
 from upstox_client.models.websocket_auth_redirect_response_data import WebsocketAuthRedirectResponseData
