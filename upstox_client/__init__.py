@@ -24,6 +24,7 @@ from upstox_client.api.login_api import LoginApi
 from upstox_client.api.market_holidays_and_timings_api import MarketHolidaysAndTimingsApi
 from upstox_client.api.market_quote_api import MarketQuoteApi
 from upstox_client.api.market_quote_v3_api import MarketQuoteV3Api
+from upstox_client.api.news_api import NewsApi
 from upstox_client.api.options_api import OptionsApi
 from upstox_client.api.order_api import OrderApi
 from upstox_client.api.portfolio_api import PortfolioApi
@@ -81,6 +82,7 @@ from upstox_client.models.get_market_quote_ohlc_response import GetMarketQuoteOH
 from upstox_client.models.get_market_quote_ohlc_response_v3 import GetMarketQuoteOHLCResponseV3
 from upstox_client.models.get_market_quote_option_greek_response_v3 import GetMarketQuoteOptionGreekResponseV3
 from upstox_client.models.get_market_status_response import GetMarketStatusResponse
+from upstox_client.models.get_news_response import GetNewsResponse
 from upstox_client.models.get_option_chain_response import GetOptionChainResponse
 from upstox_client.models.get_option_contract_response import GetOptionContractResponse
 from upstox_client.models.get_order_book_response import GetOrderBookResponse
@@ -140,6 +142,9 @@ from upstox_client.models.multi_order_request import MultiOrderRequest
 from upstox_client.models.multi_order_response import MultiOrderResponse
 from upstox_client.models.multi_order_summary import MultiOrderSummary
 from upstox_client.models.multi_order_v3_data import MultiOrderV3Data
+from upstox_client.models.news_item_data import NewsItemData
+from upstox_client.models.news_response_meta_data import NewsResponseMetaData
+from upstox_client.models.news_response_page_data import NewsResponsePageData
 from upstox_client.models.o_auth_client_exception import OAuthClientException
 from upstox_client.models.o_auth_client_exception_cause import OAuthClientExceptionCause
 from upstox_client.models.o_auth_client_exception_cause_stack_trace import OAuthClientExceptionCauseStackTrace

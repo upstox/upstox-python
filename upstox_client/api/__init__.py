@@ -12,6 +12,7 @@ from upstox_client.api.login_api import LoginApi
 from upstox_client.api.market_holidays_and_timings_api import MarketHolidaysAndTimingsApi
 from upstox_client.api.market_quote_api import MarketQuoteApi
 from upstox_client.api.market_quote_v3_api import MarketQuoteV3Api
+from upstox_client.api.news_api import NewsApi
 from upstox_client.api.options_api import OptionsApi
 from upstox_client.api.order_api import OrderApi
 from upstox_client.api.portfolio_api import PortfolioApi
