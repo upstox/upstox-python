@@ -944,9 +944,102 @@ except ApiException as e:
     if data_dict.get('errors')[0].get('errorCode') != "UDAPI100069":
         print("indie token request giving error")
 
+# ========================================
+# MUTUAL FUND API TESTS
+# ========================================
+
+api_instance = upstox_client.MutualFundApi(upstox_client.ApiClient(configuration))
+
+try:
+    api_response = api_instance.get_mutual_fund_holdings()
+    if api_response.status != "success":
+        print("error in get_mutual_fund_holdings")
+except ApiException as e:
+    print("Exception when calling MutualFundApi->get_mutual_fund_holdings: %s\n" % e)
+
+try:
+    api_response = api_instance.get_mutual_fund_orders()
+    if api_response.status != "success":
+        print("error in get_mutual_fund_orders")
+except ApiException as e:
+    print("Exception when calling MutualFundApi->get_mutual_fund_orders: %s\n" % e)
+
+try:
+    api_response = api_instance.get_mutual_fund_orders(status="complete", transaction_type="BUY", page_number=1, records=10)
+    if api_response.status != "success":
+        print("error in get_mutual_fund_orders with filters")
+except ApiException as e:
+    print("Exception when calling MutualFundApi->get_mutual_fund_orders (filtered): %s\n" % e)
+
+try:
+    api_response = api_instance.get_mutual_fund_order(order_id="MF-ORDER-001")
+    if api_response.status != "success":
+        print("error in get_mutual_fund_order")
+except ApiException as e:
+    json_string = e.body.decode('utf-8')
+    data_dict = json.loads(json_string)
+    if data_dict.get('errors')[0].get('errorCode') not in ["UDAPI100010", "UDAPI100050"]:
+        print("get_mutual_fund_order giving wrong error response")
+
+try:
+    api_response = api_instance.get_mutual_fund_sips()
+    if api_response.status != "success":
+        print("error in get_mutual_fund_sips")
+except ApiException as e:
+    print("Exception when calling MutualFundApi->get_mutual_fund_sips: %s\n" % e)
+
+try:
+    api_response = api_instance.get_mutual_fund_sips(page_number=1, records=10)
+    if api_response.status != "success":
+        print("error in get_mutual_fund_sips with pagination")
+except ApiException as e:
+    print("Exception when calling MutualFundApi->get_mutual_fund_sips (paginated): %s\n" % e)
+
+# Model instantiation smoke tests
+mf_holding = upstox_client.MutualFundHoldingData()
+if mf_holding is None:
+    print("error: MutualFundHoldingData instantiation failed")
+
+mf_meta = upstox_client.MutualFundMetaData()
+if mf_meta is None:
+    print("error: MutualFundMetaData instantiation failed")
+
+mf_order = upstox_client.MutualFundOrderData()
+if mf_order is None:
+    print("error: MutualFundOrderData instantiation failed")
+
+mf_sip = upstox_client.MutualFundSipData()
+if mf_sip is None:
+    print("error: MutualFundSipData instantiation failed")
+
+family_member = upstox_client.FamilyMemberData()
+if family_member is None:
+    print("error: FamilyMemberData instantiation failed")
+
+pagination = upstox_client.Pagination()
+if pagination is None:
+    print("error: Pagination instantiation failed")
+
+mf_holdings_resp = upstox_client.GetMutualFundHoldingsResponse()
+if mf_holdings_resp is None:
+    print("error: GetMutualFundHoldingsResponse instantiation failed")
+
+mf_orders_resp = upstox_client.GetMutualFundOrdersResponse()
+if mf_orders_resp is None:
+    print("error: GetMutualFundOrdersResponse instantiation failed")
+
+mf_order_details_resp = upstox_client.GetMutualFundOrderDetailsResponse()
+if mf_order_details_resp is None:
+    print("error: GetMutualFundOrderDetailsResponse instantiation failed")
+
+mf_sips_resp = upstox_client.GetMutualFundSipsResponse()
+if mf_sips_resp is None:
+    print("error: GetMutualFundSipsResponse instantiation failed")
+
+login_api_instance = upstox_client.LoginApi(upstox_client.ApiClient(configuration))
 try:
     # Logout
-    api_response = api_instance.logout(api_version)
+    api_response = login_api_instance.logout(api_version)
     print(api_response)
     print("successfully logged out")
 except ApiException as e:
