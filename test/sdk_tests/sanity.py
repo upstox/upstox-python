@@ -965,7 +965,7 @@ except ApiException as e:
     print("Exception when calling MutualFundApi->get_mutual_fund_orders: %s\n" % e)
 
 try:
-    api_response = api_instance.get_mutual_fund_orders(status="complete", transaction_type="BUY", page_number=1, records=10)
+    api_response = api_instance.get_mutual_fund_orders(status="COMPLETED", transaction_type="BUY", page_number=1, records=10)
     if api_response.status != "success":
         print("error in get_mutual_fund_orders with filters")
 except ApiException as e:

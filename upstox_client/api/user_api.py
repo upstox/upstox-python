@@ -289,43 +289,45 @@ class UserApi(object):
             _request_timeout=params.get('_request_timeout'),
             collection_formats=collection_formats)
 
-    def get_profile(self, **kwargs):  # noqa: E501
+    def get_profile(self, api_version, **kwargs):  # noqa: E501
         """Get profile  # noqa: E501
 
         This API allows to fetch the complete information of the user who is logged in including the products, order types and exchanges enabled for the user  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.get_profile(async_req=True)
+        >>> thread = api.get_profile(api_version, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
+        :param str api_version: API Version Header (required)
         :return: GetProfileResponse
                  If the method is called asynchronously,
                  returns the request thread.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('async_req'):
-            return self.get_profile_with_http_info(**kwargs)  # noqa: E501
+            return self.get_profile_with_http_info(api_version, **kwargs)  # noqa: E501
         else:
-            (data) = self.get_profile_with_http_info(**kwargs)  # noqa: E501
+            (data) = self.get_profile_with_http_info(api_version, **kwargs)  # noqa: E501
             return data
 
-    def get_profile_with_http_info(self, **kwargs):  # noqa: E501
+    def get_profile_with_http_info(self, api_version, **kwargs):  # noqa: E501
         """Get profile  # noqa: E501
 
         This API allows to fetch the complete information of the user who is logged in including the products, order types and exchanges enabled for the user  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.get_profile_with_http_info(async_req=True)
+        >>> thread = api.get_profile_with_http_info(api_version, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
+        :param str api_version: API Version Header (required)
         :return: GetProfileResponse
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = []  # noqa: E501
+        all_params = ['api_version']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -340,6 +342,10 @@ class UserApi(object):
                 )
             params[key] = val
         del params['kwargs']
+        # verify the required parameter 'api_version' is set
+        if ('api_version' not in params or
+                params['api_version'] is None):
+            raise ValueError("Missing the required parameter `api_version` when calling `get_profile`")  # noqa: E501
 
         collection_formats = {}
 
@@ -348,6 +354,8 @@ class UserApi(object):
         query_params = []
 
         header_params = {}
+        if 'api_version' in params:
+            header_params['Api-Version'] = params['api_version']  # noqa: E501
 
         form_params = []
         local_var_files = {}
@@ -376,45 +384,47 @@ class UserApi(object):
             _request_timeout=params.get('_request_timeout'),
             collection_formats=collection_formats)
 
-    def get_user_fund_margin(self, **kwargs):  # noqa: E501
+    def get_user_fund_margin(self, api_version, **kwargs):  # noqa: E501
         """Get User Fund And Margin  # noqa: E501
 
         Shows the balance of the user in equity and commodity market.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.get_user_fund_margin(async_req=True)
+        >>> thread = api.get_user_fund_margin(api_version, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object segment:
+        :param str api_version: API Version Header (required)
+        :param str segment:
         :return: GetUserFundMarginResponse
                  If the method is called asynchronously,
                  returns the request thread.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('async_req'):
-            return self.get_user_fund_margin_with_http_info(**kwargs)  # noqa: E501
+            return self.get_user_fund_margin_with_http_info(api_version, **kwargs)  # noqa: E501
         else:
-            (data) = self.get_user_fund_margin_with_http_info(**kwargs)  # noqa: E501
+            (data) = self.get_user_fund_margin_with_http_info(api_version, **kwargs)  # noqa: E501
             return data
 
-    def get_user_fund_margin_with_http_info(self, **kwargs):  # noqa: E501
+    def get_user_fund_margin_with_http_info(self, api_version, **kwargs):  # noqa: E501
         """Get User Fund And Margin  # noqa: E501
 
         Shows the balance of the user in equity and commodity market.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.get_user_fund_margin_with_http_info(async_req=True)
+        >>> thread = api.get_user_fund_margin_with_http_info(api_version, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object segment:
+        :param str api_version: API Version Header (required)
+        :param str segment:
         :return: GetUserFundMarginResponse
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['segment']  # noqa: E501
+        all_params = ['api_version', 'segment']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -429,6 +439,10 @@ class UserApi(object):
                 )
             params[key] = val
         del params['kwargs']
+        # verify the required parameter 'api_version' is set
+        if ('api_version' not in params or
+                params['api_version'] is None):
+            raise ValueError("Missing the required parameter `api_version` when calling `get_user_fund_margin`")  # noqa: E501
 
         collection_formats = {}
 
@@ -439,6 +453,8 @@ class UserApi(object):
             query_params.append(('segment', params['segment']))  # noqa: E501
 
         header_params = {}
+        if 'api_version' in params:
+            header_params['Api-Version'] = params['api_version']  # noqa: E501
 
         form_params = []
         local_var_files = {}
@@ -446,7 +462,7 @@ class UserApi(object):
         body_params = None
         # HTTP header `Accept`
         header_params['Accept'] = self.api_client.select_header_accept(
-            ['*/*', 'application/json'])  # noqa: E501
+            ['application/json', '*/*'])  # noqa: E501
 
         # Authentication setting
         auth_settings = ['OAUTH2']  # noqa: E501
