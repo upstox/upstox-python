@@ -965,7 +965,7 @@ except ApiException as e:
     print("Exception when calling MutualFundApi->get_mutual_fund_orders: %s\n" % e)
 
 try:
-    api_response = api_instance.get_mutual_fund_orders(status="complete", transaction_type="BUY", page_number=1, records=10)
+    api_response = api_instance.get_mutual_fund_orders(status="COMPLETED", transaction_type="BUY", page_number=1, records=10)
     if api_response.status != "success":
         print("error in get_mutual_fund_orders with filters")
 except ApiException as e:
@@ -1093,10 +1093,10 @@ if payment_response_with_data.status != "success":
     print("error: PaymentHistoryResponse status field not set correctly")
 
 login_api_instance = upstox_client.LoginApi(upstox_client.ApiClient(configuration))
-try:
-    # Logout
-    api_response = login_api_instance.logout(api_version)
-    print(api_response)
-    print("successfully logged out")
-except ApiException as e:
-    print("Exception when calling LoginApi->logout: %s\n" % e)
+# try:
+#     # Logout
+#     api_response = login_api_instance.logout(api_version)
+#     print(api_response)
+#     print("successfully logged out")
+# except ApiException as e:
+#     print("Exception when calling LoginApi->logout: %s\n" % e)
