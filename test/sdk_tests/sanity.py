@@ -1093,10 +1093,10 @@ if payment_response_with_data.status != "success":
     print("error: PaymentHistoryResponse status field not set correctly")
 
 login_api_instance = upstox_client.LoginApi(upstox_client.ApiClient(configuration))
-# try:
-#     # Logout
-#     api_response = login_api_instance.logout(api_version)
-#     print(api_response)
-#     print("successfully logged out")
-# except ApiException as e:
-#     print("Exception when calling LoginApi->logout: %s\n" % e)
+try:
+    # Logout
+    api_response = login_api_instance.logout(api_version)
+    print(api_response)
+    print("successfully logged out")
+except ApiException as e:
+    print("Exception when calling LoginApi->logout: %s\n" % e)
