@@ -38,6 +38,7 @@ Samples are grouped by API area. Each `.md` file contains one or more Python sni
 | [**margins/**](margins/) | Margin details. |
 | [**charges/**](charges/) | Brokerage details. |
 | [**mutual-funds-api/**](mutual-funds-api/) | Mutual fund holdings, orders, order details, and SIPs. |
+| [**payments-api/**](payments-api/) | Payin and payout history. |
 | [**news/**](news/) | News articles by instrument keys, positions, or holdings. |
 | [**trade-profit-and-loss/**](trade-profit-and-loss/) | P&amp;L report, report metadata, trade charges. |
 | [**strategies/**](strategies/) | Ready-to-run options strategy examples for Nifty 50 (bullish, bearish, neutral, others). |

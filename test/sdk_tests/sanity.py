@@ -1036,6 +1036,62 @@ mf_sips_resp = upstox_client.GetMutualFundSipsResponse()
 if mf_sips_resp is None:
     print("error: GetMutualFundSipsResponse instantiation failed")
 
+# ========================================
+# PAYMENTS API TESTS
+# ========================================
+
+api_instance = upstox_client.UserApi(upstox_client.ApiClient(configuration))
+
+try:
+    api_response = api_instance.get_payin_history()
+    if api_response.status != "success":
+        print("error in get_payin_history")
+except ApiException as e:
+    print("Exception when calling UserApi->get_payin_history: %s\n" % e)
+
+api_instance = upstox_client.UserApi(upstox_client.ApiClient(configuration))
+
+try:
+    api_response = api_instance.get_payout_history()
+    if api_response.status != "success":
+        print("error in get_payout_history")
+except ApiException as e:
+    print("Exception when calling UserApi->get_payout_history: %s\n" % e)
+
+# Model instantiation smoke tests for PaymentHistoryData and PaymentHistoryResponse
+payment_data = upstox_client.PaymentHistoryData()
+if payment_data is None:
+    print("error: PaymentHistoryData instantiation failed")
+
+payment_data_with_fields = upstox_client.PaymentHistoryData(
+    amount=1000.0,
+    mode="NEFT",
+    status="SUCCESS",
+    reason=None,
+    last_updated_at="2026-05-04T10:00:00Z",
+    bank_name="Test Bank",
+    transaction_id="TXN123456",
+    total_charges=0.0,
+    charges_category="PAYIN"
+)
+if payment_data_with_fields.amount != 1000.0:
+    print("error: PaymentHistoryData amount field not set correctly")
+if payment_data_with_fields.mode != "NEFT":
+    print("error: PaymentHistoryData mode field not set correctly")
+if payment_data_with_fields.transaction_id != "TXN123456":
+    print("error: PaymentHistoryData transaction_id field not set correctly")
+
+payment_response = upstox_client.PaymentHistoryResponse()
+if payment_response is None:
+    print("error: PaymentHistoryResponse instantiation failed")
+
+payment_response_with_data = upstox_client.PaymentHistoryResponse(
+    status="success",
+    data=[payment_data_with_fields]
+)
+if payment_response_with_data.status != "success":
+    print("error: PaymentHistoryResponse status field not set correctly")
+
 login_api_instance = upstox_client.LoginApi(upstox_client.ApiClient(configuration))
 try:
     # Logout
