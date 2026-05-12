@@ -7,8 +7,8 @@ configuration.access_token = data_token.access_token
 
 api_instance = upstox_client.MarketApi(upstox_client.ApiClient(configuration))
 instrument_key = 'NSE_INDEX|Nifty 50'
-expiry = '2025-06-26'
-date = '2025-06-12'
+expiry = '2026-05-19'
+date = '2026-05-05'
 
 try:
     api_response = api_instance.get_oi_data(instrument_key, expiry, date)
@@ -18,7 +18,7 @@ except ApiException as e:
     print("Exception when calling MarketApi->get_oi_data: %s\n" % e)
 
 try:
-    api_response = api_instance.get_change_oi_data(instrument_key, expiry, date, 5)
+    api_response = api_instance.get_change_oi_data(instrument_key, expiry, date, 3)
     if api_response.status != "success":
         print("MarketApi->get_change_oi_data not returning success")
 except ApiException as e:
