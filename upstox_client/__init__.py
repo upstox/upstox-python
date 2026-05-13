@@ -17,10 +17,12 @@ from __future__ import absolute_import
 # import apis into sdk package
 from upstox_client.api.charge_api import ChargeApi
 from upstox_client.api.expired_instrument_api import ExpiredInstrumentApi
+from upstox_client.api.fundamentals_api import FundamentalsApi
 from upstox_client.api.history_api import HistoryApi
 from upstox_client.api.history_v3_api import HistoryV3Api
 from upstox_client.api.instruments_api import InstrumentsApi
 from upstox_client.api.login_api import LoginApi
+from upstox_client.api.market_api import MarketApi
 from upstox_client.api.market_holidays_and_timings_api import MarketHolidaysAndTimingsApi
 from upstox_client.api.market_quote_api import MarketQuoteApi
 from upstox_client.api.market_quote_v3_api import MarketQuoteV3Api
@@ -42,8 +44,12 @@ from upstox_client.api_client import ApiClient
 from upstox_client.configuration import Configuration
 # import models into sdk package
 from upstox_client.models.analytics_data import AnalyticsData
+from upstox_client.models.analytics_response import AnalyticsResponse
 from upstox_client.models.api_gateway_error_response import ApiGatewayErrorResponse
 from upstox_client.models.available_to_trade import AvailableToTrade
+from upstox_client.models.balance_sheet_data import BalanceSheetData
+from upstox_client.models.balance_sheet_history_item import BalanceSheetHistoryItem
+from upstox_client.models.balance_sheet_response import BalanceSheetResponse
 from upstox_client.models.batch_execution_summary import BatchExecutionSummary
 from upstox_client.models.brokerage_data import BrokerageData
 from upstox_client.models.brokerage_taxes import BrokerageTaxes
@@ -56,11 +62,21 @@ from upstox_client.models.cancel_order_response import CancelOrderResponse
 from upstox_client.models.cancel_order_v3_response import CancelOrderV3Response
 from upstox_client.models.cash_available_to_trade import CashAvailableToTrade
 from upstox_client.models.cash_breakdown import CashBreakdown
+from upstox_client.models.cash_flow_data import CashFlowData
+from upstox_client.models.cash_flow_entry import CashFlowEntry
+from upstox_client.models.cash_flow_response import CashFlowResponse
 from upstox_client.models.cash_margin_used import CashMarginUsed
 from upstox_client.models.cash_unavailable_to_trade import CashUnavailableToTrade
+from upstox_client.models.company_profile_data import CompanyProfileData
+from upstox_client.models.company_profile_response import CompanyProfileResponse
+from upstox_client.models.competitor_data import CompetitorData
+from upstox_client.models.competitors_response import CompetitorsResponse
 from upstox_client.models.convert_position_data import ConvertPositionData
 from upstox_client.models.convert_position_request import ConvertPositionRequest
 from upstox_client.models.convert_position_response import ConvertPositionResponse
+from upstox_client.models.corporate_action_data import CorporateActionData
+from upstox_client.models.corporate_action_event_detail import CorporateActionEventDetail
+from upstox_client.models.corporate_actions_response import CorporateActionsResponse
 from upstox_client.models.delivery_margin import DeliveryMargin
 from upstox_client.models.depth import Depth
 from upstox_client.models.depth_map import DepthMap
@@ -68,6 +84,7 @@ from upstox_client.models.dp_plan import DpPlan
 from upstox_client.models.exchange_timing_data import ExchangeTimingData
 from upstox_client.models.expired_future_data import ExpiredFutureData
 from upstox_client.models.family_member_data import FamilyMemberData
+from upstox_client.models.financial_statement_entry import FinancialStatementEntry
 from upstox_client.models.get_brokerage_response import GetBrokerageResponse
 from upstox_client.models.get_exchange_timing_response import GetExchangeTimingResponse
 from upstox_client.models.get_expired_futures_contract_response import GetExpiredFuturesContractResponse
@@ -110,8 +127,12 @@ from upstox_client.models.gtt_place_order_request import GttPlaceOrderRequest
 from upstox_client.models.gtt_rule import GttRule
 from upstox_client.models.gtt_trigger_order_response import GttTriggerOrderResponse
 from upstox_client.models.historical_candle_data import HistoricalCandleData
+from upstox_client.models.history_item import HistoryItem
 from upstox_client.models.holdings_data import HoldingsData
 from upstox_client.models.holiday_data import HolidayData
+from upstox_client.models.income_statement_data import IncomeStatementData
+from upstox_client.models.income_statement_entry import IncomeStatementEntry
+from upstox_client.models.income_statement_response import IncomeStatementResponse
 from upstox_client.models.indie_user_init_token_data import IndieUserInitTokenData
 from upstox_client.models.indie_user_init_token_response import IndieUserInitTokenResponse
 from upstox_client.models.indie_user_token_request import IndieUserTokenRequest
@@ -121,6 +142,8 @@ from upstox_client.models.search_instrument_response import SearchInstrumentResp
 from upstox_client.models.search_meta_data import SearchMetaData
 from upstox_client.models.search_page import SearchPage
 from upstox_client.models.intra_day_candle_data import IntraDayCandleData
+from upstox_client.models.key_ratio_data import KeyRatioData
+from upstox_client.models.key_ratios_response import KeyRatiosResponse
 from upstox_client.models.kill_switch_response import KillSwitchResponse
 from upstox_client.models.kill_switch_segment_data import KillSwitchSegmentData
 from upstox_client.models.kill_switch_segment_update_request import KillSwitchSegmentUpdateRequest
@@ -189,6 +212,9 @@ from upstox_client.models.profit_and_loss_meta_data_wrapper import ProfitAndLoss
 from upstox_client.models.profit_and_loss_other_charges_taxes import ProfitAndLossOtherChargesTaxes
 from upstox_client.models.put_call_option_chain_data import PutCallOptionChainData
 from upstox_client.models.rule import Rule
+from upstox_client.models.sector_market_cap_amount import SectorMarketCapAmount
+from upstox_client.models.share_holding_data import ShareHoldingData
+from upstox_client.models.share_holdings_response import ShareHoldingsResponse
 from upstox_client.models.token_request import TokenRequest
 from upstox_client.models.token_response import TokenResponse
 from upstox_client.models.trade_data import TradeData

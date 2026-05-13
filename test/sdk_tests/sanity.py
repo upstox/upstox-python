@@ -1092,6 +1092,215 @@ payment_response_with_data = upstox_client.PaymentHistoryResponse(
 if payment_response_with_data.status != "success":
     print("error: PaymentHistoryResponse status field not set correctly")
 
+# --- fundamentals-market-data: FundamentalsApi ---
+fundamentals_instance = upstox_client.FundamentalsApi(upstox_client.ApiClient(configuration))
+isin = 'INE669E01016'
+
+try:
+    api_response = fundamentals_instance.get_company_profile(isin)
+    if api_response.status != "success":
+        print("FundamentalsApi->get_company_profile not returning success")
+except ApiException as e:
+    print("Exception when calling FundamentalsApi->get_company_profile: %s\n" % e)
+
+try:
+    api_response = fundamentals_instance.get_key_ratios(isin)
+    if api_response.status != "success":
+        print("FundamentalsApi->get_key_ratios not returning success")
+except ApiException as e:
+    print("Exception when calling FundamentalsApi->get_key_ratios: %s\n" % e)
+
+try:
+    api_response = fundamentals_instance.get_balance_sheet(isin)
+    if api_response.status != "success":
+        print("FundamentalsApi->get_balance_sheet not returning success")
+except ApiException as e:
+    print("Exception when calling FundamentalsApi->get_balance_sheet: %s\n" % e)
+
+try:
+    api_response = fundamentals_instance.get_income_statement(isin)
+    if api_response.status != "success":
+        print("FundamentalsApi->get_income_statement not returning success")
+except ApiException as e:
+    print("Exception when calling FundamentalsApi->get_income_statement: %s\n" % e)
+
+try:
+    api_response = fundamentals_instance.get_cash_flow(isin)
+    if api_response.status != "success":
+        print("FundamentalsApi->get_cash_flow not returning success")
+except ApiException as e:
+    print("Exception when calling FundamentalsApi->get_cash_flow: %s\n" % e)
+
+try:
+    api_response = fundamentals_instance.get_competitors('NSE_EQ|INE669E01016')
+    if api_response.status != "success":
+        print("FundamentalsApi->get_competitors not returning success")
+except ApiException as e:
+    print("Exception when calling FundamentalsApi->get_competitors: %s\n" % e)
+
+try:
+    api_response = fundamentals_instance.get_corporate_actions(isin)
+    if api_response.status != "success":
+        print("FundamentalsApi->get_corporate_actions not returning success")
+except ApiException as e:
+    print("Exception when calling FundamentalsApi->get_corporate_actions: %s\n" % e)
+
+try:
+    api_response = fundamentals_instance.get_share_holdings(isin)
+    if api_response.status != "success":
+        print("FundamentalsApi->get_share_holdings not returning success")
+except ApiException as e:
+    print("Exception when calling FundamentalsApi->get_share_holdings: %s\n" % e)
+
+# --- fundamentals-market-data: MarketApi ---
+market_instance = upstox_client.MarketApi(upstox_client.ApiClient(configuration))
+nifty_key = 'NSE_INDEX|Nifty 50'
+expiry_date = '2026-05-29'
+today_date = '2026-05-12'
+
+try:
+    api_response = market_instance.get_oi_data(nifty_key, expiry_date, today_date)
+    if api_response.status != "success":
+        print("MarketApi->get_oi_data not returning success")
+except ApiException as e:
+    print("Exception when calling MarketApi->get_oi_data: %s\n" % e)
+
+try:
+    api_response = market_instance.get_change_oi_data(nifty_key, expiry_date, today_date, 5)
+    if api_response.status != "success":
+        print("MarketApi->get_change_oi_data not returning success")
+except ApiException as e:
+    print("Exception when calling MarketApi->get_change_oi_data: %s\n" % e)
+
+try:
+    api_response = market_instance.get_pcr_data(nifty_key, expiry_date, today_date, 30)
+    if api_response.status != "success":
+        print("MarketApi->get_pcr_data not returning success")
+except ApiException as e:
+    print("Exception when calling MarketApi->get_pcr_data: %s\n" % e)
+
+try:
+    api_response = market_instance.get_max_pain_data(nifty_key, expiry_date, today_date, 30)
+    if api_response.status != "success":
+        print("MarketApi->get_max_pain_data not returning success")
+except ApiException as e:
+    print("Exception when calling MarketApi->get_max_pain_data: %s\n" % e)
+
+try:
+    api_response = market_instance.get_fii_data('NSE_EQ|CASH', '1D')
+    if api_response.status != "success":
+        print("MarketApi->get_fii_data not returning success")
+except ApiException as e:
+    print("Exception when calling MarketApi->get_fii_data: %s\n" % e)
+
+try:
+    api_response = market_instance.get_dii_data('NSE_EQ|CASH', '1D')
+    if api_response.status != "success":
+        print("MarketApi->get_dii_data not returning success")
+except ApiException as e:
+    print("Exception when calling MarketApi->get_dii_data: %s\n" % e)
+
+# --- fundamentals-market-data: model smoke tests ---
+analytics_response = upstox_client.AnalyticsResponse()
+if analytics_response is None:
+    print("error: AnalyticsResponse instantiation failed")
+
+analytics_response_with_data = upstox_client.AnalyticsResponse(status="success")
+if analytics_response_with_data.status != "success":
+    print("error: AnalyticsResponse status field not set correctly")
+
+balance_sheet_data = upstox_client.BalanceSheetData()
+if balance_sheet_data is None:
+    print("error: BalanceSheetData instantiation failed")
+
+balance_sheet_history_item = upstox_client.BalanceSheetHistoryItem()
+if balance_sheet_history_item is None:
+    print("error: BalanceSheetHistoryItem instantiation failed")
+
+balance_sheet_response = upstox_client.BalanceSheetResponse(status="success")
+if balance_sheet_response.status != "success":
+    print("error: BalanceSheetResponse status field not set correctly")
+
+cash_flow_data = upstox_client.CashFlowData()
+if cash_flow_data is None:
+    print("error: CashFlowData instantiation failed")
+
+cash_flow_entry = upstox_client.CashFlowEntry()
+if cash_flow_entry is None:
+    print("error: CashFlowEntry instantiation failed")
+
+cash_flow_response = upstox_client.CashFlowResponse(status="success")
+if cash_flow_response.status != "success":
+    print("error: CashFlowResponse status field not set correctly")
+
+company_profile_data = upstox_client.CompanyProfileData()
+if company_profile_data is None:
+    print("error: CompanyProfileData instantiation failed")
+
+company_profile_response = upstox_client.CompanyProfileResponse(status="success")
+if company_profile_response.status != "success":
+    print("error: CompanyProfileResponse status field not set correctly")
+
+competitor_data = upstox_client.CompetitorData()
+if competitor_data is None:
+    print("error: CompetitorData instantiation failed")
+
+competitors_response = upstox_client.CompetitorsResponse(status="success")
+if competitors_response.status != "success":
+    print("error: CompetitorsResponse status field not set correctly")
+
+corporate_action_data = upstox_client.CorporateActionData()
+if corporate_action_data is None:
+    print("error: CorporateActionData instantiation failed")
+
+corporate_action_event_detail = upstox_client.CorporateActionEventDetail()
+if corporate_action_event_detail is None:
+    print("error: CorporateActionEventDetail instantiation failed")
+
+corporate_actions_response = upstox_client.CorporateActionsResponse(status="success")
+if corporate_actions_response.status != "success":
+    print("error: CorporateActionsResponse status field not set correctly")
+
+financial_statement_entry = upstox_client.FinancialStatementEntry()
+if financial_statement_entry is None:
+    print("error: FinancialStatementEntry instantiation failed")
+
+history_item = upstox_client.HistoryItem()
+if history_item is None:
+    print("error: HistoryItem instantiation failed")
+
+income_statement_data = upstox_client.IncomeStatementData()
+if income_statement_data is None:
+    print("error: IncomeStatementData instantiation failed")
+
+income_statement_entry = upstox_client.IncomeStatementEntry()
+if income_statement_entry is None:
+    print("error: IncomeStatementEntry instantiation failed")
+
+income_statement_response = upstox_client.IncomeStatementResponse(status="success")
+if income_statement_response.status != "success":
+    print("error: IncomeStatementResponse status field not set correctly")
+
+key_ratio_data = upstox_client.KeyRatioData()
+if key_ratio_data is None:
+    print("error: KeyRatioData instantiation failed")
+
+key_ratios_response = upstox_client.KeyRatiosResponse(status="success")
+if key_ratios_response.status != "success":
+    print("error: KeyRatiosResponse status field not set correctly")
+
+sector_market_cap_amount = upstox_client.SectorMarketCapAmount()
+if sector_market_cap_amount is None:
+    print("error: SectorMarketCapAmount instantiation failed")
+
+share_holding_data = upstox_client.ShareHoldingData()
+if share_holding_data is None:
+    print("error: ShareHoldingData instantiation failed")
+
+share_holdings_response = upstox_client.ShareHoldingsResponse(status="success")
+if share_holdings_response.status != "success":
+    print("error: ShareHoldingsResponse status field not set correctly")
+
 login_api_instance = upstox_client.LoginApi(upstox_client.ApiClient(configuration))
 try:
     # Logout

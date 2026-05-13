@@ -5,10 +5,12 @@ from __future__ import absolute_import
 # import apis into api package
 from upstox_client.api.charge_api import ChargeApi
 from upstox_client.api.expired_instrument_api import ExpiredInstrumentApi
+from upstox_client.api.fundamentals_api import FundamentalsApi
 from upstox_client.api.history_api import HistoryApi
 from upstox_client.api.history_v3_api import HistoryV3Api
 from upstox_client.api.instruments_api import InstrumentsApi
 from upstox_client.api.login_api import LoginApi
+from upstox_client.api.market_api import MarketApi
 from upstox_client.api.market_holidays_and_timings_api import MarketHolidaysAndTimingsApi
 from upstox_client.api.market_quote_api import MarketQuoteApi
 from upstox_client.api.market_quote_v3_api import MarketQuoteV3Api
