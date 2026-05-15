@@ -107,6 +107,16 @@ with st.sidebar:
             "Live Depth MCX",
             "Live Depth USDINR",
         ],
+        "🔬 Fundamentals Analysis": [
+            "Company Profile",
+            "Key Ratios",
+            "Balance Sheet",
+            "Income Statement",
+            "Cash Flow",
+            "Corporate Actions",
+            "Share Holdings",
+            "Competitors",
+        ],
     }
 
     category = st.selectbox("Category", list(CATEGORIES.keys()))
@@ -2178,6 +2188,647 @@ elif example == "Live Depth USDINR":
     if auto_refresh:
         time.sleep(3)
         st.rerun()
+
+
+# ── Fundamentals Analysis ─────────────────────────────────────────────────────
+
+elif example == "Company Profile":
+    client = require_client()
+
+    symbol = st.text_input("Stock Symbol", value="RELIANCE")
+
+    if st.button("▶ Get Company Profile", type="primary"):
+        with st.spinner("Resolving instrument…"):
+            resp = search_instrument(client, symbol, exchanges="NSE", segments="EQ", records=1)
+            hits = resp.data or []
+        if not hits:
+            st.error(f"No NSE equity instrument found for '{symbol}'."); st.stop()
+
+        isin = hits[0].get("isin", "")
+        instrument_key = hits[0].get("instrument_key", "")
+        if not isin:
+            st.error("Could not resolve ISIN."); st.stop()
+
+        with st.spinner("Fetching company profile…"):
+            try:
+                api = upstox_client.FundamentalsApi(client)
+                response = api.get_company_profile(isin)
+            except Exception as e:
+                st.error(f"API error: {e}"); st.stop()
+
+        data = response.data
+        if not data:
+            st.warning("No data returned."); st.stop()
+
+        raw = data.to_dict() if hasattr(data, "to_dict") else (data if isinstance(data, dict) else vars(data))
+        profile  = raw.get("company_profile") or {}
+        sector   = raw.get("sector") or {}
+        mcap_inr = raw.get("sector_market_cap_inr") or {}
+        mcap_usd = raw.get("sector_market_cap_usd") or {}
+
+        p = profile if isinstance(profile, dict) else (vars(profile) if hasattr(profile, "__dict__") else {})
+        s = sector  if isinstance(sector,  dict) else (vars(sector)  if hasattr(sector,  "__dict__") else {})
+        m = mcap_inr if isinstance(mcap_inr, dict) else (vars(mcap_inr) if hasattr(mcap_inr, "__dict__") else {})
+
+        name = p.get("company_name") or p.get("name") or symbol.upper()
+        st.subheader(name)
+
+        c1, c2, c3 = st.columns(3)
+        c1.metric("ISIN", isin)
+        c2.metric("Industry", p.get("industry") or s.get("industry") or "—")
+        mcap_v = m.get("market_cap") or m.get("value")
+        try:
+            mcap_display = f"₹{float(mcap_v)/1e7:,.2f} Cr" if mcap_v else "—"
+        except (TypeError, ValueError):
+            mcap_display = str(mcap_v) if mcap_v else "—"
+        c3.metric("Mkt Cap (INR)", mcap_display)
+
+        description = (
+            p.get("description") or p.get("about") or
+            p.get("business_description") or raw.get("description") or ""
+        )
+        if description:
+            st.markdown(f"**About:** {description}")
+
+        rows = {
+            "Company Name": name,
+            "ISIN": isin,
+            "Instrument Key": instrument_key,
+            "Industry": p.get("industry") or s.get("industry") or "—",
+            "Sector": p.get("sector") or s.get("name") or s.get("sector_name") or "—",
+            "Sub-Sector": p.get("sub_sector") or p.get("subsector") or "—",
+            "Employees": p.get("employees") or p.get("num_employees") or "—",
+            "Incorporated": p.get("incorporated") or p.get("incorporation_date") or "—",
+            "Listing Date": p.get("listing_date") or "—",
+            "Website": p.get("website") or p.get("web_url") or "—",
+            "Mkt Cap INR": mcap_display,
+        }
+        df = pd.DataFrame(list(rows.items()), columns=["Field", "Value"])
+        st.dataframe(df, use_container_width=True, hide_index=True)
+
+
+elif example == "Key Ratios":
+    client = require_client()
+
+    symbol = st.text_input("Stock Symbol", value="RELIANCE")
+
+    if st.button("▶ Get Key Ratios", type="primary"):
+        with st.spinner("Resolving instrument…"):
+            resp = search_instrument(client, symbol, exchanges="NSE", segments="EQ", records=1)
+            hits = resp.data or []
+        if not hits:
+            st.error(f"No NSE equity found for '{symbol}'."); st.stop()
+        isin = hits[0].get("isin", "")
+        if not isin:
+            st.error("Could not resolve ISIN."); st.stop()
+
+        with st.spinner("Fetching key ratios…"):
+            try:
+                api = upstox_client.FundamentalsApi(client)
+                response = api.get_key_ratios(isin)
+            except Exception as e:
+                st.error(f"API error: {e}"); st.stop()
+
+        data = response.data
+        if not data:
+            st.warning("No data returned."); st.stop()
+
+        items = data if isinstance(data, list) else ([data] if data else [])
+        rows = []
+        for item in items:
+            if hasattr(item, "to_dict"):
+                item = item.to_dict()
+            elif not isinstance(item, dict):
+                item = vars(item) if hasattr(item, "__dict__") else {}
+            name = item.get("name") or "—"
+            cv   = item.get("company_value")
+            sv   = item.get("sector_value")
+            rows.append({"Ratio": name, "Company": cv, "Sector Avg": sv})
+
+        if not rows:
+            st.warning("No ratio data found."); st.stop()
+
+        df = pd.DataFrame(rows)
+        st.dataframe(df, use_container_width=True, hide_index=True)
+
+        # Chart: bar of numeric ratios
+        chart_df = df.copy()
+        chart_df["Company"]    = pd.to_numeric(chart_df["Company"],    errors="coerce")
+        chart_df["Sector Avg"] = pd.to_numeric(chart_df["Sector Avg"], errors="coerce")
+        chart_df = chart_df.dropna(subset=["Company"])
+
+        if not chart_df.empty:
+            fig = go.Figure()
+            fig.add_trace(go.Bar(
+                name="Company", x=chart_df["Ratio"], y=chart_df["Company"],
+                marker_color="#3498db",
+            ))
+            if chart_df["Sector Avg"].notna().any():
+                fig.add_trace(go.Bar(
+                    name="Sector Avg", x=chart_df["Ratio"], y=chart_df["Sector Avg"],
+                    marker_color="#e67e22",
+                ))
+            fig.update_layout(
+                barmode="group",
+                title=f"{symbol.upper()} — Key Ratios vs Sector Average",
+                xaxis_title="Ratio", yaxis_title="Value",
+                template="plotly_dark",
+                height=400,
+            )
+            st.plotly_chart(fig, use_container_width=True)
+            st.caption("Company value (blue) vs sector average (orange) for each ratio.")
+
+
+elif example == "Balance Sheet":
+    client = require_client()
+
+    symbol = st.text_input("Stock Symbol", value="RELIANCE")
+
+    if st.button("▶ Get Balance Sheet", type="primary"):
+        with st.spinner("Resolving instrument…"):
+            resp = search_instrument(client, symbol, exchanges="NSE", segments="EQ", records=1)
+            hits = resp.data or []
+        if not hits:
+            st.error(f"No NSE equity found for '{symbol}'."); st.stop()
+        isin = hits[0].get("isin", "")
+        if not isin:
+            st.error("Could not resolve ISIN."); st.stop()
+
+        with st.spinner("Fetching balance sheet…"):
+            try:
+                api = upstox_client.FundamentalsApi(client)
+                response = api.get_balance_sheet(isin)
+            except Exception as e:
+                st.error(f"API error: {e}"); st.stop()
+
+        data = response.data
+        if not data:
+            st.warning("No data returned."); st.stop()
+
+        raw = data.to_dict() if hasattr(data, "to_dict") else (data if isinstance(data, dict) else vars(data))
+        units   = raw.get("units_in") or ""
+        history = raw.get("history") or []
+
+        if history:
+            rows = []
+            for entry in history:
+                if hasattr(entry, "to_dict"):
+                    entry = entry.to_dict()
+                elif not isinstance(entry, dict):
+                    entry = vars(entry) if hasattr(entry, "__dict__") else {}
+                period = entry.get("period", "—")
+                ta = entry.get("total_asset")
+                tl = entry.get("total_liability")
+                try:
+                    eq = float(ta) - float(tl) if ta is not None and tl is not None else None
+                except (TypeError, ValueError):
+                    eq = None
+                rows.append({"Period": period, "Total Assets": ta, "Total Liabilities": tl, "Equity": eq})
+
+            df = pd.DataFrame(rows)
+            for col in ["Total Assets", "Total Liabilities", "Equity"]:
+                df[col] = pd.to_numeric(df[col], errors="coerce")
+
+            st.dataframe(df, use_container_width=True, hide_index=True)
+            if units:
+                st.caption(f"Values in {units}")
+
+            chart_df = df.dropna(subset=["Total Assets"])
+            if not chart_df.empty:
+                fig = go.Figure()
+                fig.add_trace(go.Bar(name="Total Assets",      x=chart_df["Period"], y=chart_df["Total Assets"],      marker_color="#3498db"))
+                fig.add_trace(go.Bar(name="Total Liabilities", x=chart_df["Period"], y=chart_df["Total Liabilities"], marker_color="#e74c3c"))
+                if chart_df["Equity"].notna().any():
+                    fig.add_trace(go.Bar(name="Equity", x=chart_df["Period"], y=chart_df["Equity"], marker_color="#27ae60"))
+                fig.update_layout(
+                    barmode="group",
+                    title=f"{symbol.upper()} — Balance Sheet History",
+                    xaxis_title="Period", yaxis_title=f"Value ({units})" if units else "Value",
+                    template="plotly_dark", height=420,
+                )
+                st.plotly_chart(fig, use_container_width=True)
+        else:
+            full = raw.get("full_statement") or []
+            if not full:
+                st.warning("No balance sheet data in response."); st.stop()
+            items = full if isinstance(full, list) else [full]
+            rows = []
+            for item in items:
+                if hasattr(item, "to_dict"):
+                    item = item.to_dict()
+                elif not isinstance(item, dict):
+                    item = vars(item) if hasattr(item, "__dict__") else {}
+                particular = item.get("particular") or "—"
+                hist_vals  = item.get("history") or []
+                rows.append({"Particular": particular, "Latest Value": hist_vals[-1] if hist_vals else None})
+            st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+
+
+elif example == "Income Statement":
+    client = require_client()
+
+    symbol = st.text_input("Stock Symbol", value="RELIANCE")
+
+    if st.button("▶ Get Income Statement", type="primary"):
+        with st.spinner("Resolving instrument…"):
+            resp = search_instrument(client, symbol, exchanges="NSE", segments="EQ", records=1)
+            hits = resp.data or []
+        if not hits:
+            st.error(f"No NSE equity found for '{symbol}'."); st.stop()
+        isin = hits[0].get("isin", "")
+        if not isin:
+            st.error("Could not resolve ISIN."); st.stop()
+
+        with st.spinner("Fetching income statement…"):
+            try:
+                api = upstox_client.FundamentalsApi(client)
+                response = api.get_income_statement(isin)
+            except Exception as e:
+                st.error(f"API error: {e}"); st.stop()
+
+        data = response.data
+        if not data:
+            st.warning("No data returned."); st.stop()
+
+        raw   = data.to_dict() if hasattr(data, "to_dict") else (data if isinstance(data, dict) else vars(data))
+        units = raw.get("units_in") or ""
+        stmts = raw.get("income_statement") or raw.get("full_statement") or []
+
+        if not stmts:
+            st.warning("No income statement data found."); st.stop()
+
+        items_list = stmts if isinstance(stmts, list) else [stmts]
+        entries, n_periods = [], 0
+        for item in items_list:
+            if hasattr(item, "to_dict"):
+                item = item.to_dict()
+            elif not isinstance(item, dict):
+                item = vars(item) if hasattr(item, "__dict__") else {}
+            name = str(item.get("particular") or item.get("name") or "—")
+            hist = item.get("history") or []
+            n_periods = max(n_periods, len(hist))
+            entries.append((name, hist))
+
+        cols = [f"P{i+1}" for i in range(n_periods)]
+        table_rows = []
+        for name, hist in entries:
+            row = {"Particular": name}
+            for i, col in enumerate(cols):
+                row[col] = hist[i] if i < len(hist) else None
+            table_rows.append(row)
+
+        df = pd.DataFrame(table_rows)
+        st.dataframe(df, use_container_width=True, hide_index=True)
+        if units:
+            st.caption(f"Values in {units}")
+
+        PRIORITY_KEYS = ("revenue", "net revenue", "total revenue", "net sales", "total income",
+                         "operating profit", "ebitda", "ebit", "net profit", "pat", "profit after tax")
+
+        chart_rows = [(n, h) for n, h in entries if any(k in n.lower() for k in PRIORITY_KEYS)]
+        if chart_rows:
+            fig = go.Figure()
+            for name, hist in chart_rows:
+                y_vals = [float(v) if v is not None else None for v in hist]
+                fig.add_trace(go.Scatter(
+                    x=cols[:len(y_vals)], y=y_vals, mode="lines+markers", name=name,
+                ))
+            fig.update_layout(
+                title=f"{symbol.upper()} — Income Statement Trends",
+                xaxis_title="Period", yaxis_title=f"Value ({units})" if units else "Value",
+                template="plotly_dark", height=420,
+            )
+            st.plotly_chart(fig, use_container_width=True)
+            st.caption("Revenue, profit and other key line items over time.")
+
+
+elif example == "Cash Flow":
+    client = require_client()
+
+    symbol = st.text_input("Stock Symbol", value="RELIANCE")
+
+    if st.button("▶ Get Cash Flow", type="primary"):
+        with st.spinner("Resolving instrument…"):
+            resp = search_instrument(client, symbol, exchanges="NSE", segments="EQ", records=1)
+            hits = resp.data or []
+        if not hits:
+            st.error(f"No NSE equity found for '{symbol}'."); st.stop()
+        isin = hits[0].get("isin", "")
+        if not isin:
+            st.error("Could not resolve ISIN."); st.stop()
+
+        with st.spinner("Fetching cash flow statement…"):
+            try:
+                api = upstox_client.FundamentalsApi(client)
+                response = api.get_cash_flow(isin)
+            except Exception as e:
+                st.error(f"API error: {e}"); st.stop()
+
+        data = response.data
+        if not data:
+            st.warning("No data returned."); st.stop()
+
+        raw   = data.to_dict() if hasattr(data, "to_dict") else (data if isinstance(data, dict) else vars(data))
+        units = raw.get("units_in") or ""
+        stmts = raw.get("cash_flow") or raw.get("full_statement") or []
+
+        if not stmts:
+            st.warning("No cash flow data found."); st.stop()
+
+        items_list = stmts if isinstance(stmts, list) else [stmts]
+        entries, n_periods = [], 0
+        for item in items_list:
+            if hasattr(item, "to_dict"):
+                item = item.to_dict()
+            elif not isinstance(item, dict):
+                item = vars(item) if hasattr(item, "__dict__") else {}
+            name = str(item.get("particular") or item.get("name") or "—")
+            hist = item.get("history") or []
+            n_periods = max(n_periods, len(hist))
+            entries.append((name, hist))
+
+        cols = [f"P{i+1}" for i in range(n_periods)]
+        table_rows = []
+        for name, hist in entries:
+            row = {"Particular": name}
+            for i, col in enumerate(cols):
+                row[col] = hist[i] if i < len(hist) else None
+            table_rows.append(row)
+
+        df = pd.DataFrame(table_rows)
+        st.dataframe(df, use_container_width=True, hide_index=True)
+        if units:
+            st.caption(f"Values in {units}")
+
+        CF_KEYS = ("operating", "investing", "financing", "net cash", "net change")
+        chart_rows = [(n, h) for n, h in entries if any(k in n.lower() for k in CF_KEYS)]
+        if chart_rows:
+            fig = go.Figure()
+            colors = ["#27ae60", "#e74c3c", "#3498db", "#f39c12"]
+            for i, (name, hist) in enumerate(chart_rows):
+                y_vals = []
+                for v in hist:
+                    try:
+                        y_vals.append(float(v))
+                    except (TypeError, ValueError):
+                        y_vals.append(None)
+                fig.add_trace(go.Bar(
+                    name=name,
+                    x=cols[:len(y_vals)],
+                    y=y_vals,
+                    marker_color=colors[i % len(colors)],
+                ))
+            fig.update_layout(
+                barmode="group",
+                title=f"{symbol.upper()} — Cash Flow Statement",
+                xaxis_title="Period", yaxis_title=f"Value ({units})" if units else "Value",
+                template="plotly_dark", height=420,
+            )
+            st.plotly_chart(fig, use_container_width=True)
+            st.caption("Operating / Investing / Financing cash flows per period.")
+
+
+elif example == "Corporate Actions":
+    client = require_client()
+
+    symbol = st.text_input("Stock Symbol", value="RELIANCE")
+
+    if st.button("▶ Get Corporate Actions", type="primary"):
+        with st.spinner("Resolving instrument…"):
+            resp = search_instrument(client, symbol, exchanges="NSE", segments="EQ", records=1)
+            hits = resp.data or []
+        if not hits:
+            st.error(f"No NSE equity found for '{symbol}'."); st.stop()
+        isin = hits[0].get("isin", "")
+        if not isin:
+            st.error("Could not resolve ISIN."); st.stop()
+
+        with st.spinner("Fetching corporate actions…"):
+            try:
+                api = upstox_client.FundamentalsApi(client)
+                response = api.get_corporate_actions(isin)
+            except Exception as e:
+                st.error(f"API error: {e}"); st.stop()
+
+        data = response.data
+        if not data:
+            st.warning("No data returned."); st.stop()
+
+        items = data if isinstance(data, list) else ([data] if data else [])
+        rows = []
+        for item in items:
+            if hasattr(item, "to_dict"):
+                item = item.to_dict()
+            elif not isinstance(item, dict):
+                item = vars(item) if hasattr(item, "__dict__") else {}
+            name   = item.get("name") or "—"
+            date_  = item.get("expiry_date") or item.get("date") or item.get("ex_date") or "—"
+            amount = item.get("amount")
+            ratio  = item.get("ratio")
+            details = item.get("event_details") or []
+            detail_str = ""
+            if details and isinstance(details, list):
+                parts = []
+                for d in details:
+                    if hasattr(d, "to_dict"):
+                        d = d.to_dict()
+                    elif not isinstance(d, dict):
+                        d = vars(d) if hasattr(d, "__dict__") else {}
+                    dn = d.get("name") or ""
+                    dv = d.get("value") or ""
+                    if dn or dv:
+                        parts.append(f"{dn}: {dv}" if dn else str(dv))
+                detail_str = " | ".join(parts)
+            rows.append({"Action": name, "Ex-Date": date_, "Amount": amount, "Ratio": ratio, "Details": detail_str})
+
+        if not rows:
+            st.warning("No corporate action data found."); st.stop()
+
+        df = pd.DataFrame(rows)
+        df["Ex-Date"] = pd.to_datetime(df["Ex-Date"], errors="coerce")
+        df = df.sort_values("Ex-Date", ascending=False)
+
+        st.metric("Total Actions", len(df))
+        st.dataframe(df, use_container_width=True, hide_index=True)
+
+        # Timeline scatter: plot numeric actions (dividends) over time
+        div_df = df[df["Amount"].notna()].copy()
+        div_df["Amount"] = pd.to_numeric(div_df["Amount"], errors="coerce")
+        div_df = div_df.dropna(subset=["Amount", "Ex-Date"])
+        if not div_df.empty:
+            fig = px.scatter(
+                div_df, x="Ex-Date", y="Amount", color="Action", size="Amount",
+                title=f"{symbol.upper()} — Corporate Actions Timeline",
+                labels={"Ex-Date": "Ex-Date", "Amount": "Amount"},
+                template="plotly_dark",
+            )
+            fig.update_layout(height=380)
+            st.plotly_chart(fig, use_container_width=True)
+            st.caption("Each point represents a corporate action with a declared amount (e.g. dividend).")
+
+
+elif example == "Share Holdings":
+    client = require_client()
+
+    symbol = st.text_input("Stock Symbol", value="RELIANCE")
+
+    if st.button("▶ Get Share Holdings", type="primary"):
+        with st.spinner("Resolving instrument…"):
+            resp = search_instrument(client, symbol, exchanges="NSE", segments="EQ", records=1)
+            hits = resp.data or []
+        if not hits:
+            st.error(f"No NSE equity found for '{symbol}'."); st.stop()
+        isin = hits[0].get("isin", "")
+        if not isin:
+            st.error("Could not resolve ISIN."); st.stop()
+
+        with st.spinner("Fetching share holdings…"):
+            try:
+                api = upstox_client.FundamentalsApi(client)
+                response = api.get_share_holdings(isin)
+            except Exception as e:
+                st.error(f"API error: {e}"); st.stop()
+
+        data = response.data
+        if not data:
+            st.warning("No data returned."); st.stop()
+
+        items = data if isinstance(data, list) else ([data] if data else [])
+        categories = []
+        for item in items:
+            if hasattr(item, "to_dict"):
+                item = item.to_dict()
+            elif not isinstance(item, dict):
+                item = vars(item) if hasattr(item, "__dict__") else {}
+            cat  = str(item.get("category") or "—")
+            hist = item.get("history") or []
+            categories.append((cat, hist))
+
+        if not categories:
+            st.warning("No shareholding data found."); st.stop()
+
+        n_periods = max(len(h) for _, h in categories)
+        cols      = [f"Q{i+1}" for i in range(n_periods)]
+
+        table_rows = []
+        for cat, hist in categories:
+            row = {"Category": cat}
+            for i, col in enumerate(cols):
+                row[col] = hist[i] if i < len(hist) else None
+            table_rows.append(row)
+
+        df = pd.DataFrame(table_rows)
+        for col in cols:
+            df[col] = pd.to_numeric(df[col], errors="coerce")
+
+        st.dataframe(df, use_container_width=True, hide_index=True)
+
+        # Stacked bar over quarters
+        chart_cats = [c for c, h in categories if h]
+        if chart_cats:
+            fig = go.Figure()
+            colors = ["#3498db", "#e74c3c", "#27ae60", "#f39c12", "#9b59b6"]
+            for i, (cat, hist) in enumerate(categories):
+                y_vals = [float(v) if v is not None else 0 for v in hist]
+                fig.add_trace(go.Bar(
+                    name=cat, x=cols[:len(y_vals)], y=y_vals,
+                    marker_color=colors[i % len(colors)],
+                ))
+            fig.update_layout(
+                barmode="stack",
+                title=f"{symbol.upper()} — Shareholding Pattern (Stacked %)",
+                xaxis_title="Quarter", yaxis_title="Holding (%)",
+                template="plotly_dark", height=420,
+            )
+            st.plotly_chart(fig, use_container_width=True)
+
+        # Pie of latest quarter
+        latest_vals = []
+        for cat, hist in categories:
+            v = hist[-1] if hist else None
+            try:
+                latest_vals.append((cat, float(v)))
+            except (TypeError, ValueError):
+                pass
+        if latest_vals:
+            pie_cats  = [r[0] for r in latest_vals]
+            pie_vals  = [r[1] for r in latest_vals]
+            pie_fig   = px.pie(
+                names=pie_cats, values=pie_vals,
+                title=f"{symbol.upper()} — Latest Quarter Shareholding",
+                template="plotly_dark",
+            )
+            pie_fig.update_layout(height=380)
+            st.plotly_chart(pie_fig, use_container_width=True)
+            st.caption("Latest quarter shareholding breakdown by category.")
+
+
+elif example == "Competitors":
+    client = require_client()
+
+    symbol = st.text_input("Stock Symbol", value="RELIANCE")
+
+    if st.button("▶ Get Competitors", type="primary"):
+        with st.spinner("Resolving instrument…"):
+            resp = search_instrument(client, symbol, exchanges="NSE", segments="EQ", records=1)
+            hits = resp.data or []
+        if not hits:
+            st.error(f"No NSE equity found for '{symbol}'."); st.stop()
+        instrument_key = hits[0].get("instrument_key", "")
+        if not instrument_key:
+            st.error("Could not resolve instrument key."); st.stop()
+
+        with st.spinner("Fetching competitors…"):
+            try:
+                api = upstox_client.FundamentalsApi(client)
+                response = api.get_competitors(instrument_key)
+            except Exception as e:
+                st.error(f"API error: {e}"); st.stop()
+
+        data = response.data
+        if not data:
+            st.warning("No data returned."); st.stop()
+
+        items = data if isinstance(data, list) else ([data] if data else [])
+        rows = []
+        for item in items:
+            if hasattr(item, "to_dict"):
+                item = item.to_dict()
+            elif not isinstance(item, dict):
+                item = vars(item) if hasattr(item, "__dict__") else {}
+            profile  = item.get("company_profile") or {}
+            sector   = item.get("sector") or {}
+            mcap_inr = item.get("sector_market_cap_inr") or {}
+            ikey     = item.get("instrument_key") or "—"
+            p = profile  if isinstance(profile,  dict) else (vars(profile)  if hasattr(profile,  "__dict__") else {})
+            s = sector   if isinstance(sector,   dict) else (vars(sector)   if hasattr(sector,   "__dict__") else {})
+            m = mcap_inr if isinstance(mcap_inr, dict) else (vars(mcap_inr) if hasattr(mcap_inr, "__dict__") else {})
+            name     = p.get("company_name") or p.get("name") or "—"
+            industry = p.get("industry") or s.get("industry") or s.get("name") or "—"
+            mcap     = m.get("market_cap") or m.get("value")
+            rows.append({"Company": name, "Industry": industry, "Mkt Cap (INR)": mcap, "Instrument Key": ikey})
+
+        if not rows:
+            st.warning("No competitor data found."); st.stop()
+
+        df = pd.DataFrame(rows)
+        df["Mkt Cap (INR)"] = pd.to_numeric(df["Mkt Cap (INR)"], errors="coerce")
+        df = df.sort_values("Mkt Cap (INR)", ascending=False)
+
+        st.metric("Peers Found", len(df))
+        st.dataframe(df, use_container_width=True, hide_index=True)
+
+        chart_df = df.dropna(subset=["Mkt Cap (INR)"])
+        if not chart_df.empty:
+            fig = px.bar(
+                chart_df, x="Company", y="Mkt Cap (INR)",
+                title=f"{symbol.upper()} — Competitor Market Cap Comparison",
+                color="Company", template="plotly_dark",
+                labels={"Mkt Cap (INR)": "Market Cap (INR)"},
+            )
+            fig.update_layout(height=420, showlegend=False)
+            st.plotly_chart(fig, use_container_width=True)
+            st.caption("Market capitalisation of peer companies in the same sector (INR).")
 
 
 else:

@@ -1,6 +1,6 @@
 # Upstox Python Interactive Examples
 
-> **47 working examples** showcasing Upstox API features — **Instrument Search**, **Analytics Token**, and **Market Data** — across futures spreads, options strategies, arbitrage, historical analysis, live market data, and more.
+> **55 working examples** showcasing Upstox API features — **Instrument Search**, **Analytics Token**, **Market Data**, and **Fundamentals** — across futures spreads, options strategies, arbitrage, historical analysis, live market data, fundamentals analysis, and more.
 
 [![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue)](https://www.python.org/)
 [![upstox-python-sdk](https://img.shields.io/pypi/v/upstox-python-sdk?label=upstox-python-sdk)](https://pypi.org/project/upstox-python-sdk/)
@@ -225,10 +225,37 @@ python market_data/live_depth_mcx.py --token <TOKEN>    # Ctrl-C to stop
 
 ---
 
+### Fundamentals Analysis
+*Uses the [Upstox Fundamentals API](https://upstox.com/developer/api-documentation/fundamentals). Pass `--symbol` with a stock name — the ISIN is resolved automatically.*
+
+| Script | What it does |
+|---|---|
+| `fundamentals/company_profile.py` | Sector, industry, market cap, employees and business overview |
+| `fundamentals/key_ratios.py` | P/E, P/B, ROE, ROCE, D/E and more vs sector average |
+| `fundamentals/balance_sheet.py` | Historical total assets, liabilities and derived equity |
+| `fundamentals/income_statement.py` | Revenue, operating profit, net profit and EPS over time |
+| `fundamentals/cash_flow.py` | Operating, investing and financing cash flows across periods |
+| `fundamentals/corporate_actions.py` | Dividends, stock splits, bonuses — sorted most-recent first |
+| `fundamentals/share_holdings.py` | Quarterly promoter / FII / DII / public shareholding |
+| `fundamentals/competitors.py` | Peer companies in the same sector with market cap comparison |
+
+```bash
+python fundamentals/company_profile.py --token <TOKEN> --symbol RELIANCE
+python fundamentals/key_ratios.py     --token <TOKEN> --symbol TCS
+python fundamentals/balance_sheet.py  --token <TOKEN> --symbol HDFCBANK
+python fundamentals/income_statement.py --token <TOKEN> --symbol INFY
+python fundamentals/cash_flow.py      --token <TOKEN> --symbol WIPRO
+python fundamentals/corporate_actions.py --token <TOKEN> --symbol HDFCBANK
+python fundamentals/share_holdings.py --token <TOKEN> --symbol RELIANCE
+python fundamentals/competitors.py    --token <TOKEN> --symbol TCS
+```
+
+---
+
 
 ## 🌐 Deploy the Streamlit App
 
-The `streamlit_app.py` wraps all 39 examples in a browser UI with interactive inputs and charts.
+The `streamlit_app.py` wraps all 47 examples in a browser UI with interactive inputs and charts (including Plotly charts for fundamentals).
 
 ### Streamlit Cloud (free, ~5 minutes)
 
@@ -260,7 +287,8 @@ interactive_examples/
 ├── arbitrage/                        # 3 scripts
 ├── historical_analysis/              # 7 scripts
 ├── portfolio_screening/              # 3 scripts
-└── market_data/                      # 8 scripts
+├── market_data/                      # 8 scripts
+└── fundamentals/                     # 8 scripts
 ```
 
 ---

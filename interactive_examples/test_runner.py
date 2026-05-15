@@ -114,6 +114,15 @@ EXAMPLES = [
     ("Historical Analysis", "historical_analysis/vwap.py",                     ["--query", "RELIANCE"]),
     ("Historical Analysis", "historical_analysis/beta_calculator.py",          ["--query", "RELIANCE"]),
     ("Historical Analysis", "historical_analysis/stock_correlation.py",        ["--queries", "RELIANCE,TCS,INFY"]),
+
+    ("Fundamentals Analysis", "fundamentals/company_profile.py",               ["--symbol", "RELIANCE"]),
+    ("Fundamentals Analysis", "fundamentals/key_ratios.py",                    ["--symbol", "RELIANCE"]),
+    ("Fundamentals Analysis", "fundamentals/balance_sheet.py",                 ["--symbol", "RELIANCE"]),
+    ("Fundamentals Analysis", "fundamentals/income_statement.py",              ["--symbol", "RELIANCE"]),
+    ("Fundamentals Analysis", "fundamentals/cash_flow.py",                     ["--symbol", "RELIANCE"]),
+    ("Fundamentals Analysis", "fundamentals/corporate_actions.py",             ["--symbol", "RELIANCE"]),
+    ("Fundamentals Analysis", "fundamentals/share_holdings.py",                ["--symbol", "RELIANCE"]),
+    ("Fundamentals Analysis", "fundamentals/competitors.py",                   ["--symbol", "RELIANCE"]),
 ]
 
 # Scripts that run indefinitely — killed after this many seconds and counted as PASS
@@ -155,7 +164,7 @@ def run_example(script, token, extra_args):
 def main():
     hr("═")
     print(f"{BOLD}  Upstox API Examples — Test Runner{RESET}")
-    print(f"  {len(EXAMPLES)} examples across 8 categories (including 7 new analytics scripts)")
+    print(f"  {len(EXAMPLES)} examples across 9 categories")
     hr("═")
     print()
 
