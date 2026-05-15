@@ -54,6 +54,11 @@ def main():
     parser = argparse.ArgumentParser(description="Balance Sheet via Fundamentals API")
     parser.add_argument("--token",  required=True, help="Upstox access or analytics token")
     parser.add_argument("--symbol", default="RELIANCE", help="Stock symbol (default: RELIANCE)")
+    parser.add_argument("--type",   default="consolidated",
+                        choices=("consolidated", "standalone"),
+                        help="Statement type (default: consolidated)")
+    parser.add_argument("--fs",     default="false", choices=("true", "false"),
+                        help="Financial summary toggle (default: false)")
     args = parser.parse_args()
 
     client = get_api_client(args.token)
@@ -61,11 +66,12 @@ def main():
     if not isin:
         die(f"Could not resolve ISIN for '{args.symbol}'.")
 
-    print(f"\nFetching balance sheet for {args.symbol.upper()} (ISIN: {isin})...\n")
+    print(f"\nFetching balance sheet for {args.symbol.upper()} (ISIN: {isin})"
+          f" — type={args.type}, fs={args.fs}...\n")
 
     api = upstox_client.FundamentalsApi(client)
     try:
-        response = api.get_balance_sheet(isin)
+        response = api.get_balance_sheet(isin, type=args.type, fs=args.fs)
     except Exception as e:
         die(f"API error: {e}")
 
@@ -126,7 +132,13 @@ def main():
                 entry = vars(entry) if hasattr(entry, "__dict__") else {}
             particular = str(entry.get("particular") or "—")
             hist_vals  = entry.get("history") or []
-            val = hist_vals[-1] if hist_vals else "—"
+            last = hist_vals[-1] if hist_vals else None
+            if isinstance(last, dict):
+                val = last.get("value")
+            elif hasattr(last, "to_dict"):
+                val = last.to_dict().get("value")
+            else:
+                val = last
             print(f"  {CYAN}{particular:<40}{RESET} {_fmt(val).strip():>18}")
 
     print()

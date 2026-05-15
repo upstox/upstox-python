@@ -9,6 +9,18 @@ Usage:
 import subprocess
 import sys
 import os
+from datetime import date, timedelta
+
+
+def _next_thursday() -> str:
+    today = date.today()
+    delta = (3 - today.weekday()) % 7
+    if delta == 0:
+        delta = 7
+    return (today + timedelta(days=delta)).isoformat()
+
+
+NEXT_THU = _next_thursday()
 
 def validate_token(token):
     """Make a lightweight API call to confirm the token works. Returns (ok, message)."""
@@ -123,6 +135,13 @@ EXAMPLES = [
     ("Fundamentals Analysis", "fundamentals/corporate_actions.py",             ["--symbol", "RELIANCE"]),
     ("Fundamentals Analysis", "fundamentals/share_holdings.py",                ["--symbol", "RELIANCE"]),
     ("Fundamentals Analysis", "fundamentals/competitors.py",                   ["--symbol", "RELIANCE"]),
+
+    ("Market Information",  "market_information/fii_data.py",                  ["--data-type", "NSE_EQ|CASH", "--interval", "1D"]),
+    ("Market Information",  "market_information/dii_data.py",                  ["--data-type", "NSE_EQ|CASH", "--interval", "1D"]),
+    ("Market Information",  "market_information/oi_data.py",                   ["--expiry", NEXT_THU]),
+    ("Market Information",  "market_information/change_oi.py",                 ["--expiry", NEXT_THU, "--interval", "5"]),
+    ("Market Information",  "market_information/max_pain.py",                  ["--expiry", NEXT_THU, "--bucket-interval", "60"]),
+    ("Market Information",  "market_information/pcr_data.py",                  ["--expiry", NEXT_THU, "--bucket-interval", "60"]),
 ]
 
 # Scripts that run indefinitely — killed after this many seconds and counted as PASS
@@ -164,7 +183,7 @@ def run_example(script, token, extra_args):
 def main():
     hr("═")
     print(f"{BOLD}  Upstox API Examples — Test Runner{RESET}")
-    print(f"  {len(EXAMPLES)} examples across 9 categories")
+    print(f"  {len(EXAMPLES)} examples across 10 categories")
     hr("═")
     print()
 

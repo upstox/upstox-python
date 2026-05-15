@@ -2,8 +2,8 @@
 Competitors — peer companies in the same sector with market cap data.
 
 Fetches the competitor list from the Upstox Fundamentals API using the
-instrument_key resolved from the given stock symbol and displays a
-comparison table of each peer company's sector and market capitalisation.
+instrument_key resolved from the given stock symbol and displays each peer's
+sector, sector market capitalisation and business description.
 
 Usage:
   python fundamentals/competitors.py --token <TOKEN>
@@ -13,6 +13,7 @@ Usage:
 import argparse
 import sys
 import os
+import textwrap
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from utils import get_api_client, search_instrument, die
@@ -21,6 +22,7 @@ import upstox_client
 BOLD  = "\033[1m"
 GREEN = "\033[32m"
 CYAN  = "\033[36m"
+DIM   = "\033[2m"
 RESET = "\033[0m"
 
 
@@ -32,24 +34,38 @@ def resolve_symbol(client, symbol: str):
     return hits[0].get("isin", ""), hits[0].get("instrument_key", "")
 
 
-def _val(obj, key, default="—"):
+def _as_dict(obj):
     if obj is None:
-        return default
+        return {}
     if isinstance(obj, dict):
-        v = obj.get(key)
-    else:
-        v = getattr(obj, key, None)
-    return str(v) if v is not None else default
+        return obj
+    if hasattr(obj, "to_dict"):
+        return obj.to_dict()
+    return vars(obj) if hasattr(obj, "__dict__") else {}
 
 
-def _fmt_crore(val):
-    try:
-        v = float(val)
-        if v >= 1e7:
-            return f"₹{v/1e7:>12,.2f} Cr"
-        return f"₹{v:>12,.2f}"
-    except (TypeError, ValueError):
+def _instrument_to_label(ikey: str) -> str:
+    """NSE_EQ|INE242A01010 → INE242A01010 (helps eyeball the symbol)."""
+    if not ikey:
         return "—"
+    return ikey.split("|", 1)[-1]
+
+
+def _lookup_name(client, ikey: str):
+    """Resolve a peer's trading symbol + company name from its instrument_key."""
+    if not ikey or "|" not in ikey:
+        return "—", "—"
+    isin = ikey.split("|", 1)[-1]
+    try:
+        resp = search_instrument(client, isin, exchanges="NSE", segments="EQ", records=1)
+        hits = resp.data or []
+        if hits:
+            h = hits[0]
+            return (h.get("trading_symbol") or h.get("symbol") or "—",
+                    h.get("name") or "—")
+    except Exception:
+        pass
+    return "—", "—"
 
 
 def main():
@@ -75,61 +91,61 @@ def main():
     if not data:
         die("No data returned.")
 
-    items = data if isinstance(data, list) else ([data] if data else [])
+    items = data if isinstance(data, list) else [data]
 
     rows = []
     for item in items:
-        if hasattr(item, "to_dict"):
-            item = item.to_dict()
-        elif not isinstance(item, dict):
-            item = vars(item) if hasattr(item, "__dict__") else {}
-
-        profile = item.get("company_profile") or {}
-        sector  = item.get("sector") or {}
-        mcap_inr = item.get("sector_market_cap_inr") or {}
-        ikey    = _val(item, "instrument_key")
-
-        if isinstance(profile, dict):
-            p = profile
-        else:
-            p = vars(profile) if hasattr(profile, "__dict__") else {}
-
-        if isinstance(sector, dict):
-            s = sector
-        else:
-            s = vars(sector) if hasattr(sector, "__dict__") else {}
-
-        if isinstance(mcap_inr, dict):
-            m = mcap_inr
-        else:
-            m = vars(mcap_inr) if hasattr(mcap_inr, "__dict__") else {}
-
-        name     = p.get("company_name") or p.get("name") or "—"
-        industry = p.get("industry") or s.get("industry") or s.get("name") or "—"
-        mcap     = m.get("market_cap") or m.get("value") or "—"
-
-        rows.append((str(name), str(industry), mcap, ikey))
+        item = _as_dict(item)
+        ikey       = str(item.get("instrument_key") or "—")
+        descr      = str(item.get("company_profile") or "")
+        sector     = str(item.get("sector") or "—")
+        mcap_inr   = _as_dict(item.get("sector_market_cap_inr"))
+        mcap_usd   = _as_dict(item.get("sector_market_cap_usd"))
+        mcap_value = mcap_inr.get("value")
+        sym, name  = _lookup_name(client, ikey)
+        rows.append({
+            "symbol": sym,
+            "name":   name,
+            "ikey": ikey,
+            "descr": descr,
+            "sector": sector,
+            "mcap_inr_formatted": str(mcap_inr.get("formatted") or "—"),
+            "mcap_usd_formatted": str(mcap_usd.get("formatted") or "—"),
+            "mcap_value": mcap_value,
+        })
 
     if not rows:
         die("No competitor data found.")
 
-    # Sort by market cap descending
-    def _sort_mcap(row):
+    # Sort by sector market cap descending (when numeric)
+    def _sort_mcap(r):
         try:
-            return float(row[2])
+            return float(r["mcap_value"])
         except (TypeError, ValueError):
             return -1
-
     rows.sort(key=_sort_mcap, reverse=True)
 
-    print(f"  {BOLD}{'Company':<35} {'Industry':<30} {'Mkt Cap (INR)':>18}  Instrument Key{RESET}")
-    print("  " + "─" * 105)
-
-    for i, (name, industry, mcap, ikey) in enumerate(rows):
+    print(f"  {BOLD}{'Symbol':<14} {'Company':<34} {'Sector':<18} {'Sector Mkt Cap (INR)':>22}  {'(USD)':<10} Instrument Key{RESET}")
+    print("  " + "─" * 130)
+    for i, r in enumerate(rows):
         color = GREEN if i == 0 else CYAN
-        print(f"  {color}{name:<35}{RESET} {industry:<30} {_fmt_crore(mcap):>18}  {ikey}")
+        name = (r["name"][:32] + "…") if len(r["name"]) > 33 else r["name"]
+        print(f"  {color}{r['symbol']:<14}{RESET} {name:<34} {r['sector']:<18} {r['mcap_inr_formatted']:>22}  {r['mcap_usd_formatted']:<10} {r['ikey']}")
 
-    print(f"\n  Total: {len(rows)} competitor(s)\n")
+    print()
+    for i, r in enumerate(rows, 1):
+        if not r["descr"]:
+            continue
+        header = r["name"] if r["name"] != "—" else r["ikey"]
+        print(f"  {BOLD}{i}. {header}{RESET} {DIM}({r['symbol']} · {r['sector']}){RESET}")
+        wrapped = textwrap.wrap(r["descr"], width=92)
+        for line in wrapped[:4]:
+            print(f"     {line}")
+        if len(wrapped) > 4:
+            print(f"     {DIM}...{RESET}")
+        print()
+
+    print(f"  Total: {len(rows)} competitor(s)\n")
 
 
 if __name__ == "__main__":

@@ -77,6 +77,14 @@ def main():
     parser = argparse.ArgumentParser(description="Income Statement via Fundamentals API")
     parser.add_argument("--token",  required=True, help="Upstox access or analytics token")
     parser.add_argument("--symbol", default="RELIANCE", help="Stock symbol (default: RELIANCE)")
+    parser.add_argument("--type",        default="consolidated",
+                        choices=("consolidated", "standalone"),
+                        help="Statement type (default: consolidated)")
+    parser.add_argument("--time-period", dest="time_period", default="yearly",
+                        choices=("yearly", "quarterly"),
+                        help="Reporting period (default: yearly)")
+    parser.add_argument("--fs",          default="false", choices=("true", "false"),
+                        help="Financial summary toggle (default: false)")
     args = parser.parse_args()
 
     client = get_api_client(args.token)
@@ -84,11 +92,13 @@ def main():
     if not isin:
         die(f"Could not resolve ISIN for '{args.symbol}'.")
 
-    print(f"\nFetching income statement for {args.symbol.upper()} (ISIN: {isin})...\n")
+    print(f"\nFetching income statement for {args.symbol.upper()} (ISIN: {isin})"
+          f" — type={args.type}, period={args.time_period}, fs={args.fs}...\n")
 
     api = upstox_client.FundamentalsApi(client)
     try:
-        response = api.get_income_statement(isin)
+        response = api.get_income_statement(isin, type=args.type,
+                                            time_period=args.time_period, fs=args.fs)
     except Exception as e:
         die(f"API error: {e}")
 
@@ -111,6 +121,18 @@ def main():
 
     items = stmts if isinstance(stmts, list) else [stmts]
 
+    def _flat(hist):
+        """Convert history items ({period,value} dicts or raw scalars) to (period, value) tuples."""
+        out = []
+        for h in (hist or []):
+            if hasattr(h, "to_dict"):
+                h = h.to_dict()
+            if isinstance(h, dict):
+                out.append((h.get("period"), h.get("value")))
+            else:
+                out.append((None, h))
+        return out
+
     entries = []
     periods = []
     for item in items:
@@ -118,12 +140,11 @@ def main():
             item = item.to_dict()
         elif not isinstance(item, dict):
             item = vars(item) if hasattr(item, "__dict__") else {}
-        name = str(item.get("particular") or item.get("name") or "—")
-        hist = item.get("history") or []
-        if not periods and hist:
-            # try to find period labels from sibling "period" key or index
-            periods = list(range(1, len(hist) + 1))
-        entries.append((name, hist))
+        name = str(item.get("category") or item.get("particular") or item.get("name") or "—")
+        flat = _flat(item.get("history"))
+        if not periods and flat:
+            periods = [p if p is not None else f"P{i+1}" for i, (p, _) in enumerate(flat)]
+        entries.append((name, [v for _, v in flat]))
 
     if not entries:
         die("No line items found.")

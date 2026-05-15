@@ -250,6 +250,27 @@ python fundamentals/share_holdings.py --token <TOKEN> --symbol RELIANCE
 python fundamentals/competitors.py    --token <TOKEN> --symbol TCS
 ```
 
+### Market Information
+*Uses the [Upstox Market Information API](https://upstox.com/developer/api-documentation/market-information). Note: **Market Holidays**, **Market Timings**, and **Exchange Status** live under `market_data/` above.*
+
+| Script | What it does |
+|---|---|
+| `market_information/fii_data.py` | FII buy / sell / OI activity by segment (cash, futures, options) and interval |
+| `market_information/dii_data.py` | DII buy / sell flow for the NSE cash market |
+| `market_information/oi_data.py` | Per-strike call / put open interest for an underlying + expiry |
+| `market_information/change_oi.py` | Per-strike change in OI over a configurable lookback |
+| `market_information/max_pain.py` | Max pain strike + intraday max-pain vs spot |
+| `market_information/pcr_data.py` | Overall PCR + intraday PCR / spot data points |
+
+```bash
+python market_information/fii_data.py  --token <TOKEN> --data-type "NSE_EQ|CASH" --interval 1D
+python market_information/dii_data.py  --token <TOKEN> --interval 1M
+python market_information/oi_data.py   --token <TOKEN> --expiry 2026-05-29
+python market_information/change_oi.py --token <TOKEN> --expiry 2026-05-29 --interval 5
+python market_information/max_pain.py  --token <TOKEN> --expiry 2026-05-29 --bucket-interval 60
+python market_information/pcr_data.py  --token <TOKEN> --expiry 2026-05-29 --bucket-interval 60
+```
+
 ---
 
 
@@ -288,7 +309,8 @@ interactive_examples/
 ├── historical_analysis/              # 7 scripts
 ├── portfolio_screening/              # 3 scripts
 ├── market_data/                      # 8 scripts
-└── fundamentals/                     # 8 scripts
+├── fundamentals/                     # 8 scripts
+└── market_information/               # 6 scripts
 ```
 
 ---

@@ -75,15 +75,29 @@ def main():
 
     items = data if isinstance(data, list) else ([data] if data else [])
 
+    def _flat(hist):
+        out = []
+        for h in (hist or []):
+            if hasattr(h, "to_dict"):
+                h = h.to_dict()
+            if isinstance(h, dict):
+                out.append((h.get("period"), h.get("value")))
+            else:
+                out.append((None, h))
+        return out
+
     categories = []
+    all_periods = []
     for item in items:
         if hasattr(item, "to_dict"):
             item = item.to_dict()
         elif not isinstance(item, dict):
             item = vars(item) if hasattr(item, "__dict__") else {}
         cat  = str(item.get("category") or "—")
-        hist = item.get("history") or []
-        categories.append((cat, hist))
+        flat = _flat(item.get("history"))
+        if not all_periods:
+            all_periods = [p for p, _ in flat]
+        categories.append((cat, [v for _, v in flat]))
 
     if not categories:
         die("No shareholding data found.")
@@ -92,10 +106,10 @@ def main():
     categories.sort(key=lambda x: _sort_key(x[0]))
 
     max_cols = 8
-    # Use the history length of the first entry to determine number of periods
     n_periods = max(len(h) for _, h in categories) if categories else 0
     n_cols    = min(n_periods, max_cols)
-    periods   = [f"Q{i+1}" for i in range(n_cols)]
+    periods   = [str(all_periods[i]) if i < len(all_periods) and all_periods[i] else f"Q{i+1}"
+                 for i in range(n_cols)]
 
     col_w   = 10
     label_w = 26
