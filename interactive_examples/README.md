@@ -1,6 +1,6 @@
 # Upstox Python Interactive Examples
 
-> **47 working examples** showcasing Upstox API features — **Instrument Search**, **Analytics Token**, and **Market Data** — across futures spreads, options strategies, arbitrage, historical analysis, live market data, and more.
+> **55 working examples** showcasing Upstox API features — **Instrument Search**, **Analytics Token**, **Market Data**, and **Fundamentals** — across futures spreads, options strategies, arbitrage, historical analysis, live market data, fundamentals analysis, and more.
 
 [![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue)](https://www.python.org/)
 [![upstox-python-sdk](https://img.shields.io/pypi/v/upstox-python-sdk?label=upstox-python-sdk)](https://pypi.org/project/upstox-python-sdk/)
@@ -22,7 +22,7 @@ python instrument_search/search_equity.py --token <TOKEN> --query RELIANCE
 
 A Streamlit web app wraps every example with a UI — paste your token and run:
 
-> **[▶ Open Live App](https://upstox-python-examples.streamlit.app)** *(coming soon — deploy steps below)*
+> **[▶ Open Live App](https://upstox-interactive-python.streamlit.app/)**
 
 Or run locally:
 
@@ -225,10 +225,58 @@ python market_data/live_depth_mcx.py --token <TOKEN>    # Ctrl-C to stop
 
 ---
 
+### Fundamentals Analysis
+*Uses the [Upstox Fundamentals API](https://upstox.com/developer/api-documentation/fundamentals). Pass `--symbol` with a stock name — the ISIN is resolved automatically.*
+
+| Script | What it does |
+|---|---|
+| `fundamentals/company_profile.py` | Sector, industry, market cap, employees and business overview |
+| `fundamentals/key_ratios.py` | P/E, P/B, ROE, ROCE, D/E and more vs sector average |
+| `fundamentals/balance_sheet.py` | Historical total assets, liabilities and derived equity |
+| `fundamentals/income_statement.py` | Revenue, operating profit, net profit and EPS over time |
+| `fundamentals/cash_flow.py` | Operating, investing and financing cash flows across periods |
+| `fundamentals/corporate_actions.py` | Dividends, stock splits, bonuses — sorted most-recent first |
+| `fundamentals/share_holdings.py` | Quarterly promoter / FII / DII / public shareholding |
+| `fundamentals/competitors.py` | Peer companies in the same sector with market cap comparison |
+
+```bash
+python fundamentals/company_profile.py --token <TOKEN> --symbol RELIANCE
+python fundamentals/key_ratios.py     --token <TOKEN> --symbol TCS
+python fundamentals/balance_sheet.py  --token <TOKEN> --symbol HDFCBANK
+python fundamentals/income_statement.py --token <TOKEN> --symbol INFY
+python fundamentals/cash_flow.py      --token <TOKEN> --symbol WIPRO
+python fundamentals/corporate_actions.py --token <TOKEN> --symbol HDFCBANK
+python fundamentals/share_holdings.py --token <TOKEN> --symbol RELIANCE
+python fundamentals/competitors.py    --token <TOKEN> --symbol TCS
+```
+
+### Market Information
+*Uses the [Upstox Market Information API](https://upstox.com/developer/api-documentation/market-information). Note: **Market Holidays**, **Market Timings**, and **Exchange Status** live under `market_data/` above.*
+
+| Script | What it does |
+|---|---|
+| `market_information/fii_data.py` | FII buy / sell / OI activity by segment (cash, futures, options) and interval |
+| `market_information/dii_data.py` | DII buy / sell flow for the NSE cash market |
+| `market_information/oi_data.py` | Per-strike call / put open interest for an underlying + expiry |
+| `market_information/change_oi.py` | Per-strike change in OI over a configurable lookback |
+| `market_information/max_pain.py` | Max pain strike + intraday max-pain vs spot |
+| `market_information/pcr_data.py` | Overall PCR + intraday PCR / spot data points |
+
+```bash
+python market_information/fii_data.py  --token <TOKEN> --data-type "NSE_EQ|CASH" --interval 1D
+python market_information/dii_data.py  --token <TOKEN> --interval 1M
+python market_information/oi_data.py   --token <TOKEN> --expiry 2026-05-29
+python market_information/change_oi.py --token <TOKEN> --expiry 2026-05-29 --interval 5
+python market_information/max_pain.py  --token <TOKEN> --expiry 2026-05-29 --bucket-interval 60
+python market_information/pcr_data.py  --token <TOKEN> --expiry 2026-05-29 --bucket-interval 60
+```
+
+---
+
 
 ## 🌐 Deploy the Streamlit App
 
-The `streamlit_app.py` wraps all 39 examples in a browser UI with interactive inputs and charts.
+The `streamlit_app.py` wraps all 47 examples in a browser UI with interactive inputs and charts (including Plotly charts for fundamentals).
 
 ### Streamlit Cloud (free, ~5 minutes)
 
@@ -260,7 +308,9 @@ interactive_examples/
 ├── arbitrage/                        # 3 scripts
 ├── historical_analysis/              # 7 scripts
 ├── portfolio_screening/              # 3 scripts
-└── market_data/                      # 8 scripts
+├── market_data/                      # 8 scripts
+├── fundamentals/                     # 8 scripts
+└── market_information/               # 6 scripts
 ```
 
 ---
