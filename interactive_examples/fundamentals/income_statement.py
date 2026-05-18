@@ -84,7 +84,7 @@ def main():
                         choices=("yearly", "quarterly"),
                         help="Reporting period (default: yearly)")
     parser.add_argument("--fs",          default="false", choices=("true", "false"),
-                        help="Financial summary toggle (default: false)")
+                        help="Full statement toggle — include detailed line-item breakdown (default: false)")
     args = parser.parse_args()
 
     client = get_api_client(args.token)

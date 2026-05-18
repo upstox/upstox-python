@@ -2350,7 +2350,7 @@ elif example == "Balance Sheet":
     c1, c2, c3 = st.columns(3)
     symbol    = c1.text_input("Stock Symbol", value="RELIANCE")
     stmt_type = c2.selectbox("Type", ["consolidated", "standalone"])
-    fs_flag   = c3.selectbox("Financial Summary", ["false", "true"])
+    fs_flag   = c3.selectbox("Full Statement", ["false", "true"])
 
     if st.button("▶ Get Balance Sheet", type="primary"):
         with st.spinner("Resolving instrument…"):
@@ -2440,6 +2440,42 @@ elif example == "Balance Sheet":
                 rows.append({"Particular": particular, "Latest Period": period, "Latest Value": value})
             st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
 
+        if fs_flag == "true":
+            full = raw.get("full_statement") or []
+            if full:
+                def _flat_hist(hist):
+                    out = []
+                    for h in (hist or []):
+                        if hasattr(h, "to_dict"): h = h.to_dict()
+                        if isinstance(h, dict):
+                            out.append((h.get("period"), h.get("value")))
+                        else:
+                            out.append((None, h))
+                    return out
+
+                fs_entries, fs_periods = [], []
+                for item in full:
+                    if hasattr(item, "to_dict"): item = item.to_dict()
+                    elif not isinstance(item, dict): item = vars(item) if hasattr(item, "__dict__") else {}
+                    name = str(item.get("particular") or item.get("category") or item.get("name") or "—")
+                    flat = _flat_hist(item.get("history"))
+                    if len(flat) > len(fs_periods):
+                        fs_periods = [p for p, _ in flat]
+                    fs_entries.append((name, [v for _, v in flat]))
+
+                fs_cols = [str(p) if p is not None else f"P{i+1}" for i, p in enumerate(fs_periods)]
+                fs_rows = []
+                for name, vals in fs_entries:
+                    row = {"Particular": name}
+                    for i, c in enumerate(fs_cols):
+                        row[c] = vals[i] if i < len(vals) else None
+                    fs_rows.append(row)
+
+                st.subheader("Full Statement (detailed line items)")
+                st.dataframe(pd.DataFrame(fs_rows), use_container_width=True, hide_index=True)
+                if units:
+                    st.caption(f"Values in {units}")
+
 
 elif example == "Income Statement":
     client = require_client()
@@ -2448,7 +2484,7 @@ elif example == "Income Statement":
     symbol    = c1.text_input("Stock Symbol", value="RELIANCE")
     stmt_type = c2.selectbox("Type", ["consolidated", "standalone"])
     period    = c3.selectbox("Period", ["yearly", "quarterly"])
-    fs_flag   = c4.selectbox("Financial Summary", ["false", "true"])
+    fs_flag   = c4.selectbox("Full Statement", ["false", "true"])
 
     if st.button("▶ Get Income Statement", type="primary"):
         with st.spinner("Resolving instrument…"):
@@ -2536,6 +2572,32 @@ elif example == "Income Statement":
             st.plotly_chart(fig, use_container_width=True)
             st.caption("Revenue, profit and other key line items over time.")
 
+        if fs_flag == "true":
+            full = raw.get("full_statement") or []
+            if full and full is not stmts:
+                fs_entries, fs_periods = [], []
+                for item in full:
+                    if hasattr(item, "to_dict"): item = item.to_dict()
+                    elif not isinstance(item, dict): item = vars(item) if hasattr(item, "__dict__") else {}
+                    name = str(item.get("particular") or item.get("category") or item.get("name") or "—")
+                    flat = _flat_hist(item.get("history"))
+                    if len(flat) > len(fs_periods):
+                        fs_periods = [p for p, _ in flat]
+                    fs_entries.append((name, [v for _, v in flat]))
+
+                fs_cols = [str(p) if p is not None else f"P{i+1}" for i, p in enumerate(fs_periods)]
+                fs_rows = []
+                for name, vals in fs_entries:
+                    row = {"Particular": name}
+                    for i, c in enumerate(fs_cols):
+                        row[c] = vals[i] if i < len(vals) else None
+                    fs_rows.append(row)
+
+                st.subheader("Full Statement (detailed line items)")
+                st.dataframe(pd.DataFrame(fs_rows), use_container_width=True, hide_index=True)
+                if units:
+                    st.caption(f"Values in {units}")
+
 
 elif example == "Cash Flow":
     client = require_client()
@@ -2543,7 +2605,7 @@ elif example == "Cash Flow":
     c1, c2, c3 = st.columns(3)
     symbol    = c1.text_input("Stock Symbol", value="RELIANCE")
     stmt_type = c2.selectbox("Type", ["consolidated", "standalone"])
-    fs_flag   = c3.selectbox("Financial Summary", ["false", "true"])
+    fs_flag   = c3.selectbox("Full Statement", ["false", "true"])
 
     if st.button("▶ Get Cash Flow", type="primary"):
         with st.spinner("Resolving instrument…"):
@@ -2637,6 +2699,32 @@ elif example == "Cash Flow":
             st.plotly_chart(fig, use_container_width=True)
             st.caption("Operating / Investing / Financing cash flows per period.")
 
+        if fs_flag == "true":
+            full = raw.get("full_statement") or []
+            if full and full is not stmts:
+                fs_entries, fs_periods = [], []
+                for item in full:
+                    if hasattr(item, "to_dict"): item = item.to_dict()
+                    elif not isinstance(item, dict): item = vars(item) if hasattr(item, "__dict__") else {}
+                    name = str(item.get("particular") or item.get("category") or item.get("name") or "—")
+                    flat = _flat_hist(item.get("history"))
+                    if len(flat) > len(fs_periods):
+                        fs_periods = [p for p, _ in flat]
+                    fs_entries.append((name, [v for _, v in flat]))
+
+                fs_cols = [str(p) if p is not None else f"P{i+1}" for i, p in enumerate(fs_periods)]
+                fs_rows = []
+                for name, vals in fs_entries:
+                    row = {"Particular": name}
+                    for i, c in enumerate(fs_cols):
+                        row[c] = vals[i] if i < len(vals) else None
+                    fs_rows.append(row)
+
+                st.subheader("Full Statement (detailed line items)")
+                st.dataframe(pd.DataFrame(fs_rows), use_container_width=True, hide_index=True)
+                if units:
+                    st.caption(f"Values in {units}")
+
 
 elif example == "Corporate Actions":
     client = require_client()
@@ -2675,21 +2763,17 @@ elif example == "Corporate Actions":
             date_  = item.get("expiry_date") or item.get("date") or item.get("ex_date") or "—"
             amount = item.get("amount")
             ratio  = item.get("ratio")
-            details = item.get("event_details") or []
-            detail_str = ""
-            if details and isinstance(details, list):
-                parts = []
-                for d in details:
-                    if hasattr(d, "to_dict"):
-                        d = d.to_dict()
-                    elif not isinstance(d, dict):
-                        d = vars(d) if hasattr(d, "__dict__") else {}
-                    dn = d.get("name") or ""
-                    dv = d.get("value") or ""
-                    if dn or dv:
-                        parts.append(f"{dn}: {dv}" if dn else str(dv))
-                detail_str = " | ".join(parts)
-            rows.append({"Action": name, "Ex-Date": date_, "Amount": amount, "Ratio": ratio, "Details": detail_str})
+            row = {"Action": name, "Ex-Date": date_, "Amount": amount, "Ratio": ratio}
+            for d in (item.get("event_details") or []):
+                if hasattr(d, "to_dict"):
+                    d = d.to_dict()
+                elif not isinstance(d, dict):
+                    d = vars(d) if hasattr(d, "__dict__") else {}
+                dn = (d.get("name") or "").strip()
+                dv = d.get("value")
+                if dn:
+                    row[dn] = dv
+            rows.append(row)
 
         if not rows:
             st.warning("No corporate action data found."); st.stop()
@@ -2697,6 +2781,17 @@ elif example == "Corporate Actions":
         df = pd.DataFrame(rows)
         df["Ex-Date"] = pd.to_datetime(df["Ex-Date"], errors="coerce")
         df = df.sort_values("Ex-Date", ascending=False)
+
+        # Drop columns that are empty across all rows for readability
+        df = df.dropna(axis=1, how="all")
+        for col in list(df.columns):
+            if df[col].apply(lambda v: v is None or (isinstance(v, str) and not v.strip())).all():
+                df = df.drop(columns=[col])
+
+        # Put core columns first; push event_details fields to the right
+        core = [c for c in ["Action", "Ex-Date", "Amount", "Ratio"] if c in df.columns]
+        extras = [c for c in df.columns if c not in core]
+        df = df[core + extras]
 
         st.metric("Total Actions", len(df))
         st.dataframe(df, use_container_width=True, hide_index=True)
