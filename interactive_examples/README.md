@@ -22,7 +22,7 @@ python instrument_search/search_equity.py --token <TOKEN> --query RELIANCE
 
 A Streamlit web app wraps every example with a UI — paste your token and run:
 
-> **[▶ Open Live App](https://upstox-python-examples.streamlit.app)** *(coming soon — deploy steps below)*
+> **[▶ Open Live App](https://upstox-interactive-python.streamlit.app/)**
 
 Or run locally:
 
