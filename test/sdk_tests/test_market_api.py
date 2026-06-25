@@ -51,3 +51,34 @@ try:
         print("MarketApi->get_dii_data not returning success")
 except ApiException as e:
     print("Exception when calling MarketApi->get_dii_data: %s\n" % e)
+
+# Smartlist endpoints
+try:
+    api_response = api_instance.get_smartlist_options(asset_type="INDEX", category="TOP_TRADED", page_number=1, page_size=50)
+    if api_response.status != "success":
+        print("MarketApi->get_smartlist_options not returning success")
+except ApiException as e:
+    print("Exception when calling MarketApi->get_smartlist_options: %s\n" % e)
+
+try:
+    api_response = api_instance.get_smartlist_futures(asset_type="STOCK", category="MOST_ACTIVE", page_number=1, page_size=50)
+    if api_response.status != "success":
+        print("MarketApi->get_smartlist_futures not returning success")
+except ApiException as e:
+    print("Exception when calling MarketApi->get_smartlist_futures: %s\n" % e)
+
+try:
+    api_response = api_instance.get_smartlist_mtf(page_number=1, page_size=50)
+    if api_response.status != "success":
+        print("MarketApi->get_smartlist_mtf not returning success")
+except ApiException as e:
+    print("Exception when calling MarketApi->get_smartlist_mtf: %s\n" % e)
+
+# Model instantiation tests (smartlist responses reuse AnalyticsResponse/AnalyticsData)
+analytics_data = upstox_client.AnalyticsData(delta=0.5, iv=12.3)
+if analytics_data.delta != 0.5:
+    print("error: AnalyticsData fields not set correctly")
+
+analytics_response = upstox_client.AnalyticsResponse(status="success", data=[analytics_data])
+if analytics_response.status != "success":
+    print("error: AnalyticsResponse status field not set correctly")
