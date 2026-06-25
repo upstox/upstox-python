@@ -9,6 +9,7 @@ from upstox_client.api.fundamentals_api import FundamentalsApi
 from upstox_client.api.history_api import HistoryApi
 from upstox_client.api.history_v3_api import HistoryV3Api
 from upstox_client.api.instruments_api import InstrumentsApi
+from upstox_client.api.ipo_api import IpoApi
 from upstox_client.api.login_api import LoginApi
 from upstox_client.api.market_api import MarketApi
 from upstox_client.api.market_holidays_and_timings_api import MarketHolidaysAndTimingsApi
