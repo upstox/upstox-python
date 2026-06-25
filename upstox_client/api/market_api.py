@@ -713,3 +713,304 @@ class MarketApi(object):
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
             collection_formats=collection_formats)
+
+    def get_smartlist_futures(self, **kwargs):  # noqa: E501
+        """Get Smartlist Futures  # noqa: E501
+
+        Fetches the smartlist of futures for the given asset type and category.  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.get_smartlist_futures(async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param object asset_type: Asset type. Allowed values: INDEX, STOCK, COMMODITY
+        :param object category: Category. Allowed values: TOP_TRADED, MOST_ACTIVE, OI_GAINERS, OI_LOSERS, PRICE_GAINERS, PRICE_LOSERS, PREMIUM, DISCOUNT (COMMODITY supports only: TOP_TRADED, MOST_ACTIVE, OI_GAINERS, OI_LOSERS)
+        :param object page_number: Page number (optional, 1-indexed)
+        :param object page_size: Page size (optional, max 50)
+        :return: AnalyticsResponse
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('async_req'):
+            return self.get_smartlist_futures_with_http_info(**kwargs)  # noqa: E501
+        else:
+            (data) = self.get_smartlist_futures_with_http_info(**kwargs)  # noqa: E501
+            return data
+
+    def get_smartlist_futures_with_http_info(self, **kwargs):  # noqa: E501
+        """Get Smartlist Futures  # noqa: E501
+
+        Fetches the smartlist of futures for the given asset type and category.  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.get_smartlist_futures_with_http_info(async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param object asset_type: Asset type. Allowed values: INDEX, STOCK, COMMODITY
+        :param object category: Category. Allowed values: TOP_TRADED, MOST_ACTIVE, OI_GAINERS, OI_LOSERS, PRICE_GAINERS, PRICE_LOSERS, PREMIUM, DISCOUNT (COMMODITY supports only: TOP_TRADED, MOST_ACTIVE, OI_GAINERS, OI_LOSERS)
+        :param object page_number: Page number (optional, 1-indexed)
+        :param object page_size: Page size (optional, max 50)
+        :return: AnalyticsResponse
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['asset_type', 'category', 'page_number', 'page_size']  # noqa: E501
+        all_params.append('async_req')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in six.iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method get_smartlist_futures" % key
+                )
+            params[key] = val
+        del params['kwargs']
+
+        collection_formats = {}
+
+        path_params = {}
+
+        query_params = []
+        if 'asset_type' in params:
+            query_params.append(('asset_type', params['asset_type']))  # noqa: E501
+        if 'category' in params:
+            query_params.append(('category', params['category']))  # noqa: E501
+        if 'page_number' in params:
+            query_params.append(('page_number', params['page_number']))  # noqa: E501
+        if 'page_size' in params:
+            query_params.append(('page_size', params['page_size']))  # noqa: E501
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.select_header_accept(
+            ['*/*', 'application/json'])  # noqa: E501
+
+        # Authentication setting
+        auth_settings = ['OAUTH2']  # noqa: E501
+
+        return self.api_client.call_api(
+            '/v2/market/smartlist/futures', 'GET',
+            path_params,
+            query_params,
+            header_params,
+            body=body_params,
+            post_params=form_params,
+            files=local_var_files,
+            response_type='AnalyticsResponse',  # noqa: E501
+            auth_settings=auth_settings,
+            async_req=params.get('async_req'),
+            _return_http_data_only=params.get('_return_http_data_only'),
+            _preload_content=params.get('_preload_content', True),
+            _request_timeout=params.get('_request_timeout'),
+            collection_formats=collection_formats)
+
+    def get_smartlist_mtf(self, **kwargs):  # noqa: E501
+        """Get Smartlist MTF  # noqa: E501
+
+        Fetches the smartlist of MTF (Margin Trade Funding) stocks. Prices are enriched with live LTP data.  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.get_smartlist_mtf(async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param object page_number: Page number (optional, 1-indexed)
+        :param object page_size: Page size (optional, max 50)
+        :return: AnalyticsResponse
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('async_req'):
+            return self.get_smartlist_mtf_with_http_info(**kwargs)  # noqa: E501
+        else:
+            (data) = self.get_smartlist_mtf_with_http_info(**kwargs)  # noqa: E501
+            return data
+
+    def get_smartlist_mtf_with_http_info(self, **kwargs):  # noqa: E501
+        """Get Smartlist MTF  # noqa: E501
+
+        Fetches the smartlist of MTF (Margin Trade Funding) stocks. Prices are enriched with live LTP data.  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.get_smartlist_mtf_with_http_info(async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param object page_number: Page number (optional, 1-indexed)
+        :param object page_size: Page size (optional, max 50)
+        :return: AnalyticsResponse
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['page_number', 'page_size']  # noqa: E501
+        all_params.append('async_req')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in six.iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method get_smartlist_mtf" % key
+                )
+            params[key] = val
+        del params['kwargs']
+
+        collection_formats = {}
+
+        path_params = {}
+
+        query_params = []
+        if 'page_number' in params:
+            query_params.append(('page_number', params['page_number']))  # noqa: E501
+        if 'page_size' in params:
+            query_params.append(('page_size', params['page_size']))  # noqa: E501
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.select_header_accept(
+            ['*/*', 'application/json'])  # noqa: E501
+
+        # Authentication setting
+        auth_settings = ['OAUTH2']  # noqa: E501
+
+        return self.api_client.call_api(
+            '/v2/market/smartlist/mtf', 'GET',
+            path_params,
+            query_params,
+            header_params,
+            body=body_params,
+            post_params=form_params,
+            files=local_var_files,
+            response_type='AnalyticsResponse',  # noqa: E501
+            auth_settings=auth_settings,
+            async_req=params.get('async_req'),
+            _return_http_data_only=params.get('_return_http_data_only'),
+            _preload_content=params.get('_preload_content', True),
+            _request_timeout=params.get('_request_timeout'),
+            collection_formats=collection_formats)
+
+    def get_smartlist_options(self, **kwargs):  # noqa: E501
+        """Get Smartlist Options  # noqa: E501
+
+        Fetches the smartlist of options for the given asset type and category.  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.get_smartlist_options(async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param object asset_type: Asset type. Allowed values: INDEX, STOCK, COMMODITY
+        :param object category: Category. Allowed values: TOP_TRADED, MOST_ACTIVE, OI_GAINERS, OI_LOSERS, PRICE_GAINERS, PRICE_LOSERS, IV_GAINERS, IV_LOSERS, UNDER_5000, UNDER_10000 (COMMODITY supports only: TOP_TRADED, MOST_ACTIVE, OI_GAINERS, OI_LOSERS)
+        :param object page_number: Page number (optional, 1-indexed)
+        :param object page_size: Page size (optional, max 50)
+        :return: AnalyticsResponse
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('async_req'):
+            return self.get_smartlist_options_with_http_info(**kwargs)  # noqa: E501
+        else:
+            (data) = self.get_smartlist_options_with_http_info(**kwargs)  # noqa: E501
+            return data
+
+    def get_smartlist_options_with_http_info(self, **kwargs):  # noqa: E501
+        """Get Smartlist Options  # noqa: E501
+
+        Fetches the smartlist of options for the given asset type and category.  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.get_smartlist_options_with_http_info(async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param object asset_type: Asset type. Allowed values: INDEX, STOCK, COMMODITY
+        :param object category: Category. Allowed values: TOP_TRADED, MOST_ACTIVE, OI_GAINERS, OI_LOSERS, PRICE_GAINERS, PRICE_LOSERS, IV_GAINERS, IV_LOSERS, UNDER_5000, UNDER_10000 (COMMODITY supports only: TOP_TRADED, MOST_ACTIVE, OI_GAINERS, OI_LOSERS)
+        :param object page_number: Page number (optional, 1-indexed)
+        :param object page_size: Page size (optional, max 50)
+        :return: AnalyticsResponse
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['asset_type', 'category', 'page_number', 'page_size']  # noqa: E501
+        all_params.append('async_req')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in six.iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method get_smartlist_options" % key
+                )
+            params[key] = val
+        del params['kwargs']
+
+        collection_formats = {}
+
+        path_params = {}
+
+        query_params = []
+        if 'asset_type' in params:
+            query_params.append(('asset_type', params['asset_type']))  # noqa: E501
+        if 'category' in params:
+            query_params.append(('category', params['category']))  # noqa: E501
+        if 'page_number' in params:
+            query_params.append(('page_number', params['page_number']))  # noqa: E501
+        if 'page_size' in params:
+            query_params.append(('page_size', params['page_size']))  # noqa: E501
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.select_header_accept(
+            ['*/*', 'application/json'])  # noqa: E501
+
+        # Authentication setting
+        auth_settings = ['OAUTH2']  # noqa: E501
+
+        return self.api_client.call_api(
+            '/v2/market/smartlist/options', 'GET',
+            path_params,
+            query_params,
+            header_params,
+            body=body_params,
+            post_params=form_params,
+            files=local_var_files,
+            response_type='AnalyticsResponse',  # noqa: E501
+            auth_settings=auth_settings,
+            async_req=params.get('async_req'),
+            _return_http_data_only=params.get('_return_http_data_only'),
+            _preload_content=params.get('_preload_content', True),
+            _request_timeout=params.get('_request_timeout'),
+            collection_formats=collection_formats)
