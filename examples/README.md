@@ -34,11 +34,14 @@ Samples are grouped by API area. Each `.md` file contains one or more Python sni
 | [**option-chain/**](option-chain/) | Option contracts, put-call option chain. |
 | [**expired-instruments/**](expired-instruments/) | Expiries, expired future/option contracts, expired historical candle data. |
 | [**market-information/**](market-information/) | Exchange status, market timings, market holidays, OI, change in OI, PCR, max pain, FII, and DII. |
+| [**smartlist/**](smartlist/) | Analytics-enriched smartlists for options, futures, and MTF stocks. |
+| [**ipo/**](ipo/) | IPO listing (by status/issue type) and IPO details by id. |
 | [**gtt-orders/**](gtt-orders/) | Place, modify, cancel, and get details for GTT (Good Till Triggered) orders. |
 | [**margins/**](margins/) | Margin details. |
 | [**charges/**](charges/) | Brokerage details. |
 | [**mutual-funds-api/**](mutual-funds-api/) | Mutual fund holdings, orders, order details, and SIPs. |
 | [**payments-api/**](payments-api/) | Payin and payout history. |
+| [**payout/**](payout/) | Payout history, payout modes, and initiate/modify/cancel payout. |
 | [**news/**](news/) | News articles by instrument keys, positions, or holdings. |
 | [**fundamentals/**](fundamentals/) | Company profile, balance sheet, cash flow, income statement, key ratios, share holdings, corporate actions, and competitors. |
 | [**trade-profit-and-loss/**](trade-profit-and-loss/) | P&amp;L report, report metadata, trade charges. |

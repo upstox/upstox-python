@@ -32,11 +32,14 @@ class PaymentHistoryData(object):
         'mode': 'object',
         'status': 'object',
         'reason': 'object',
+        'currency': 'object',
+        'eta': 'object',
         'last_updated_at': 'object',
         'bank_name': 'object',
         'transaction_id': 'object',
         'total_charges': 'object',
-        'charges_category': 'object'
+        'charges_category': 'object',
+        'created_at': 'object'
     }
 
     attribute_map = {
@@ -44,24 +47,30 @@ class PaymentHistoryData(object):
         'mode': 'mode',
         'status': 'status',
         'reason': 'reason',
+        'currency': 'currency',
+        'eta': 'eta',
         'last_updated_at': 'last_updated_at',
         'bank_name': 'bank_name',
         'transaction_id': 'transaction_id',
         'total_charges': 'total_charges',
-        'charges_category': 'charges_category'
+        'charges_category': 'charges_category',
+        'created_at': 'created_at'
     }
 
-    def __init__(self, amount=None, mode=None, status=None, reason=None, last_updated_at=None, bank_name=None, transaction_id=None, total_charges=None, charges_category=None):  # noqa: E501
+    def __init__(self, amount=None, mode=None, status=None, reason=None, currency=None, eta=None, last_updated_at=None, bank_name=None, transaction_id=None, total_charges=None, charges_category=None, created_at=None):  # noqa: E501
         """PaymentHistoryData - a model defined in Swagger"""  # noqa: E501
         self._amount = None
         self._mode = None
         self._status = None
         self._reason = None
+        self._currency = None
+        self._eta = None
         self._last_updated_at = None
         self._bank_name = None
         self._transaction_id = None
         self._total_charges = None
         self._charges_category = None
+        self._created_at = None
         self.discriminator = None
         if amount is not None:
             self.amount = amount
@@ -71,6 +80,10 @@ class PaymentHistoryData(object):
             self.status = status
         if reason is not None:
             self.reason = reason
+        if currency is not None:
+            self.currency = currency
+        if eta is not None:
+            self.eta = eta
         if last_updated_at is not None:
             self.last_updated_at = last_updated_at
         if bank_name is not None:
@@ -81,6 +94,8 @@ class PaymentHistoryData(object):
             self.total_charges = total_charges
         if charges_category is not None:
             self.charges_category = charges_category
+        if created_at is not None:
+            self.created_at = created_at
 
     @property
     def amount(self):
@@ -165,6 +180,48 @@ class PaymentHistoryData(object):
         """
 
         self._reason = reason
+
+    @property
+    def currency(self):
+        """Gets the currency of this PaymentHistoryData.  # noqa: E501
+
+
+        :return: The currency of this PaymentHistoryData.  # noqa: E501
+        :rtype: object
+        """
+        return self._currency
+
+    @currency.setter
+    def currency(self, currency):
+        """Sets the currency of this PaymentHistoryData.
+
+
+        :param currency: The currency of this PaymentHistoryData.  # noqa: E501
+        :type: object
+        """
+
+        self._currency = currency
+
+    @property
+    def eta(self):
+        """Gets the eta of this PaymentHistoryData.  # noqa: E501
+
+
+        :return: The eta of this PaymentHistoryData.  # noqa: E501
+        :rtype: object
+        """
+        return self._eta
+
+    @eta.setter
+    def eta(self, eta):
+        """Sets the eta of this PaymentHistoryData.
+
+
+        :param eta: The eta of this PaymentHistoryData.  # noqa: E501
+        :type: object
+        """
+
+        self._eta = eta
 
     @property
     def last_updated_at(self):
@@ -270,6 +327,27 @@ class PaymentHistoryData(object):
         """
 
         self._charges_category = charges_category
+
+    @property
+    def created_at(self):
+        """Gets the created_at of this PaymentHistoryData.  # noqa: E501
+
+
+        :return: The created_at of this PaymentHistoryData.  # noqa: E501
+        :rtype: object
+        """
+        return self._created_at
+
+    @created_at.setter
+    def created_at(self, created_at):
+        """Sets the created_at of this PaymentHistoryData.
+
+
+        :param created_at: The created_at of this PaymentHistoryData.  # noqa: E501
+        :type: object
+        """
+
+        self._created_at = created_at
 
     def to_dict(self):
         """Returns the model properties as a dict"""

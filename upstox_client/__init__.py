@@ -21,6 +21,7 @@ from upstox_client.api.fundamentals_api import FundamentalsApi
 from upstox_client.api.history_api import HistoryApi
 from upstox_client.api.history_v3_api import HistoryV3Api
 from upstox_client.api.instruments_api import InstrumentsApi
+from upstox_client.api.ipo_api import IpoApi
 from upstox_client.api.login_api import LoginApi
 from upstox_client.api.market_api import MarketApi
 from upstox_client.api.market_holidays_and_timings_api import MarketHolidaysAndTimingsApi
@@ -136,12 +137,20 @@ from upstox_client.models.income_statement_response import IncomeStatementRespon
 from upstox_client.models.indie_user_init_token_data import IndieUserInitTokenData
 from upstox_client.models.indie_user_init_token_response import IndieUserInitTokenResponse
 from upstox_client.models.indie_user_token_request import IndieUserTokenRequest
+from upstox_client.models.initiate_payout_request import InitiatePayoutRequest
 from upstox_client.models.instrument import Instrument
 from upstox_client.models.instrument_data import InstrumentData
 from upstox_client.models.search_instrument_response import SearchInstrumentResponse
 from upstox_client.models.search_meta_data import SearchMetaData
 from upstox_client.models.search_page import SearchPage
 from upstox_client.models.intra_day_candle_data import IntraDayCandleData
+from upstox_client.models.ipo_details_data import IpoDetailsData
+from upstox_client.models.ipo_details_response import IpoDetailsResponse
+from upstox_client.models.ipo_listing_data import IpoListingData
+from upstox_client.models.ipo_listing_response import IpoListingResponse
+from upstox_client.models.ipo_meta_data import IpoMetaData
+from upstox_client.models.ipo_registrar_info import IpoRegistrarInfo
+from upstox_client.models.ipo_timeline import IpoTimeline
 from upstox_client.models.key_ratio_data import KeyRatioData
 from upstox_client.models.key_ratios_response import KeyRatiosResponse
 from upstox_client.models.kill_switch_response import KillSwitchResponse
@@ -165,6 +174,7 @@ from upstox_client.models.modify_order_data import ModifyOrderData
 from upstox_client.models.modify_order_request import ModifyOrderRequest
 from upstox_client.models.modify_order_response import ModifyOrderResponse
 from upstox_client.models.modify_order_v3_response import ModifyOrderV3Response
+from upstox_client.models.modify_payout_request import ModifyPayoutRequest
 from upstox_client.models.multi_order_data import MultiOrderData
 from upstox_client.models.multi_order_error import MultiOrderError
 from upstox_client.models.multi_order_request import MultiOrderRequest
@@ -192,6 +202,10 @@ from upstox_client.models.other_taxes import OtherTaxes
 from upstox_client.models.pagination import Pagination
 from upstox_client.models.payment_history_data import PaymentHistoryData
 from upstox_client.models.payment_history_response import PaymentHistoryResponse
+from upstox_client.models.payout_details import PayoutDetails
+from upstox_client.models.payout_details_response import PayoutDetailsResponse
+from upstox_client.models.payout_modes_data import PayoutModesData
+from upstox_client.models.payout_modes_response import PayoutModesResponse
 from upstox_client.models.place_order_data import PlaceOrderData
 from upstox_client.models.place_order_request import PlaceOrderRequest
 from upstox_client.models.place_order_response import PlaceOrderResponse
