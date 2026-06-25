@@ -1301,6 +1301,152 @@ share_holdings_response = upstox_client.ShareHoldingsResponse(status="success")
 if share_holdings_response.status != "success":
     print("error: ShareHoldingsResponse status field not set correctly")
 
+# ----------------------------------------------------------------------------
+# IPO APIs (IpoApi)
+# ----------------------------------------------------------------------------
+ipo_api_instance = upstox_client.IpoApi(upstox_client.ApiClient(configuration))
+
+try:
+    # Get IPO Listing
+    api_response = ipo_api_instance.get_ipo_listing(status="open", issue_type="regular", page_number=1, records=20)
+    if api_response.status != "success":
+        print("error in get_ipo_listing API")
+except ApiException as e:
+    print("Exception when calling IpoApi->get_ipo_listing: %s\n" % e)
+
+try:
+    # Get IPO Details (in real usage, pass a slug id returned by get_ipo_listing)
+    api_response = ipo_api_instance.get_ipo_details("sample-ipo-slug")
+    if api_response.status != "success":
+        print("error in get_ipo_details API")
+except ApiException as e:
+    print("Exception when calling IpoApi->get_ipo_details: %s\n" % e)
+
+# ----------------------------------------------------------------------------
+# Smartlist APIs (MarketApi)
+# ----------------------------------------------------------------------------
+market_api_instance = upstox_client.MarketApi(upstox_client.ApiClient(configuration))
+
+try:
+    # Get Smartlist Options
+    api_response = market_api_instance.get_smartlist_options(asset_type="INDEX", category="TOP_TRADED", page_number=1, page_size=50)
+    if api_response.status != "success":
+        print("error in get_smartlist_options API")
+except ApiException as e:
+    print("Exception when calling MarketApi->get_smartlist_options: %s\n" % e)
+
+try:
+    # Get Smartlist Futures
+    api_response = market_api_instance.get_smartlist_futures(asset_type="STOCK", category="MOST_ACTIVE", page_number=1, page_size=50)
+    if api_response.status != "success":
+        print("error in get_smartlist_futures API")
+except ApiException as e:
+    print("Exception when calling MarketApi->get_smartlist_futures: %s\n" % e)
+
+try:
+    # Get Smartlist MTF
+    api_response = market_api_instance.get_smartlist_mtf(page_number=1, page_size=50)
+    if api_response.status != "success":
+        print("error in get_smartlist_mtf API")
+except ApiException as e:
+    print("Exception when calling MarketApi->get_smartlist_mtf: %s\n" % e)
+
+# ----------------------------------------------------------------------------
+# Payout APIs (UserApi)
+# ----------------------------------------------------------------------------
+payout_api_instance = upstox_client.UserApi(upstox_client.ApiClient(configuration))
+
+try:
+    # Get Payout History (read-only)
+    api_response = payout_api_instance.get_payout_history()
+    if api_response.status != "success":
+        print("error in get_payout_history API")
+except ApiException as e:
+    print("Exception when calling UserApi->get_payout_history: %s\n" % e)
+
+try:
+    # Get Payout Modes (read-only)
+    api_response = payout_api_instance.get_payout_modes()
+    if api_response.status != "success":
+        print("error in get_payout_modes API")
+except ApiException as e:
+    print("Exception when calling UserApi->get_payout_modes: %s\n" % e)
+
+# Initiate/Modify/Cancel payout move real funds. Disabled by default; set
+# RUN_DESTRUCTIVE_PAYOUT_TESTS = True to exercise them against a real account.
+RUN_DESTRUCTIVE_PAYOUT_TESTS = False
+if RUN_DESTRUCTIVE_PAYOUT_TESTS:
+    try:
+        # Initiate Payout
+        body = upstox_client.InitiatePayoutRequest(mode="IMPS", amount=1.0)
+        api_response = payout_api_instance.initiate_payout(body)
+        transaction_id = api_response.data.transaction_id
+
+        # Modify Payout
+        modify_body = upstox_client.ModifyPayoutRequest(amount=2.0)
+        api_response = payout_api_instance.modify_payout(modify_body, transaction_id)
+
+        # Cancel Payout
+        api_response = payout_api_instance.cancel_payout(transaction_id)
+        print("payout initiate/modify/cancel cycle:", api_response.status)
+    except ApiException as e:
+        print("Exception when calling UserApi payout write ops: %s\n" % e)
+
+# ----------------------------------------------------------------------------
+# Model instantiation smoke tests (new models)
+# ----------------------------------------------------------------------------
+ipo_listing_data = upstox_client.IpoListingData(symbol="XYZ", status="open")
+if ipo_listing_data.symbol != "XYZ":
+    print("error: IpoListingData fields not set correctly")
+
+ipo_meta_data = upstox_client.IpoMetaData(page=upstox_client.Pagination(page_number=1))
+if ipo_meta_data.page.page_number != 1:
+    print("error: IpoMetaData fields not set correctly")
+
+ipo_listing_response = upstox_client.IpoListingResponse(status="success", data=[ipo_listing_data], meta_data=ipo_meta_data)
+if ipo_listing_response.status != "success":
+    print("error: IpoListingResponse status field not set correctly")
+
+ipo_timeline = upstox_client.IpoTimeline(listing_date="2026-07-01")
+if ipo_timeline.listing_date != "2026-07-01":
+    print("error: IpoTimeline fields not set correctly")
+
+ipo_registrar_info = upstox_client.IpoRegistrarInfo(name="Registrar Co")
+if ipo_registrar_info.name != "Registrar Co":
+    print("error: IpoRegistrarInfo fields not set correctly")
+
+ipo_details_data = upstox_client.IpoDetailsData(id="abc", symbol="XYZ", lot_size=10, timeline=ipo_timeline, registrar_info=ipo_registrar_info)
+if ipo_details_data.lot_size != 10:
+    print("error: IpoDetailsData fields not set correctly")
+
+ipo_details_response = upstox_client.IpoDetailsResponse(status="success", data=ipo_details_data)
+if ipo_details_response.status != "success":
+    print("error: IpoDetailsResponse status field not set correctly")
+
+initiate_payout_request = upstox_client.InitiatePayoutRequest(mode="IMPS", amount=500.0)
+if initiate_payout_request.amount != 500.0:
+    print("error: InitiatePayoutRequest fields not set correctly")
+
+modify_payout_request = upstox_client.ModifyPayoutRequest(amount=750.0)
+if modify_payout_request.amount != 750.0:
+    print("error: ModifyPayoutRequest fields not set correctly")
+
+payout_details = upstox_client.PayoutDetails(status="SUCCESS", transaction_id="T1", amount=500.0)
+if payout_details.transaction_id != "T1":
+    print("error: PayoutDetails fields not set correctly")
+
+payout_details_response = upstox_client.PayoutDetailsResponse(status="success", data=payout_details)
+if payout_details_response.status != "success":
+    print("error: PayoutDetailsResponse status field not set correctly")
+
+payout_modes_data = upstox_client.PayoutModesData()
+if payout_modes_data is None:
+    print("error: PayoutModesData instantiation failed")
+
+payout_modes_response = upstox_client.PayoutModesResponse(status="success", data=payout_modes_data)
+if payout_modes_response.status != "success":
+    print("error: PayoutModesResponse status field not set correctly")
+
 login_api_instance = upstox_client.LoginApi(upstox_client.ApiClient(configuration))
 try:
     # Logout
