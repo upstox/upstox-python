@@ -1500,7 +1500,7 @@ elif example == "Sector Index Comparison":
             c = "green" if val > 0 else ("red" if val < 0 else "grey")
             return f"color: {c}; font-weight: bold"
 
-        st.dataframe(df.style.applymap(color_chg, subset=["Change", "Change %"]),
+        st.dataframe(df.style.map(color_chg, subset=["Change", "Change %"]),
                      use_container_width=True)
 
 
@@ -1799,7 +1799,7 @@ elif example == "Market Status":
             if "PRE" in str(val).upper():    return "color: #f39c12; font-weight: bold"
             return ""
 
-        st.dataframe(df.style.applymap(colour_status, subset=["Status"]),
+        st.dataframe(df.style.map(colour_status, subset=["Status"]),
                      use_container_width=True)
 
 
