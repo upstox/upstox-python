@@ -271,17 +271,24 @@ if example == "Search Equity":
 
 elif example == "Search Futures":
     client = require_client()
-    c1, c2, c3 = st.columns([2, 1, 1])
-    query = c1.text_input("Search query", value="NIFTY")
-    exch  = c2.selectbox("Exchange", ["NSE", "BSE", "MCX"])
-    exact = c3.checkbox("Exact underlying match", value=True,
-                        help="Filter strictly by underlying_symbol to avoid e.g. NIFTYNXT50 when searching NIFTY")
+    c1, c2, c3, c4 = st.columns([2, 1, 1, 1])
+    query  = c1.text_input("Search query", value="NIFTY")
+    exch   = c2.selectbox("Exchange", ["NSE", "BSE", "MCX"])
+    expiry = c3.selectbox("Expiry", ["All expiries", "current_month", "next_month", "far_month"],
+                          help="Futures are monthly on NSE/BSE/MCX; weekly expiries do not apply.")
+    exact  = c4.checkbox("Exact underlying match", value=True,
+                         help="Filter strictly by underlying_symbol to avoid e.g. NIFTYNXT50 when searching NIFTY")
 
     if st.button("🔍 Search", type="primary"):
+        expiry_arg = None if expiry == "All expiries" else expiry
         with st.spinner("Searching…"):
-            futures = get_futures_sorted(client, query, exchange=exch, exact_symbol=exact)
+            futures = get_futures_sorted(
+                client, query, exchange=exch, exact_symbol=exact,
+                segment="COMM" if exch == "MCX" else "FO",
+                expiry=expiry_arg,
+            )
         if not futures:
-            st.warning(f"No futures found for '{query}'.")
+            st.warning(f"No futures found for '{query}' ({expiry}).")
         else:
             df = pd.DataFrame([{
                 "Symbol":     i.get("trading_symbol", ""),

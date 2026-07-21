@@ -117,6 +117,7 @@ def get_futures_sorted(
     exchange: str = "NSE",
     exact_symbol: bool = False,
     segment: str = "FO",
+    expiry: str = None,
 ):
     """
     Search for futures contracts and return them sorted by expiry (nearest first).
@@ -128,6 +129,10 @@ def get_futures_sorted(
     Use segment="COMM" for MCX commodity futures (e.g. CRUDEOIL, NATURALGAS).
     Use segment="FO" (default) for NSE/BSE equity futures.
 
+    expiry — optional monthly keyword to narrow results ('current_month',
+    'next_month', 'far_month'). Futures on NSE/BSE/MCX are monthly, so weekly
+    keywords are not applicable. When None (default), all contracts are returned.
+
     Returns list of instrument dicts, each with keys like:
       instrument_key, trading_symbol, expiry, lot_size, underlying_symbol
     """
@@ -138,6 +143,7 @@ def get_futures_sorted(
         segments=segment,
         instrument_types="FUT",
         records=30,
+        **({"expiry": expiry} if expiry else {}),
     )
     instruments = response.data or []
     if exact_symbol:
