@@ -67,6 +67,20 @@ def get_ltp(api_client: upstox_client.ApiClient, *instrument_keys: str):
     return _rekey_by_instrument_token(response.data)
 
 
+def get_ohlc_quote(api_client: upstox_client.ApiClient, interval: str, *instrument_keys: str):
+    """
+    Fetch OHLC market quote (v3) for one or more instruments (up to 500).
+
+    interval - '1d', 'I1', 'I30' etc. (candle interval for the OHLC snapshot)
+
+    Returns dict keyed by instrument_key (e.g. 'NSE_EQ|INE002A01018'),
+    each value has last_price, prev_ohlc, live_ohlc.
+    """
+    api = upstox_client.MarketQuoteV3Api(api_client)
+    response = api.get_market_quote_ohlc(interval, instrument_key=",".join(instrument_keys))
+    return _rekey_by_instrument_token(response.data)
+
+
 def get_full_quote(api_client: upstox_client.ApiClient, *instrument_keys: str):
     """
     Fetch full market quote for one or more instruments.
@@ -147,6 +161,53 @@ def get_futures_sorted(
         ]
     # Sort by expiry date string (yyyy-MM-dd sorts lexicographically)
     return sorted(instruments, key=lambda x: x.get("expiry", ""))
+
+
+def as_dict(obj) -> dict:
+    """
+    Normalise an SDK model, dict, or plain object into a dict.
+
+    The generated SDK returns model objects (with .to_dict()) for some
+    endpoints and raw dicts for others; this smooths over the difference so
+    callers can always use ``.get(...)``.
+    """
+    if obj is None:
+        return {}
+    if isinstance(obj, dict):
+        return obj
+    if hasattr(obj, "to_dict"):
+        return obj.to_dict()
+    return vars(obj) if hasattr(obj, "__dict__") else {}
+
+
+def resolve_equity(api_client: upstox_client.ApiClient, symbol: str):
+    """
+    Resolve a stock symbol to the first NSE equity match.
+
+    Returns the instrument dict (with keys like instrument_key, isin, name),
+    or None when nothing matches.
+    """
+    resp = search_instrument(api_client, symbol, exchanges="NSE", segments="EQ", records=1)
+    hits = resp.data or []
+    return hits[0] if hits else None
+
+
+def resolve_underlying(api_client: upstox_client.ApiClient, symbol: str):
+    """
+    Resolve an underlying symbol for derivatives — tries INDEX first
+    (NIFTY, BANKNIFTY, ...), then falls back to NSE equity.
+
+    Returns the instrument dict, or None when nothing matches.
+    """
+    resp = search_instrument(api_client, symbol, segments="INDEX", records=5)
+    hits = resp.data or []
+    for h in hits:
+        if h.get("underlying_symbol", "").upper() == symbol.upper() \
+                or h.get("trading_symbol", "").upper() == symbol.upper():
+            return h
+    if hits:
+        return hits[0]
+    return resolve_equity(api_client, symbol)
 
 
 def today_str() -> str:
