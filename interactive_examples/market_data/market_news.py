@@ -89,7 +89,7 @@ def main():
 
     for i, art in enumerate(articles, start=1):
         a = as_dict(art)
-        headline = a.get("heading") or a.get("headline") or a.get("title") or "—"
+        headline = (a.get("heading") or a.get("headline") or a.get("title") or "—").strip()
         link     = a.get("article_link") or a.get("link") or ""
         when     = _fmt_time(a.get("published_time") or a.get("published_at") or a.get("timestamp"))
         print(f"  {CYAN}{i:>2}. {BOLD}{headline}{RESET}")

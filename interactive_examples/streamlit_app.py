@@ -4388,7 +4388,7 @@ elif example == "Market News":
         st.success(f"{len(articles)} articles")
         for art in articles:
             a = as_dict(art)
-            headline = a.get("heading") or a.get("headline") or a.get("title") or "—"
+            headline = (a.get("heading") or a.get("headline") or a.get("title") or "—").strip()
             link     = a.get("article_link") or a.get("link") or ""
             when     = _news_time(a.get("published_time") or a.get("published_at") or a.get("timestamp"))
             summary  = a.get("summary") or a.get("description") or ""
