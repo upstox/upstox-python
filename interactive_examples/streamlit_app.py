@@ -33,6 +33,7 @@ from utils import (
     index_instrument,
     get_expiries_list,
     most_recent_past_expiry,
+    api_error_message,
 )
 
 # ── Page config ───────────────────────────────────────────────────────────────
@@ -2316,7 +2317,7 @@ elif example == "Company Profile":
                 api = upstox_client.FundamentalsApi(client)
                 response = api.get_company_profile(isin)
             except Exception as e:
-                st.error(f"API error: {e}"); st.stop()
+                st.error(f"API error: {api_error_message(e)}"); st.stop()
 
         data = response.data
         if not data:
@@ -2380,7 +2381,7 @@ elif example == "Key Ratios":
                 api = upstox_client.FundamentalsApi(client)
                 response = api.get_key_ratios(isin)
             except Exception as e:
-                st.error(f"API error: {e}"); st.stop()
+                st.error(f"API error: {api_error_message(e)}"); st.stop()
 
         data = response.data
         if not data:
@@ -2461,7 +2462,7 @@ elif example == "Balance Sheet":
                 api = upstox_client.FundamentalsApi(client)
                 response = api.get_balance_sheet(isin, type=stmt_type, fs=fs_flag)
             except Exception as e:
-                st.error(f"API error: {e}"); st.stop()
+                st.error(f"API error: {api_error_message(e)}"); st.stop()
 
         data = response.data
         if not data:
@@ -2595,7 +2596,7 @@ elif example == "Income Statement":
                 api = upstox_client.FundamentalsApi(client)
                 response = api.get_income_statement(isin, type=stmt_type, time_period=period, fs=fs_flag)
             except Exception as e:
-                st.error(f"API error: {e}"); st.stop()
+                st.error(f"API error: {api_error_message(e)}"); st.stop()
 
         data = response.data
         if not data:
@@ -2716,7 +2717,7 @@ elif example == "Cash Flow":
                 api = upstox_client.FundamentalsApi(client)
                 response = api.get_cash_flow(isin, type=stmt_type, fs=fs_flag)
             except Exception as e:
-                st.error(f"API error: {e}"); st.stop()
+                st.error(f"API error: {api_error_message(e)}"); st.stop()
 
         data = response.data
         if not data:
@@ -2840,7 +2841,7 @@ elif example == "Corporate Actions":
                 api = upstox_client.FundamentalsApi(client)
                 response = api.get_corporate_actions(isin)
             except Exception as e:
-                st.error(f"API error: {e}"); st.stop()
+                st.error(f"API error: {api_error_message(e)}"); st.stop()
 
         data = response.data
         if not data:
@@ -2926,7 +2927,7 @@ elif example == "Share Holdings":
                 api = upstox_client.FundamentalsApi(client)
                 response = api.get_share_holdings(isin)
             except Exception as e:
-                st.error(f"API error: {e}"); st.stop()
+                st.error(f"API error: {api_error_message(e)}"); st.stop()
 
         data = response.data
         if not data:
@@ -3038,7 +3039,7 @@ elif example == "Competitors":
                 api = upstox_client.FundamentalsApi(client)
                 response = api.get_competitors(instrument_key)
             except Exception as e:
-                st.error(f"API error: {e}"); st.stop()
+                st.error(f"API error: {api_error_message(e)}"); st.stop()
 
         data = response.data
         if not data:
@@ -3148,7 +3149,7 @@ elif example == "FII Data":
                 else:
                     response = api.get_fii_data(data_type, interval)
             except Exception as e:
-                st.error(f"API error: {e}"); st.stop()
+                st.error(f"API error: {api_error_message(e)}"); st.stop()
 
         data = response.data
         if not data:
@@ -3245,7 +3246,7 @@ elif example == "DII Data":
                 else:
                     response = api.get_dii_data(data_type, interval)
             except Exception as e:
-                st.error(f"API error: {e}"); st.stop()
+                st.error(f"API error: {api_error_message(e)}"); st.stop()
 
         data = response.data
         if not data:
@@ -3338,7 +3339,7 @@ elif example == "OI":
                 api = upstox_client.MarketApi(client)
                 response = api.get_oi_data(UNDERLYINGS_OI[label], str(expiry), str(sel_date))
             except Exception as e:
-                st.error(f"API error: {e}"); st.stop()
+                st.error(f"API error: {api_error_message(e)}"); st.stop()
 
         def _as_dict(o):
             if o is None: return {}
@@ -3423,7 +3424,7 @@ elif example == "Change in OI":
                     UNDERLYINGS_COI[label], str(expiry), str(sel_date), str(interval)
                 )
             except Exception as e:
-                st.error(f"API error: {e}"); st.stop()
+                st.error(f"API error: {api_error_message(e)}"); st.stop()
 
         def _as_dict(o):
             if o is None: return {}
@@ -3500,7 +3501,7 @@ elif example == "Max Pain":
                     UNDERLYINGS_MP[label], str(expiry), str(sel_date), str(bucket)
                 )
             except Exception as e:
-                st.error(f"API error: {e}"); st.stop()
+                st.error(f"API error: {api_error_message(e)}"); st.stop()
 
         def _as_dict(o):
             if o is None: return {}
@@ -3575,7 +3576,7 @@ elif example == "PCR":
                     UNDERLYINGS_PCR[label], str(expiry), str(sel_date), str(bucket)
                 )
             except Exception as e:
-                st.error(f"API error: {e}"); st.stop()
+                st.error(f"API error: {api_error_message(e)}"); st.stop()
 
         def _as_dict(o):
             if o is None: return {}
@@ -3656,7 +3657,7 @@ elif example == "PCR Trend":
                 api = upstox_client.OptionsApi(client)
                 resp = api.get_put_call_option_chain(underlying_key, exp)
             except Exception as e:
-                st.error(f"API error: {e}"); st.stop()
+                st.error(f"API error: {api_error_message(e)}"); st.stop()
 
         chain = resp.data if resp.data else []
         if not isinstance(chain, list):
@@ -3755,7 +3756,7 @@ elif example == "IV Percentile":
                 api  = upstox_client.OptionsApi(client)
                 resp = api.get_put_call_option_chain(underlying_key, exp)
             except Exception as e:
-                st.error(f"API error: {e}"); st.stop()
+                st.error(f"API error: {api_error_message(e)}"); st.stop()
 
         chain = resp.data if resp.data else []
         if not isinstance(chain, list):
@@ -3847,7 +3848,7 @@ elif example == "Implied Move":
                 ce_prem = lv(ltp_data.get(ce_key)) or 0
                 pe_prem = lv(ltp_data.get(pe_key)) or 0
             except Exception as e:
-                st.error(f"API error: {e}"); st.stop()
+                st.error(f"API error: {api_error_message(e)}"); st.stop()
 
         if not ce_prem and not pe_prem:
             st.warning("Could not fetch ATM option premiums."); st.stop()
@@ -3925,7 +3926,7 @@ elif example == "Expiry Decay":
                 pe_map = {i.get("strike_price", 0): (lv(ltp_data.get(i["instrument_key"])) or 0) for i in pe_list}
                 expiry_label = ce_list[0].get("expiry", expiry) if ce_list else expiry
             except Exception as e:
-                st.error(f"API error: {e}"); st.stop()
+                st.error(f"API error: {api_error_message(e)}"); st.stop()
 
         all_strikes = sorted(set(list(ce_map.keys()) + list(pe_map.keys())))
         atm_strike = min(all_strikes, key=lambda s: abs(s - spot)) if all_strikes else 0
@@ -3993,7 +3994,7 @@ elif example == "Option Contracts":
                 else:
                     response = api.get_option_contracts(instrument_key)
             except Exception as e:
-                st.error(f"API error: {e}"); st.stop()
+                st.error(f"API error: {api_error_message(e)}"); st.stop()
 
         contracts = response.data or []
         if not contracts:
@@ -4046,7 +4047,7 @@ elif example == "VWAP":
                 candles = get_historical_candles(client, instrument_key, "minutes", 1,
                                                  date.today().isoformat())
             except Exception as e:
-                st.error(f"API error: {e}"); st.stop()
+                st.error(f"API error: {api_error_message(e)}"); st.stop()
 
         if not candles:
             st.warning("No intraday candle data returned. Market may be closed."); st.stop()
@@ -4121,7 +4122,7 @@ elif example == "Beta Calculator":
                 stock_candles = get_historical_candles(client, stock_key, "days", 1, to_date, from_date)
                 nifty_candles = get_historical_candles(client, NIFTY_KEY, "days", 1, to_date, from_date)
             except Exception as e:
-                st.error(f"API error: {e}"); st.stop()
+                st.error(f"API error: {api_error_message(e)}"); st.stop()
 
         if not stock_candles or not nifty_candles:
             st.warning("Could not fetch historical data."); st.stop()
@@ -4209,7 +4210,7 @@ elif example == "Stock Correlation":
                     symbols.append(eq.get("trading_symbol", query.upper()))
                     all_returns.append(closes[1:] / closes[:-1] - 1)
             except Exception as e:
-                st.error(f"API error: {e}"); st.stop()
+                st.error(f"API error: {api_error_message(e)}"); st.stop()
 
         if len(symbols) < 2:
             st.warning("Need at least 2 valid stocks with data."); st.stop()
@@ -4263,7 +4264,7 @@ elif example == "Live Depth (30-level)":
                 fut_sym = futures[0]["trading_symbol"]
                 quotes = get_full_quote(client, fut_key, RELIANCE_KEY)
             except Exception as e:
-                st.error(f"API error: {e}"); st.stop()
+                st.error(f"API error: {api_error_message(e)}"); st.stop()
 
         def render_depth30(col, label, quote):
             col.markdown(f"**{label}**")
@@ -4318,7 +4319,7 @@ elif example == "OHLC Quote":
                     st.error("Could not resolve any of the requested symbols."); st.stop()
                 quotes = get_ohlc_quote(client, interval, *resolved.keys())
             except Exception as e:
-                st.error(f"API error: {e}"); st.stop()
+                st.error(f"API error: {api_error_message(e)}"); st.stop()
 
         if not quotes:
             st.warning("No OHLC data returned."); st.stop()
@@ -4365,7 +4366,7 @@ elif example == "Market News":
                     kwargs["instrument_keys"] = inst.get("instrument_key", "")
                 response = api.get_news(category, **kwargs)
             except Exception as e:
-                st.error(f"API error: {e}"); st.stop()
+                st.error(f"API error: {api_error_message(e)}"); st.stop()
 
         # The News API returns a dict keyed by instrument_key (each value a list
         # of articles) for category=instrument_keys, or a flat list otherwise.
@@ -4415,7 +4416,7 @@ elif example == "Market Holiday":
                 api = upstox_client.MarketHolidaysAndTimingsApi(client)
                 response = api.get_holiday(str(hol_date))
             except Exception as e:
-                st.error(f"API error: {e}"); st.stop()
+                st.error(f"API error: {api_error_message(e)}"); st.stop()
 
         data = response.data
         if not data:
@@ -4450,7 +4451,7 @@ elif example == "User Profile":
                 api = upstox_client.UserApi(client)
                 response = api.get_profile("2.0")
             except Exception as e:
-                st.error(f"API error: {e}"); st.stop()
+                st.error(f"API error: {api_error_message(e)}"); st.stop()
 
         data = as_dict(response.data)
         if not data:
@@ -4486,7 +4487,7 @@ elif example == "Funds & Margin":
                 api = upstox_client.UserApi(client)
                 response = api.get_user_fund_margin_v3()
             except Exception as e:
-                st.error(f"API error: {e}"); st.stop()
+                st.error(f"API error: {api_error_message(e)}"); st.stop()
 
         data = as_dict(response.data)
         if not data:
@@ -4546,7 +4547,7 @@ elif example == "Brokerage Calculator":
                     inst.get("instrument_key", ""), int(quantity), product,
                     txn, float(price), "2.0")
             except Exception as e:
-                st.error(f"API error: {e}"); st.stop()
+                st.error(f"API error: {api_error_message(e)}"); st.stop()
 
         data = as_dict(response.data)
         if not data:
@@ -4605,7 +4606,7 @@ elif example == "Margin Calculator":
                 api = upstox_client.ChargeApi(client)
                 response = api.post_margin(body)
             except Exception as e:
-                st.error(f"API error: {e}"); st.stop()
+                st.error(f"API error: {api_error_message(e)}"); st.stop()
 
         data = as_dict(response.data)
         if not data:
@@ -4649,7 +4650,7 @@ elif example == "Expiries":
                     st.error(f"Could not resolve an underlying for '{query}'."); st.stop()
                 expiries = get_expiries_list(client, inst.get("instrument_key", ""))
             except Exception as e:
-                st.error(f"API error: {e}"); st.stop()
+                st.error(f"API error: {api_error_message(e)}"); st.stop()
 
         if not expiries:
             st.warning("No expiries returned."); st.stop()
@@ -4673,7 +4674,7 @@ elif example == "Expired Option Contracts":
             all_exp = get_expiries_list(client, instrument_key)
             past = [e for e in all_exp if e < date.today().isoformat()]
         except Exception as e:
-            st.error(f"API error: {e}"); st.stop()
+            st.error(f"API error: {api_error_message(e)}"); st.stop()
 
     if not past:
         st.warning("No past expiry available for this underlying."); st.stop()
@@ -4687,7 +4688,7 @@ elif example == "Expired Option Contracts":
                 api = upstox_client.ExpiredInstrumentApi(client)
                 response = api.get_expired_option_contracts(instrument_key, expiry)
             except Exception as e:
-                st.error(f"API error: {e}"); st.stop()
+                st.error(f"API error: {api_error_message(e)}"); st.stop()
 
         contracts = response.data or []
         if not contracts:
@@ -4721,7 +4722,7 @@ elif example == "Expired Future Contracts":
             all_exp = get_expiries_list(client, instrument_key)
             past = [e for e in all_exp if e < date.today().isoformat()]
         except Exception as e:
-            st.error(f"API error: {e}"); st.stop()
+            st.error(f"API error: {api_error_message(e)}"); st.stop()
 
     if not past:
         st.warning("No past expiry available for this underlying."); st.stop()
@@ -4735,7 +4736,7 @@ elif example == "Expired Future Contracts":
                 api = upstox_client.ExpiredInstrumentApi(client)
                 response = api.get_expired_future_contracts(instrument_key, expiry)
             except Exception as e:
-                st.error(f"API error: {e}"); st.stop()
+                st.error(f"API error: {api_error_message(e)}"); st.stop()
 
         contracts = response.data or []
         if not contracts:
@@ -4785,7 +4786,7 @@ elif example == "Expired Historical Candles":
                 response = api.get_expired_historical_candle_data(
                     key, interval, str(to_date), str(from_date))
             except Exception as e:
-                st.error(f"API error: {e}"); st.stop()
+                st.error(f"API error: {api_error_message(e)}"); st.stop()
 
         candles = getattr(response.data, "candles", None) or []
         if not candles:

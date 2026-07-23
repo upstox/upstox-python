@@ -7,8 +7,40 @@ for data pipelines and dashboards.
 """
 
 import sys
+import json
 from datetime import date
 import upstox_client
+
+
+def api_error_message(e) -> str:
+    """
+    Extract a concise, human-readable message from an SDK ApiException.
+
+    The generated SDK's str(exception) dumps the status line, all HTTP response
+    headers (cookies, CF-RAY, …) and the raw body — far too noisy for a UI or
+    CLI. This pulls out just the API error message and code (and HTTP status),
+    falling back to the first line of str(e) for non-API errors.
+    """
+    status = getattr(e, "status", None)
+    body = getattr(e, "body", None)
+    if body:
+        try:
+            payload = json.loads(body.decode() if isinstance(body, (bytes, bytearray)) else body)
+            errors = payload.get("errors") or []
+            first = errors[0] if errors else payload
+            msg = first.get("message") or first.get("error_message") or ""
+            code = first.get("errorCode") or first.get("error_code") or ""
+            if msg:
+                parts = [msg]
+                if code:
+                    parts.append(f"[{code}]")
+                if status:
+                    parts.append(f"(HTTP {status})")
+                return " ".join(parts)
+        except (ValueError, AttributeError, KeyError, TypeError):
+            pass
+    # Non-API error, or unparseable body: first line only, no header dump.
+    return str(e).split("\nHTTP response headers")[0].strip() or str(e)[:200]
 
 
 def get_api_client(token: str) -> upstox_client.ApiClient:
