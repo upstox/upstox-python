@@ -2,7 +2,7 @@
 
 > **73 working examples** showcasing Upstox API features — **Instrument Search**, **Analytics Token**, **Market Data**, **Fundamentals**, **Expired Instruments**, **Charges & Margin**, and read-only **Account** data — across futures spreads, options strategies, arbitrage, historical analysis, live market data, fundamentals analysis, and more.
 >
-> Every example is **read-only**: it runs with any valid analytics or access token, needs no funded account, and never places an order. Trading/portfolio APIs are intentionally out of scope (see [What's not covered](#whats-not-covered)).
+> Every example is **read-only**: it needs no funded account and never places an order. Most run with any valid analytics or access token; a few endpoints have extra entitlement requirements — **Expired Instruments** needs an Upstox **Plus plan**, and **Account (Read-Only)** needs the request to come from your account's **registered static IP**. Trading/portfolio APIs are intentionally out of scope (see [What's not covered](#whats-not-covered)).
 
 [![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue)](https://www.python.org/)
 [![upstox-python-sdk](https://img.shields.io/pypi/v/upstox-python-sdk?label=upstox-python-sdk)](https://pypi.org/project/upstox-python-sdk/)
@@ -64,6 +64,7 @@ python test_runner.py --token <TOKEN>
 - A PASS requires exit 0 **and** non-empty output **and** no Python traceback
 - Streaming scripts (WebSocket depth) are auto-aborted after 5 seconds and counted as PASS
 - A separate **edge-case suite** feeds deliberately-bad inputs (unknown ticker, malformed date) and asserts each example fails *gracefully* — a clean error message, no traceback
+- Reports **passed / failed / skipped**. SKIPPED covers outcomes that aren't code faults: endpoints your token/plan/IP can't access (Plus plan, static IP) and data-dependent examples (OI/PCR/max-pain) that return empty without a live intraday snapshot. A traceback is always a hard FAIL; the runner exits non-zero only on real failures
 
 ---
 
@@ -287,6 +288,8 @@ python market_information/pcr_data.py  --token <TOKEN> --expiry 2026-05-29 --buc
 ### Expired Instruments
 *Uses the [Upstox Expired Instrument API](https://upstox.com/developer/api-documentation/). Fetch expiry lists and the contracts / OHLC history of already-expired derivatives — useful for back-testing.*
 
+> ⚠️ **Requires an Upstox Plus plan.** Without it the API returns `UDAPI1149` and these scripts exit with a clear message (the test runner marks them SKIPPED, not failed).
+
 | Script | What it does |
 |---|---|
 | `expired_instruments/expiries.py` | List all expiry dates available for an underlying |
@@ -320,6 +323,8 @@ python charges/margin_calculator.py --token <TOKEN> --symbol RELIANCE --quantity
 
 ### Account (Read-Only)
 *Uses read-only endpoints of the [Upstox User API](https://upstox.com/developer/api-documentation/). No account settings are changed and no funds are moved.*
+
+> ⚠️ **Requires a registered static IP.** These endpoints are permitted only from the static IP configured in your Upstox account; otherwise the API returns `UDAPI1221` and the script exits with a clear message (the test runner marks it SKIPPED, not failed).
 
 | Script | What it does |
 |---|---|
