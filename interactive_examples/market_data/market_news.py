@@ -26,6 +26,18 @@ DIM   = "\033[2m"
 RESET = "\033[0m"
 
 
+def _fmt_time(v):
+    """Format an epoch-millisecond timestamp as YYYY-MM-DD HH:MM (IST); passthrough otherwise."""
+    if v in (None, ""):
+        return ""
+    try:
+        from datetime import datetime, timezone, timedelta
+        ist = timezone(timedelta(hours=5, minutes=30))
+        return datetime.fromtimestamp(int(v) / 1000, tz=ist).strftime("%Y-%m-%d %H:%M")
+    except (TypeError, ValueError):
+        return str(v)
+
+
 def main():
     parser = argparse.ArgumentParser(description="Market news via News API")
     parser.add_argument("--token", required=True, help="Upstox access or analytics token")
@@ -57,25 +69,38 @@ def main():
     except Exception as e:
         die(f"API error: {e}")
 
-    data = as_dict(response.data)
-    articles = data.get("news") or data.get("articles") or (
-        response.data if isinstance(response.data, list) else [])
+    # The News API returns data either as a dict keyed by instrument_key
+    # (each value a list of articles) or, for positions/holdings, a flat list.
+    data = response.data
+    articles = []
+    if isinstance(data, dict):
+        if isinstance(data.get("news"), list):
+            articles = data["news"]
+        else:
+            for v in data.values():
+                if isinstance(v, list):
+                    articles.extend(v)
+                elif isinstance(v, dict):
+                    articles.append(v)
+    elif isinstance(data, list):
+        articles = data
     if not articles:
         die("No news articles returned.")
 
     for i, art in enumerate(articles, start=1):
         a = as_dict(art)
-        headline = a.get("headline") or a.get("title") or "—"
-        source   = a.get("source") or a.get("publisher") or "—"
-        when     = a.get("published_at") or a.get("date") or a.get("timestamp") or ""
+        headline = a.get("heading") or a.get("headline") or a.get("title") or "—"
+        link     = a.get("article_link") or a.get("link") or ""
+        when     = _fmt_time(a.get("published_time") or a.get("published_at") or a.get("timestamp"))
         print(f"  {CYAN}{i:>2}. {BOLD}{headline}{RESET}")
-        meta = " · ".join(x for x in (str(source), str(when)) if x and x != "—")
-        if meta:
-            print(f"      {DIM}{meta}{RESET}")
+        if when:
+            print(f"      {DIM}{when}{RESET}")
         summary = a.get("summary") or a.get("description") or ""
         if summary:
             for line in textwrap.wrap(str(summary), width=88)[:3]:
                 print(f"      {line}")
+        if link:
+            print(f"      {DIM}{link}{RESET}")
         print()
 
     print(f"  {DIM}Articles: {len(articles)}{RESET}\n")

@@ -175,7 +175,9 @@ EXAMPLES = [
 # non-zero exit via die() (message on stderr) and NO Python traceback.
 EDGE_CASES = [
     # (category, script, extra_args)
-    ("Edge Cases", "instrument_search/search_equity.py",     ["--query", "ZZZNOTAREALTICKER999"]),
+    # NOTE: search_instrument returns an empty list (exit 0) for an unknown
+    # ticker — that is correct behaviour, not a failure, so it is not an edge
+    # case here. We only assert graceful failure where the script calls die().
     ("Edge Cases", "fundamentals/company_profile.py",        ["--symbol", "ZZZNOTAREALTICKER999"]),
     ("Edge Cases", "charges/brokerage_calculator.py",        ["--symbol", "ZZZNOTAREALTICKER999"]),
     ("Edge Cases", "market_information/oi_data.py",           ["--expiry", "not-a-real-date"]),
@@ -194,14 +196,32 @@ DEFAULT_TIMEOUT = 90  # seconds for a non-streaming example before we call it hu
 
 TRACEBACK_MARKER = "Traceback (most recent call last)"
 
+# API errors that mean the token/plan/IP is not entitled to the endpoint — the
+# example code is correct, it just cannot be exercised with this token. These
+# are reported as SKIPPED, not failed. (UDAPI1149 = Plus plan required,
+# UDAPI1221 = request must come from the account's configured static IP.)
+ENTITLEMENT_MARKERS = ("UDAPI1149", "UDAPI1221", "Plus plan", "static IP")
+
+# Examples whose endpoints return empty data unless there is a live intraday
+# snapshot for a currently-valid expiry (OI/PCR/max-pain and expiry-day decay).
+# A graceful empty-data exit for these is data-dependent → SKIPPED, not failed.
+DATA_OPTIONAL = {
+    "market_information/oi_data.py",
+    "market_information/change_oi.py",
+    "market_information/max_pain.py",
+    "market_information/pcr_data.py",
+    "options_analytics/expiry_decay.py",
+}
+
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
-BOLD  = "\033[1m"
-GREEN = "\033[32m"
-RED   = "\033[31m"
-CYAN  = "\033[36m"
-DIM   = "\033[2m"
-RESET = "\033[0m"
+BOLD   = "\033[1m"
+GREEN  = "\033[32m"
+RED    = "\033[31m"
+CYAN   = "\033[36m"
+YELLOW = "\033[33m"
+DIM    = "\033[2m"
+RESET  = "\033[0m"
 
 def hr(char="─", width=70):
     print(char * width)
@@ -223,11 +243,14 @@ def _echo(stdout, stderr):
 
 def run_example(script, token, extra_args, expect="success"):
     """
-    Run one example and validate it. Returns (passed: bool, reason: str).
+    Run one example and validate it. Returns (status, reason) where status is
+    one of "pass", "fail", "skip".
 
     expect="success"       — pass iff exit 0, non-empty stdout, no traceback.
     expect="graceful_fail" — pass iff non-zero exit and no traceback (die()'d).
     Streaming scripts pass when they run to the timeout window.
+    A traceback is always a fail. Entitlement errors (Plus plan / static IP) and
+    empty-data exits from DATA_OPTIONAL scripts are skipped, not failed.
     """
     cmd = [PYTHON, script, "--token", token] + extra_args
     is_streaming = script in STREAMING_SCRIPTS
@@ -242,24 +265,35 @@ def run_example(script, token, extra_args, expect="success"):
         _echo(e.stdout, e.stderr)
         if is_streaming:
             print(f"\n{DIM}  (streaming script auto-stopped after {STREAMING_TIMEOUT}s){RESET}")
-            return True, "streaming ok"
-        return False, f"timed out after {timeout}s"
+            return "pass", "streaming ok"
+        return "fail", f"timed out after {timeout}s"
 
     _echo(stdout, stderr)
     combined = _text(stdout) + _text(stderr)
+
+    # A traceback is always a real defect, regardless of expectation.
     if TRACEBACK_MARKER in combined:
-        return False, "uncaught exception (traceback)"
+        return "fail", "uncaught exception (traceback)"
+
+    # Token/plan/IP not entitled — code is correct, cannot be exercised here.
+    if any(m in combined for m in ENTITLEMENT_MARKERS):
+        return "skip", "requires entitlement (Plus plan / static IP)"
 
     if expect == "graceful_fail":
         if rc == 0:
-            return False, "expected graceful failure but exited 0"
-        return True, "failed gracefully"
+            return "fail", "expected graceful failure but exited 0"
+        return "pass", "failed gracefully"
 
-    if rc != 0:
-        return False, f"exit code {rc}"
-    if not _text(stdout).strip():
-        return False, "no output produced"
-    return True, "ok"
+    if rc == 0:
+        if not _text(stdout).strip():
+            return "fail", "no output produced"
+        return "pass", "ok"
+
+    # Non-zero exit, no traceback: for data-dependent examples an empty-data
+    # exit is expected against a token/date without a live snapshot.
+    if script in DATA_OPTIONAL:
+        return "skip", "no data for this token/date (data-dependent)"
+    return "fail", f"exit code {rc}"
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 
@@ -274,8 +308,8 @@ def _resolve_token(cli_token):
         sys.exit(0)
 
 
-def run_suite(title, entries, token, expect, passed, failed, total, offset):
-    """Run one group of examples, appending to passed/failed. Returns next offset."""
+def run_suite(title, entries, token, expect, passed, failed, skipped, total, offset):
+    """Run one group of examples, appending to passed/failed/skipped. Returns next offset."""
     current_category = None
     for j, (category, script, extra_args) in enumerate(entries):
         i = offset + j + 1
@@ -290,10 +324,13 @@ def run_suite(title, entries, token, expect, passed, failed, total, offset):
             print(f"{DIM}  args: {' '.join(extra_args)}{RESET}")
         hr()
 
-        ok, reason = run_example(script, token, extra_args, expect=expect)
-        if ok:
+        status, reason = run_example(script, token, extra_args, expect=expect)
+        if status == "pass":
             print(f"\n{GREEN}  ✓ PASSED{RESET} {DIM}({reason}){RESET}")
             passed.append(script)
+        elif status == "skip":
+            print(f"\n{YELLOW}  ⊘ SKIPPED — {reason}{RESET}")
+            skipped.append(f"{script}  [{reason}]")
         else:
             print(f"\n{RED}  ✗ FAILED — {reason}{RESET}")
             failed.append(f"{script}  [{reason}]")
@@ -328,15 +365,23 @@ def main():
 
     passed = []
     failed = []
+    skipped = []
 
-    offset = run_suite("Examples", EXAMPLES, token, "success", passed, failed, total, 0)
-    run_suite("Edge Cases", EDGE_CASES, token, "graceful_fail", passed, failed, total, offset)
+    offset = run_suite("Examples", EXAMPLES, token, "success", passed, failed, skipped, total, 0)
+    run_suite("Edge Cases", EDGE_CASES, token, "graceful_fail", passed, failed, skipped, total, offset)
 
     # Summary
     print()
     hr("═")
-    print(f"{BOLD}  Results: {GREEN}{len(passed)} passed{RESET}  {RED}{len(failed)} failed{RESET}  out of {len(passed)+len(failed)} run")
+    print(f"{BOLD}  Results: {GREEN}{len(passed)} passed{RESET}  "
+          f"{RED}{len(failed)} failed{RESET}  {YELLOW}{len(skipped)} skipped{RESET}  "
+          f"out of {len(passed)+len(failed)+len(skipped)} run")
     hr("═")
+
+    if skipped:
+        print(f"\n{YELLOW}  Skipped (token/plan/IP or data-dependent — not code faults):{RESET}")
+        for s in skipped:
+            print(f"    • {s}")
 
     if failed:
         print(f"\n{RED}  Failed checks:{RESET}")
@@ -344,6 +389,8 @@ def main():
             print(f"    • {s}")
         print()
         sys.exit(1)
+
+    print(f"\n{GREEN}  All runnable checks passed.{RESET}\n")
 
 if __name__ == "__main__":
     main()

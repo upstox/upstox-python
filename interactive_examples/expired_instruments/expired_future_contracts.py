@@ -40,7 +40,10 @@ def main():
 
     expiry = args.expiry
     if not expiry:
-        expiry = most_recent_past_expiry(client, instrument_key)
+        try:
+            expiry = most_recent_past_expiry(client, instrument_key)
+        except Exception as e:
+            die(f"API error fetching expiries: {e}")
         if not expiry:
             die("No past expiry available to demonstrate expired contracts.")
         print(f"\n{DIM}Auto-selected most recent past expiry: {expiry}{RESET}")
