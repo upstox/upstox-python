@@ -210,6 +210,20 @@ def resolve_underlying(api_client: upstox_client.ApiClient, symbol: str):
     return resolve_equity(api_client, symbol)
 
 
+def get_expiries_list(api_client: upstox_client.ApiClient, instrument_key: str):
+    """Return the list of expiry-date strings for an underlying (sorted ascending)."""
+    api = upstox_client.ExpiredInstrumentApi(api_client)
+    expiries = api.get_expiries(instrument_key).data or []
+    return sorted(str(e) for e in expiries)
+
+
+def most_recent_past_expiry(api_client: upstox_client.ApiClient, instrument_key: str):
+    """Return the most recent expiry strictly before today, or None if none exist."""
+    today = date.today().isoformat()
+    past = [e for e in get_expiries_list(api_client, instrument_key) if e < today]
+    return past[-1] if past else None
+
+
 def today_str() -> str:
     return date.today().isoformat()
 

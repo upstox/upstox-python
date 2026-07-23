@@ -15,7 +15,7 @@ import sys
 import os
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-from utils import get_api_client, resolve_underlying, as_dict, die
+from utils import get_api_client, resolve_underlying, most_recent_past_expiry, as_dict, die
 import upstox_client
 
 BOLD  = "\033[1m"
@@ -30,7 +30,8 @@ def main():
     parser = argparse.ArgumentParser(description="Expired option contracts via Expired Instrument API")
     parser.add_argument("--token",  required=True, help="Upstox access or analytics token")
     parser.add_argument("--query",  default="NIFTY", help="Underlying symbol (default: NIFTY)")
-    parser.add_argument("--expiry", required=True, help="Past expiry date YYYY-MM-DD")
+    parser.add_argument("--expiry", default=None,
+                        help="Past expiry date YYYY-MM-DD (default: most recent past expiry)")
     args = parser.parse_args()
 
     client = get_api_client(args.token)
@@ -40,12 +41,19 @@ def main():
         die(f"Could not resolve an underlying for '{args.query}'.")
     instrument_key = inst.get("instrument_key", "")
 
+    expiry = args.expiry
+    if not expiry:
+        expiry = most_recent_past_expiry(client, instrument_key)
+        if not expiry:
+            die("No past expiry available to demonstrate expired contracts.")
+        print(f"\n{DIM}Auto-selected most recent past expiry: {expiry}{RESET}")
+
     print(f"\n{BOLD}Fetching expired option contracts{RESET} for {args.query.upper()} "
-          f"expiry={args.expiry}...\n")
+          f"expiry={expiry}...\n")
 
     api = upstox_client.ExpiredInstrumentApi(client)
     try:
-        response = api.get_expired_option_contracts(instrument_key, args.expiry)
+        response = api.get_expired_option_contracts(instrument_key, expiry)
     except Exception as e:
         die(f"API error: {e}")
 

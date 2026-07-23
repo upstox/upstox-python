@@ -2,10 +2,17 @@
 """
 Test runner for all Upstox API examples.
 
+Runs every example against a real token and validates it. Success-path examples
+must exit 0, print non-empty output, and raise no traceback. A separate
+edge-case suite feeds deliberately-bad inputs and asserts the example fails
+*gracefully* (non-zero exit via die(), no traceback).
+
 Usage:
-    python test_runner.py
+    python test_runner.py --token <TOKEN>
+    python test_runner.py                 # prompts for the token interactively
 """
 
+import argparse
 import subprocess
 import sys
 import os
@@ -21,6 +28,9 @@ def _next_thursday() -> str:
 
 
 NEXT_THU = _next_thursday()
+# A date guaranteed to parse; get_holiday returns a "not a holiday" result (exit 0)
+# even when it isn't one, so any valid date exercises the endpoint.
+SAMPLE_DATE = f"{date.today().year}-01-26"
 
 def validate_token(token):
     """Make a lightweight API call to confirm the token works. Returns (ok, message)."""
@@ -142,6 +152,34 @@ EXAMPLES = [
     ("Market Information",  "market_information/change_oi.py",                 ["--expiry", NEXT_THU, "--interval", "5"]),
     ("Market Information",  "market_information/max_pain.py",                  ["--expiry", NEXT_THU, "--bucket-interval", "60"]),
     ("Market Information",  "market_information/pcr_data.py",                  ["--expiry", NEXT_THU, "--bucket-interval", "60"]),
+
+    ("Account (Read-Only)", "account/user_profile.py",                         []),
+    ("Account (Read-Only)", "account/funds_margin.py",                         []),
+
+    ("Charges & Margin",    "charges/brokerage_calculator.py",                 ["--symbol", "RELIANCE"]),
+    ("Charges & Margin",    "charges/margin_calculator.py",                    ["--symbol", "RELIANCE"]),
+
+    ("Expired Instruments", "expired_instruments/expiries.py",                 ["--query", "NIFTY"]),
+    ("Expired Instruments", "expired_instruments/expired_option_contracts.py", ["--query", "NIFTY"]),
+    ("Expired Instruments", "expired_instruments/expired_future_contracts.py", ["--query", "NIFTY"]),
+    ("Expired Instruments", "expired_instruments/expired_historical.py",       ["--query", "NIFTY"]),
+
+    ("Market Data",         "market_data/ohlc_quote.py",                       ["--queries", "RELIANCE,TCS"]),
+    ("Market Data",         "market_data/market_news.py",                      ["--query", "RELIANCE"]),
+    ("Market Data",         "market_data/market_holiday.py",                   ["--date", SAMPLE_DATE]),
+
+    ("Options Analytics",   "options_analytics/option_contracts.py",           ["--query", "NIFTY"]),
+]
+
+# Edge-case suite — deliberately-bad inputs. These MUST fail gracefully:
+# non-zero exit via die() (message on stderr) and NO Python traceback.
+EDGE_CASES = [
+    # (category, script, extra_args)
+    ("Edge Cases", "instrument_search/search_equity.py",     ["--query", "ZZZNOTAREALTICKER999"]),
+    ("Edge Cases", "fundamentals/company_profile.py",        ["--symbol", "ZZZNOTAREALTICKER999"]),
+    ("Edge Cases", "charges/brokerage_calculator.py",        ["--symbol", "ZZZNOTAREALTICKER999"]),
+    ("Edge Cases", "market_information/oi_data.py",           ["--expiry", "not-a-real-date"]),
+    ("Edge Cases", "market_data/market_holiday.py",           ["--date", "not-a-real-date"]),
 ]
 
 # Scripts that run indefinitely — killed after this many seconds and counted as PASS
@@ -152,6 +190,9 @@ STREAMING_SCRIPTS = {
     "market_data/live_depth_usdinr.py",
 }
 STREAMING_TIMEOUT = 5
+DEFAULT_TIMEOUT = 90  # seconds for a non-streaming example before we call it hung
+
+TRACEBACK_MARKER = "Traceback (most recent call last)"
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -165,35 +206,114 @@ RESET = "\033[0m"
 def hr(char="─", width=70):
     print(char * width)
 
-def run_example(script, token, extra_args):
-    """Run a single example script and stream output live."""
+def _text(x):
+    """Normalise captured stdout/stderr (str or bytes or None) to str."""
+    if x is None:
+        return ""
+    return x.decode("utf-8", "replace") if isinstance(x, bytes) else x
+
+def _echo(stdout, stderr):
+    """Print the example's captured output so the run stays visible."""
+    out = _text(stdout)
+    if out.strip():
+        print(out.rstrip())
+    err = _text(stderr)
+    if err.strip():
+        print(f"{DIM}{err.rstrip()}{RESET}")
+
+def run_example(script, token, extra_args, expect="success"):
+    """
+    Run one example and validate it. Returns (passed: bool, reason: str).
+
+    expect="success"       — pass iff exit 0, non-empty stdout, no traceback.
+    expect="graceful_fail" — pass iff non-zero exit and no traceback (die()'d).
+    Streaming scripts pass when they run to the timeout window.
+    """
     cmd = [PYTHON, script, "--token", token] + extra_args
     is_streaming = script in STREAMING_SCRIPTS
+    timeout = STREAMING_TIMEOUT if is_streaming else DEFAULT_TIMEOUT
     try:
-        timeout = STREAMING_TIMEOUT if is_streaming else None
-        result = subprocess.run(cmd, cwd=os.path.dirname(__file__), timeout=timeout)
-        return result.returncode == 0
-    except subprocess.TimeoutExpired:
-        # Streaming script ran for the full timeout window — counts as pass
-        print(f"\n{DIM}  (streaming script auto-stopped after {STREAMING_TIMEOUT}s){RESET}")
-        return True
+        result = subprocess.run(
+            cmd, cwd=os.path.dirname(__file__),
+            capture_output=True, text=True, timeout=timeout,
+        )
+        stdout, stderr, rc = result.stdout, result.stderr, result.returncode
+    except subprocess.TimeoutExpired as e:
+        _echo(e.stdout, e.stderr)
+        if is_streaming:
+            print(f"\n{DIM}  (streaming script auto-stopped after {STREAMING_TIMEOUT}s){RESET}")
+            return True, "streaming ok"
+        return False, f"timed out after {timeout}s"
+
+    _echo(stdout, stderr)
+    combined = _text(stdout) + _text(stderr)
+    if TRACEBACK_MARKER in combined:
+        return False, "uncaught exception (traceback)"
+
+    if expect == "graceful_fail":
+        if rc == 0:
+            return False, "expected graceful failure but exited 0"
+        return True, "failed gracefully"
+
+    if rc != 0:
+        return False, f"exit code {rc}"
+    if not _text(stdout).strip():
+        return False, "no output produced"
+    return True, "ok"
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 
-def main():
-    hr("═")
-    print(f"{BOLD}  Upstox API Examples — Test Runner{RESET}")
-    print(f"  {len(EXAMPLES)} examples across 10 categories")
-    hr("═")
-    print()
-
-    # Ask for token
+def _resolve_token(cli_token):
+    """Use --token when supplied, else prompt interactively."""
+    if cli_token:
+        return cli_token.strip()
     try:
-        token = input("  Paste your Upstox analytics or access token: ").strip()
+        return input("  Paste your Upstox analytics or access token: ").strip()
     except (KeyboardInterrupt, EOFError):
         print("\nAborted.")
         sys.exit(0)
 
+
+def run_suite(title, entries, token, expect, passed, failed, total, offset):
+    """Run one group of examples, appending to passed/failed. Returns next offset."""
+    current_category = None
+    for j, (category, script, extra_args) in enumerate(entries):
+        i = offset + j + 1
+        if category != current_category:
+            current_category = category
+            print()
+            print(f"{CYAN}{BOLD}  ── {category} {'─' * (50 - len(category))}{RESET}")
+
+        print()
+        print(f"{BOLD}  [{i}/{total}] {script}{RESET}")
+        if extra_args:
+            print(f"{DIM}  args: {' '.join(extra_args)}{RESET}")
+        hr()
+
+        ok, reason = run_example(script, token, extra_args, expect=expect)
+        if ok:
+            print(f"\n{GREEN}  ✓ PASSED{RESET} {DIM}({reason}){RESET}")
+            passed.append(script)
+        else:
+            print(f"\n{RED}  ✗ FAILED — {reason}{RESET}")
+            failed.append(f"{script}  [{reason}]")
+    return offset + len(entries)
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Run and validate all Upstox API examples")
+    parser.add_argument("--token", default=None, help="Upstox access or analytics token")
+    args = parser.parse_args()
+
+    total = len(EXAMPLES) + len(EDGE_CASES)
+
+    hr("═")
+    print(f"{BOLD}  Upstox API Examples — Test Runner{RESET}")
+    print(f"  {len(EXAMPLES)} examples + {len(EDGE_CASES)} edge cases = {total} checks")
+    hr("═")
+    print()
+
+    token = _resolve_token(args.token)
     if not token:
         print(f"{RED}  No token provided. Exiting.{RESET}")
         sys.exit(1)
@@ -206,35 +326,11 @@ def main():
         print(f"{RED}✗ {msg}{RESET}")
         sys.exit(1)
 
-    print()
-
     passed = []
     failed = []
-    current_category = None
 
-    for i, (category, script, extra_args) in enumerate(EXAMPLES, start=1):
-        # Print category header when it changes
-        if category != current_category:
-            current_category = category
-            print()
-            print(f"{CYAN}{BOLD}  ── {category} {'─' * (50 - len(category))}{RESET}")
-
-        # Print test header
-        print()
-        print(f"{BOLD}  [{i}/{len(EXAMPLES)}] {script}{RESET}")
-        if extra_args:
-            print(f"{DIM}  args: {' '.join(extra_args)}{RESET}")
-        hr()
-
-        # Run it
-        ok = run_example(script, token, extra_args)
-
-        if ok:
-            print(f"\n{GREEN}  ✓ PASSED{RESET}")
-            passed.append(script)
-        else:
-            print(f"\n{RED}  ✗ FAILED (exit code non-zero){RESET}")
-            failed.append(script)
+    offset = run_suite("Examples", EXAMPLES, token, "success", passed, failed, total, 0)
+    run_suite("Edge Cases", EDGE_CASES, token, "graceful_fail", passed, failed, total, offset)
 
     # Summary
     print()
@@ -243,10 +339,11 @@ def main():
     hr("═")
 
     if failed:
-        print(f"\n{RED}  Failed scripts:{RESET}")
+        print(f"\n{RED}  Failed checks:{RESET}")
         for s in failed:
             print(f"    • {s}")
         print()
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
