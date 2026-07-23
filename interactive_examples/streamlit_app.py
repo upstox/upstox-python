@@ -234,7 +234,14 @@ def fetch_one(client, query, expiry, itype, offset):
 
 
 def fetch_options_range(client, query, expiry, itype, n, bar=None):
-    """Fetch options instruments for offsets -n … +n, deduped by strike."""
+    """
+    Fetch options instruments for offsets -n … +n, deduped by (strike, type).
+
+    itype may be a single type ("CE"/"PE") or several ("CE,PE"). We request one
+    record per requested type per offset so a mixed request returns both legs at
+    each strike, and dedup by (strike, instrument_type) so neither leg is dropped.
+    """
+    n_types = max(1, len([t for t in itype.split(",") if t.strip()]))
     instruments, seen, unique = [], set(), []
     total = n * 2 + 1
     for i, offset in enumerate(range(-n, n + 1)):
@@ -242,15 +249,14 @@ def fetch_options_range(client, query, expiry, itype, n, bar=None):
             client, query,
             exchanges="NSE", segments="FO",
             instrument_types=itype, expiry=expiry,
-            atm_offset=offset, records=1,
+            atm_offset=offset, records=n_types,
         )
         data = resp.data or []
-        if data:
-            instruments.append(data[0])
+        instruments.extend(data)
         if bar:
             bar.progress((i + 1) / total)
     for inst in instruments:
-        k = inst.get("strike_price", 0)
+        k = (inst.get("strike_price", 0), inst.get("instrument_type", ""))
         if k not in seen:
             seen.add(k)
             unique.append(inst)
@@ -300,6 +306,17 @@ def _nearest_expiry(client, query):
     return hits[0].get("expiry", "") if hits else ""
 
 
+def _news_time(v):
+    """Format an epoch-millisecond timestamp as YYYY-MM-DD HH:MM (IST); passthrough otherwise."""
+    if v in (None, ""):
+        return ""
+    try:
+        ist = timezone(timedelta(hours=5, minutes=30))
+        return datetime.fromtimestamp(int(v) / 1000, tz=ist).strftime("%Y-%m-%d %H:%M")
+    except (TypeError, ValueError):
+        return str(v)
+
+
 # ── Page header ───────────────────────────────────────────────────────────────
 st.title(example)
 st.caption(f"Category: {category}")
@@ -346,7 +363,10 @@ elif example == "Search Futures":
 
     if st.button("🔍 Search", type="primary"):
         with st.spinner("Searching…"):
-            futures = get_futures_sorted(client, query, exchange=exch, exact_symbol=exact)
+            # MCX commodity futures live under the COMM segment; NSE/BSE under FO.
+            seg = "COMM" if exch == "MCX" else "FO"
+            futures = get_futures_sorted(client, query, exchange=exch,
+                                         exact_symbol=exact, segment=seg)
         if not futures:
             st.warning(f"No futures found for '{query}'.")
         else:
@@ -1620,7 +1640,10 @@ elif example == "Futures OI Buildup":
 
     if st.button("▶ Analyse OI Buildup", type="primary"):
         with st.spinner("Searching futures…"):
-            futures = get_futures_sorted(client, query, exchange=exch, exact_symbol=False)
+            # MCX commodity futures live under the COMM segment; NSE/BSE under FO.
+            seg = "COMM" if exch == "MCX" else "FO"
+            futures = get_futures_sorted(client, query, exchange=exch,
+                                         exact_symbol=False, segment=seg)
         if not futures:
             st.warning(f"No futures found for '{query}'."); st.stop()
 
@@ -1760,6 +1783,9 @@ elif example == "Option Greeks":
     strikes = c2.slider("Strikes each side", 1, 8, 4)
     expiry = c3.selectbox("Expiry", ["current_month", "current_week", "next_month"])
 
+    # SENSEX / BANKEX options are on BSE; everything else on NSE.
+    exch = "BSE" if query.strip().upper() in ("SENSEX", "BANKEX") else "NSE"
+
     if st.button("▶ Fetch Greeks", type="primary"):
         bar = st.progress(0)
         ce_insts, pe_insts = [], []
@@ -1767,7 +1793,7 @@ elif example == "Option Greeks":
 
         for i, offset in enumerate(range(-strikes, strikes + 1)):
             for itype, store in [("CE", ce_insts), ("PE", pe_insts)]:
-                resp = search_instrument(client, query, exchanges="NSE", segments="FO",
+                resp = search_instrument(client, query, exchanges=exch, segments="FO",
                                          instrument_types=itype, expiry=expiry,
                                          atm_offset=offset, records=1)
                 d = resp.data or []
@@ -1797,7 +1823,7 @@ elif example == "Option Greeks":
             for key, val in gresp.data.items():
                 gdata[key] = val
 
-        atm_resp = search_instrument(client, query, exchanges="NSE", segments="FO",
+        atm_resp = search_instrument(client, query, exchanges=exch, segments="FO",
                                      instrument_types="CE", expiry=expiry, atm_offset=0, records=1)
         atm_strike = (atm_resp.data or [{}])[0].get("strike_price", 0)
 
@@ -4340,25 +4366,38 @@ elif example == "Market News":
             except Exception as e:
                 st.error(f"API error: {e}"); st.stop()
 
-        data = as_dict(response.data)
-        articles = data.get("news") or data.get("articles") or (
-            response.data if isinstance(response.data, list) else [])
+        # The News API returns a dict keyed by instrument_key (each value a list
+        # of articles) for category=instrument_keys, or a flat list otherwise.
+        raw = response.data
+        articles = []
+        if isinstance(raw, dict):
+            if isinstance(raw.get("news"), list):
+                articles = raw["news"]
+            else:
+                for v in raw.values():
+                    if isinstance(v, list):
+                        articles.extend(v)
+                    elif isinstance(v, dict):
+                        articles.append(v)
+        elif isinstance(raw, list):
+            articles = raw
         if not articles:
             st.warning("No news articles returned."); st.stop()
 
         st.success(f"{len(articles)} articles")
         for art in articles:
             a = as_dict(art)
-            headline = a.get("headline") or a.get("title") or "—"
-            source   = a.get("source") or a.get("publisher") or "—"
-            when     = a.get("published_at") or a.get("date") or a.get("timestamp") or ""
+            headline = a.get("heading") or a.get("headline") or a.get("title") or "—"
+            link     = a.get("article_link") or a.get("link") or ""
+            when     = _news_time(a.get("published_time") or a.get("published_at") or a.get("timestamp"))
             summary  = a.get("summary") or a.get("description") or ""
             st.markdown(f"**{headline}**")
-            meta = " · ".join(str(x) for x in (source, when) if x and x != "—")
-            if meta:
-                st.caption(meta)
+            if when:
+                st.caption(when)
             if summary:
                 st.write(summary)
+            if link:
+                st.caption(f"[Read more]({link})")
             st.divider()
 
 
