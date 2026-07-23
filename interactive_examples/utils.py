@@ -192,6 +192,37 @@ def resolve_equity(api_client: upstox_client.ApiClient, symbol: str):
     return hits[0] if hits else None
 
 
+# Common index names users may type into an order/brokerage/margin tool by
+# mistake — indices cannot be traded directly, so those examples reject them.
+INDEX_SYMBOLS = {
+    "NIFTY", "NIFTY50", "NIFTY 50", "BANKNIFTY", "NIFTY BANK", "NIFTYBANK",
+    "FINNIFTY", "NIFTY FIN SERVICE", "MIDCPNIFTY", "NIFTY MID SELECT",
+    "NIFTYNXT50", "SENSEX", "BANKEX",
+}
+
+
+def index_instrument(api_client: upstox_client.ApiClient, symbol: str):
+    """
+    Return the matching INDEX instrument dict if *symbol* names a market index
+    (which cannot be traded directly), else None.
+
+    Order/brokerage/margin examples use this to reject index inputs with a clear
+    message instead of silently pricing a look-alike ETF (e.g. NIFTY → NIFTYBEES).
+    """
+    norm = " ".join(symbol.strip().upper().split())
+    flat = norm.replace(" ", "")
+    resp = search_instrument(api_client, symbol, segments="INDEX", records=5)
+    for h in (resp.data or []):
+        for field in ("trading_symbol", "underlying_symbol", "name"):
+            val = " ".join(str(h.get(field, "")).upper().split())
+            if norm and (norm == val or flat == val.replace(" ", "")):
+                return h
+    # Fast-path for well-known index names even when INDEX search is fuzzy.
+    if flat in {s.replace(" ", "") for s in INDEX_SYMBOLS}:
+        return (resp.data or [{}])[0] or {"trading_symbol": norm, "instrument_type": "INDEX"}
+    return None
+
+
 def resolve_underlying(api_client: upstox_client.ApiClient, symbol: str):
     """
     Resolve an underlying symbol for derivatives — tries INDEX first

@@ -30,6 +30,7 @@ from utils import (
     as_dict,
     resolve_equity,
     resolve_underlying,
+    index_instrument,
     get_expiries_list,
     most_recent_past_expiry,
 )
@@ -4531,9 +4532,15 @@ elif example == "Brokerage Calculator":
     if st.button("▶ Estimate Charges", type="primary"):
         with st.spinner("Estimating charges…"):
             try:
+                if index_instrument(client, symbol):
+                    st.error(f"'{symbol.upper()}' is a market index and cannot be traded "
+                             f"directly. Enter a tradable stock or ETF symbol "
+                             f"(e.g. RELIANCE, or NIFTYBEES for the NIFTY ETF)."); st.stop()
                 inst = resolve_equity(client, symbol)
                 if not inst:
                     st.error(f"No NSE equity instrument found for '{symbol}'."); st.stop()
+                st.caption(f"Resolved '{symbol}' → **{inst.get('trading_symbol')}** — "
+                           f"{inst.get('name','')} `[{inst.get('instrument_key','')}]`")
                 api = upstox_client.ChargeApi(client)
                 response = api.get_brokerage(
                     inst.get("instrument_key", ""), int(quantity), product,
@@ -4581,9 +4588,15 @@ elif example == "Margin Calculator":
     if st.button("▶ Estimate Margin", type="primary"):
         with st.spinner("Estimating margin…"):
             try:
+                if index_instrument(client, symbol):
+                    st.error(f"'{symbol.upper()}' is a market index and cannot be traded "
+                             f"directly. Enter a tradable stock or ETF symbol "
+                             f"(e.g. RELIANCE, or NIFTYBEES for the NIFTY ETF)."); st.stop()
                 inst = resolve_equity(client, symbol)
                 if not inst:
                     st.error(f"No NSE equity instrument found for '{symbol}'."); st.stop()
+                st.caption(f"Resolved '{symbol}' → **{inst.get('trading_symbol')}** — "
+                           f"{inst.get('name','')} `[{inst.get('instrument_key','')}]`")
                 instrument = upstox_client.Instrument(
                     instrument_key=inst.get("instrument_key", ""),
                     quantity=int(quantity), product=product,

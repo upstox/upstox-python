@@ -307,7 +307,7 @@ python expired_instruments/expired_historical.py --token <TOKEN> --query NIFTY -
 ---
 
 ### Charges & Margin
-*Uses the [Upstox Charge API](https://upstox.com/developer/api-documentation/). These **compute** brokerage and required margin for a prospective order — nothing is sent to the exchange, no order is placed.*
+*Uses the [Upstox Charge API](https://upstox.com/developer/api-documentation/). These **compute** brokerage and required margin for a prospective order — nothing is sent to the exchange, no order is placed. Index inputs (NIFTY, BANKNIFTY, SENSEX, …) are rejected because an index isn't tradable — enter a stock or ETF (e.g. RELIANCE, or NIFTYBEES for the NIFTY ETF); the resolved instrument is echoed so there is no silent substitution.*
 
 | Script | What it does |
 |---|---|

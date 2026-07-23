@@ -16,7 +16,7 @@ import sys
 import os
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-from utils import get_api_client, resolve_equity, as_dict, die
+from utils import get_api_client, resolve_equity, index_instrument, as_dict, die
 import upstox_client
 
 BOLD  = "\033[1m"
@@ -47,14 +47,24 @@ def main():
 
     client = get_api_client(args.token)
 
+    # Indices are not tradable — reject them instead of silently pricing a
+    # look-alike ETF (e.g. NIFTY resolving to NIFTYBEES).
+    idx = index_instrument(client, args.symbol)
+    if idx:
+        die(f"'{args.symbol.upper()}' is a market index and cannot be traded directly. "
+            f"Enter a tradable stock or ETF symbol (e.g. RELIANCE, or NIFTYBEES for the NIFTY ETF).")
+
     inst = resolve_equity(client, args.symbol)
     if not inst:
         die(f"No NSE equity instrument found for '{args.symbol}'.")
     instrument_key = inst.get("instrument_key", "")
+    resolved = inst.get("trading_symbol") or args.symbol.upper()
 
     print(f"\n{BOLD}Estimating required margin{RESET} for {args.transaction_type} "
-          f"{args.quantity} × {args.symbol.upper()} @ {args.price:,.2f} "
-          f"(product={args.product})...\n")
+          f"{args.quantity} × {resolved} @ {args.price:,.2f} "
+          f"(product={args.product})...")
+    print(f"  {DIM}Resolved '{args.symbol}' → {resolved} — {inst.get('name', '')} "
+          f"[{instrument_key}]{RESET}\n")
 
     instrument = upstox_client.Instrument(
         instrument_key=instrument_key,
