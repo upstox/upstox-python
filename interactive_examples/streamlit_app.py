@@ -179,42 +179,47 @@ def require_client():
     return get_api_client(token)
 
 
+def _field(obj, name, default):
+    """Read a field from a dict OR an SDK model object, without assuming either.
+
+    A dict → .get; a model → getattr. This avoids calling .get on a model that
+    lacks the attribute (e.g. reading .cp off a full-quote model, which is not a
+    dict and has no such attribute) — which would raise AttributeError.
+    """
+    if obj is None:
+        return default
+    if isinstance(obj, dict):
+        return obj.get(name, default)
+    val = getattr(obj, name, default)
+    return default if val is None else val
+
+
 def lv(obj):
     """last_price from LTP or full-quote object."""
-    if obj is None:
-        return 0.0
-    return obj.last_price if hasattr(obj, "last_price") else obj.get("last_price", 0.0)
+    return _field(obj, "last_price", 0.0)
 
 
 def vv(obj):
     """volume."""
-    if obj is None:
-        return 0
-    return obj.volume if hasattr(obj, "volume") else obj.get("volume", 0)
+    return _field(obj, "volume", 0)
 
 
 def cv(obj):
     """close / previous-close from LTP object (.cp)."""
-    if obj is None:
-        return 0.0
-    return obj.cp if hasattr(obj, "cp") else obj.get("cp", 0.0)
+    return _field(obj, "cp", 0.0)
 
 
 def ov(obj):
     """open interest from full-quote object."""
-    if obj is None:
-        return 0
-    return obj.oi if hasattr(obj, "oi") else obj.get("oi", 0)
+    return _field(obj, "oi", 0)
 
 
 def ohlc(obj):
     """Returns (open, high, low, close) from full-quote object."""
     if obj is None:
         return 0.0, 0.0, 0.0, 0.0
-    o = obj.ohlc if hasattr(obj, "ohlc") else obj.get("ohlc", {})
-    if hasattr(o, "open"):
-        return o.open, o.high, o.low, o.close
-    return o.get("open", 0.0), o.get("high", 0.0), o.get("low", 0.0), o.get("close", 0.0)
+    o = _field(obj, "ohlc", {})
+    return _field(o, "open", 0.0), _field(o, "high", 0.0), _field(o, "low", 0.0), _field(o, "close", 0.0)
 
 
 def dte(expiry_str: str) -> int:
@@ -3774,7 +3779,9 @@ elif example == "IV Percentile":
 
         ce_iv = _extract(atm_entry, "call_options", "option_greeks", "iv")
         pe_iv = _extract(atm_entry, "put_options", "option_greeks", "iv")
-        atm_iv = ((ce_iv or 0) + (pe_iv or 0)) / 2 * 100
+        # option_greeks.iv is already a percentage (e.g. 11.5 = 11.5%) — average
+        # the legs directly; do NOT ×100 again (that inflated ATM IV ~100x).
+        atm_iv = ((ce_iv or 0) + (pe_iv or 0)) / 2
         atm_strike = _extract(atm_entry, "strike_price")
         if atm_iv <= 0:
             st.warning("ATM IV is zero or unavailable."); st.stop()
@@ -4174,7 +4181,15 @@ elif example == "Beta Calculator":
 
         fig = px.scatter(x=nifty_rets, y=stock_rets, template="plotly_dark",
                          labels={"x": "NIFTY daily return", "y": f"{trading_symbol} daily return"},
-                         title="Return scatter (stock vs NIFTY)", trendline="ols")
+                         title="Return scatter (stock vs NIFTY)")
+        # Regression (beta) line via numpy — px trendline="ols" needs the optional
+        # statsmodels package, which isn't a dependency of these examples.
+        if len(nifty_rets) >= 2:
+            slope, intercept = np.polyfit(nifty_rets, stock_rets, 1)
+            xs = [min(nifty_rets), max(nifty_rets)]
+            fig.add_trace(go.Scatter(x=xs, y=[slope * x + intercept for x in xs],
+                                     mode="lines", name=f"fit (β={slope:.2f})",
+                                     line=dict(color="#f1c40f")))
         st.plotly_chart(fig, use_container_width=True)
 
 

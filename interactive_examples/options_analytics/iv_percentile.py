@@ -148,7 +148,9 @@ def main():
 
     ce_iv = extract(atm_entry, "call_options", "option_greeks", "iv")
     pe_iv = extract(atm_entry, "put_options", "option_greeks", "iv")
-    atm_iv = ((ce_iv or 0) + (pe_iv or 0)) / 2 * 100  # as percentage
+    # option_greeks.iv is already a percentage (e.g. 11.5 = 11.5%) — average the
+    # two legs directly; do NOT multiply by 100 again (that inflated IV ~100x).
+    atm_iv = ((ce_iv or 0) + (pe_iv or 0)) / 2
     atm_strike = extract(atm_entry, "strike_price")
 
     if atm_iv <= 0:
