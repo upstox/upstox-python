@@ -1,7 +1,7 @@
 """
 Upstox API Explorer — Streamlit web app.
 
-All 38 examples from the CLI scripts wrapped in an interactive UI.
+All 73 examples from the CLI scripts wrapped in an interactive UI.
 Paste your analytics (or daily access) token in the sidebar and explore.
 """
 
@@ -26,6 +26,12 @@ from utils import (
     get_historical_candles,
     get_ltp,
     search_instrument,
+    get_ohlc_quote,
+    as_dict,
+    resolve_equity,
+    resolve_underlying,
+    get_expiries_list,
+    most_recent_past_expiry,
 )
 
 # ── Page config ───────────────────────────────────────────────────────────────
@@ -81,6 +87,11 @@ with st.sidebar:
             "Gamma Exposure",
             "Option Chain (Native)",
             "Option Greeks",
+            "PCR Trend",
+            "IV Percentile",
+            "Implied Move",
+            "Expiry Decay",
+            "Option Contracts",
         ],
         "⚖️ Arbitrage": [
             "NSE / BSE Arbitrage",
@@ -92,6 +103,9 @@ with st.sidebar:
             "Moving Average (SMA)",
             "Historical Volatility",
             "52-Week High / Low",
+            "VWAP",
+            "Beta Calculator",
+            "Stock Correlation",
         ],
         "🗂️ Portfolio & Screening": [
             "Sector Index Comparison",
@@ -106,6 +120,10 @@ with st.sidebar:
             "Live Depth (5-level)",
             "Live Depth MCX",
             "Live Depth USDINR",
+            "Live Depth (30-level)",
+            "OHLC Quote",
+            "Market News",
+            "Market Holiday",
         ],
         "📊 Market Information": [
             "FII Data",
@@ -124,6 +142,20 @@ with st.sidebar:
             "Corporate Actions",
             "Share Holdings",
             "Competitors",
+        ],
+        "👤 Account (Read-Only)": [
+            "User Profile",
+            "Funds & Margin",
+        ],
+        "💰 Charges & Margin": [
+            "Brokerage Calculator",
+            "Margin Calculator",
+        ],
+        "🗓️ Expired Instruments": [
+            "Expiries",
+            "Expired Option Contracts",
+            "Expired Future Contracts",
+            "Expired Historical Candles",
         ],
     }
 
@@ -231,6 +263,41 @@ def contango_label(spread):
     if spread < 0:
         return "🔴 **Backwardation** — far month at discount. Unusual — check news."
     return "⚪ Spread is zero — contracts at parity."
+
+
+# Index underlying keys shared by the extended options-analytics branches.
+INDEX_KEYS_OPT = {
+    "NIFTY":      "NSE_INDEX|Nifty 50",
+    "BANKNIFTY":  "NSE_INDEX|Nifty Bank",
+    "FINNIFTY":   "NSE_INDEX|Nifty Fin Service",
+    "MIDCPNIFTY": "NSE_INDEX|NIFTY MID SELECT",
+    "SENSEX":     "BSE_INDEX|SENSEX",
+}
+
+
+def _extract(obj, *keys, default=0):
+    """Walk nested dict/model attributes, returning `default` if any hop is missing."""
+    for key in keys:
+        if obj is None:
+            return default
+        obj = obj.get(key) if isinstance(obj, dict) else getattr(obj, key, None)
+    return obj if obj is not None else default
+
+
+def _resolve_underlying_key(client, query):
+    upper = query.upper()
+    if upper in INDEX_KEYS_OPT:
+        return INDEX_KEYS_OPT[upper]
+    resp = search_instrument(client, query, exchanges="NSE", segments="EQ", records=1)
+    hits = resp.data or []
+    return hits[0]["instrument_key"] if hits else ""
+
+
+def _nearest_expiry(client, query):
+    resp = search_instrument(client, query, exchanges="NSE", segments="FO",
+                             instrument_types="CE", expiry="current_month", records=1)
+    hits = resp.data or []
+    return hits[0].get("expiry", "") if hits else ""
 
 
 # ── Page header ───────────────────────────────────────────────────────────────
@@ -3533,6 +3600,1155 @@ elif example == "PCR":
         )
         st.plotly_chart(fig, use_container_width=True)
         st.caption("Put-call ratio over time; spot is plotted on the right axis for context.")
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# 📊 OPTIONS ANALYTICS (extended)
+# ═════════════════════════════════════════════════════════════════════════════
+
+elif example == "PCR Trend":
+    client = require_client()
+    c1, c2 = st.columns(2)
+    query   = c1.text_input("Underlying", value="NIFTY",
+                            help="Index (NIFTY, BANKNIFTY…) or stock symbol.")
+    expiry  = c2.text_input("Expiry (YYYY-MM-DD)", value="",
+                            help="Blank = nearest current-month expiry.")
+
+    st.caption("PCR > 1.2 → bullish (heavy put writing) · PCR < 0.8 → bearish "
+               "(heavy call writing) · 0.8–1.2 → neutral.")
+
+    if st.button("▶ Fetch PCR", type="primary"):
+        with st.spinner("Fetching option chain…"):
+            try:
+                underlying_key = _resolve_underlying_key(client, query)
+                if not underlying_key:
+                    st.error(f"Cannot resolve underlying for '{query}'."); st.stop()
+                exp = expiry.strip() or _nearest_expiry(client, query)
+                if not exp:
+                    st.error("Could not determine expiry. Enter one explicitly."); st.stop()
+                api = upstox_client.OptionsApi(client)
+                resp = api.get_put_call_option_chain(underlying_key, exp)
+            except Exception as e:
+                st.error(f"API error: {e}"); st.stop()
+
+        chain = resp.data if resp.data else []
+        if not isinstance(chain, list):
+            chain = [chain]
+        if not chain:
+            st.warning("No option chain data returned."); st.stop()
+
+        rows = []
+        for entry in chain:
+            strike = _extract(entry, "strike_price")
+            ce_oi  = _extract(entry, "call_options", "market_data", "oi")
+            pe_oi  = _extract(entry, "put_options", "market_data", "oi")
+            rows.append((strike, ce_oi, pe_oi))
+        rows.sort(key=lambda r: r[0])
+
+        total_ce = sum(r[1] for r in rows if r[1])
+        total_pe = sum(r[2] for r in rows if r[2])
+        overall_pcr = total_pe / total_ce if total_ce else 0
+
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Overall PCR", f"{overall_pcr:.2f}")
+        c2.metric("Total CE OI", f"{int(total_ce):,}")
+        c3.metric("Total PE OI", f"{int(total_pe):,}")
+
+        if overall_pcr > 1.2:
+            st.success("🟢 **Bullish bias** — heavy put writing, market likely supported.")
+        elif overall_pcr < 0.8:
+            st.error("🔴 **Bearish bias** — heavy call writing, market facing resistance.")
+        else:
+            st.info("⚪ **Neutral** — balanced OI, no strong directional signal.")
+
+        df = pd.DataFrame(rows, columns=["Strike", "CE OI", "PE OI"])
+        df["PCR"] = df.apply(lambda r: (r["PE OI"] / r["CE OI"]) if r["CE OI"] else 0, axis=1)
+
+        if total_ce or total_pe:
+            resistance = max(rows, key=lambda r: r[1])[0]
+            support    = max(rows, key=lambda r: r[2])[0]
+            k1, k2 = st.columns(2)
+            k1.metric("Key resistance (max CE OI)", f"{resistance:,.0f}")
+            k2.metric("Key support (max PE OI)",    f"{support:,.0f}")
+
+        st.dataframe(df, use_container_width=True, hide_index=True)
+
+        fig = go.Figure()
+        fig.add_trace(go.Bar(x=df["Strike"], y=df["CE OI"], name="CE OI",
+                             marker_color="#2ecc71"))
+        fig.add_trace(go.Bar(x=df["Strike"], y=df["PE OI"], name="PE OI",
+                             marker_color="#e74c3c"))
+        fig.update_layout(title=f"{query.upper()} — OI by strike ({exp})",
+                          template="plotly_dark", height=460, barmode="group",
+                          xaxis_title="Strike", yaxis_title="Open Interest")
+        st.plotly_chart(fig, use_container_width=True)
+
+
+elif example == "IV Percentile":
+    client = require_client()
+    c1, c2, c3 = st.columns(3)
+    query   = c1.text_input("Underlying", value="NIFTY")
+    days    = c2.number_input("Lookback trading days", 60, 500, 252)
+    window  = c3.number_input("HV rolling window", 5, 60, 20)
+
+    st.caption("IV Percentile >80% → options expensive (favour selling) · "
+               "<20% → cheap (favour buying).")
+
+    if st.button("▶ Compute IV Percentile", type="primary"):
+        with st.spinner("Fetching history & option chain…"):
+            try:
+                instrument_key = INDEX_KEYS_OPT.get(query.upper()) or _resolve_underlying_key(client, query)
+                if not instrument_key:
+                    st.error(f"Cannot resolve instrument for '{query}'."); st.stop()
+
+                to_date   = date.today().isoformat()
+                from_date = (date.today() - timedelta(days=int(days * 1.6))).isoformat()
+                candles = get_historical_candles(client, instrument_key, "days", 1, to_date, from_date)
+                if not candles:
+                    st.warning("No historical candle data returned."); st.stop()
+
+                candles = list(reversed(candles))
+                closes  = [float(c[4]) for c in candles if len(c) > 4]
+                if len(closes) < window + 10:
+                    st.warning(f"Insufficient data: {len(closes)} closes."); st.stop()
+
+                hv_values = []
+                for i in range(window, len(closes)):
+                    seg = closes[i - window:i + 1]
+                    log_rets = [math.log(seg[j] / seg[j - 1]) for j in range(1, len(seg))]
+                    if len(log_rets) >= 2:
+                        hv_values.append(np.std(log_rets, ddof=1) * math.sqrt(252) * 100)
+                if not hv_values:
+                    st.warning("Could not compute historical volatility."); st.stop()
+
+                underlying_key = INDEX_KEYS_OPT.get(query.upper(), instrument_key)
+                exp = _nearest_expiry(client, query)
+                if not exp:
+                    st.error("Could not determine expiry for ATM IV lookup."); st.stop()
+                api  = upstox_client.OptionsApi(client)
+                resp = api.get_put_call_option_chain(underlying_key, exp)
+            except Exception as e:
+                st.error(f"API error: {e}"); st.stop()
+
+        chain = resp.data if resp.data else []
+        if not isinstance(chain, list):
+            chain = [chain]
+
+        spot = closes[-1]
+        atm_entry, min_diff = None, float("inf")
+        for entry in chain:
+            strike = _extract(entry, "strike_price")
+            if strike and abs(strike - spot) < min_diff:
+                min_diff = abs(strike - spot)
+                atm_entry = entry
+        if not atm_entry:
+            st.warning("Could not find ATM strike in option chain."); st.stop()
+
+        ce_iv = _extract(atm_entry, "call_options", "option_greeks", "iv")
+        pe_iv = _extract(atm_entry, "put_options", "option_greeks", "iv")
+        atm_iv = ((ce_iv or 0) + (pe_iv or 0)) / 2 * 100
+        atm_strike = _extract(atm_entry, "strike_price")
+        if atm_iv <= 0:
+            st.warning("ATM IV is zero or unavailable."); st.stop()
+
+        hv_min, hv_max = min(hv_values), max(hv_values)
+        iv_percentile = sum(1 for hv in hv_values if hv < atm_iv) / len(hv_values) * 100
+        iv_rank = (atm_iv - hv_min) / (hv_max - hv_min) * 100 if hv_max > hv_min else 50
+
+        c1, c2, c3, c4 = st.columns(4)
+        c1.metric("Spot", f"{spot:,.2f}")
+        c2.metric("ATM Strike", f"{atm_strike:,.0f}")
+        c3.metric("ATM IV", f"{atm_iv:.1f}%")
+        c4.metric("Current HV", f"{hv_values[-1]:.1f}%")
+
+        c1, c2 = st.columns(2)
+        c1.metric("IV Percentile", f"{iv_percentile:.0f}%")
+        c2.metric("IV Rank",       f"{iv_rank:.0f}%")
+
+        if iv_percentile > 80:
+            st.error("🔴 **IV is HIGH** — options expensive vs history. "
+                     "Consider short straddles, iron condors, credit spreads.")
+        elif iv_percentile < 20:
+            st.success("🟢 **IV is LOW** — options cheap vs history. "
+                       "Consider long straddles/strangles, debit spreads.")
+        else:
+            st.info("⚪ **IV is NORMAL** — no extreme relative to history.")
+
+        fig = px.histogram(x=hv_values, nbins=30, template="plotly_dark",
+                           labels={"x": "Historical Volatility (%)"},
+                           title=f"{query.upper()} — {window}-day rolling HV distribution")
+        fig.add_vline(x=atm_iv, line_color="#f1c40f", line_dash="dash",
+                      annotation_text=f"ATM IV {atm_iv:.1f}%")
+        st.plotly_chart(fig, use_container_width=True)
+
+
+elif example == "Implied Move":
+    client = require_client()
+    c1, c2 = st.columns(2)
+    query  = c1.text_input("Underlying", value="NIFTY")
+    expiry = c2.text_input("Expiry filter", value="current_month",
+                           help="current_week / current_month / YYYY-MM-DD")
+
+    st.caption("Expected move = ATM CE premium + ATM PE premium (ATM straddle). "
+               "Price stays within ±1 move ~68% of the time.")
+
+    if st.button("▶ Calculate Implied Move", type="primary"):
+        with st.spinner("Fetching spot & ATM straddle…"):
+            try:
+                query_upper = query.upper()
+                spot_key = INDEX_KEYS_OPT.get(query_upper)
+                if spot_key:
+                    spot = lv(get_ltp(client, spot_key).get(spot_key))
+                else:
+                    eq = resolve_equity(client, query)
+                    if not eq:
+                        st.error(f"Cannot find '{query}'."); st.stop()
+                    eq_key = eq["instrument_key"]
+                    spot = lv(get_ltp(client, eq_key).get(eq_key))
+                if not spot:
+                    st.error("Could not fetch spot price."); st.stop()
+
+                ce = fetch_one(client, query, expiry, "CE", 0)
+                pe = fetch_one(client, query, expiry, "PE", 0)
+                if not ce or not pe:
+                    st.error("Could not find ATM options. Try a different expiry."); st.stop()
+
+                ce_key, pe_key = ce["instrument_key"], pe["instrument_key"]
+                ce_strike   = ce.get("strike_price", 0)
+                expiry_date = ce.get("expiry", expiry)
+                ltp_data = get_ltp(client, ce_key, pe_key)
+                ce_prem = lv(ltp_data.get(ce_key)) or 0
+                pe_prem = lv(ltp_data.get(pe_key)) or 0
+            except Exception as e:
+                st.error(f"API error: {e}"); st.stop()
+
+        if not ce_prem and not pe_prem:
+            st.warning("Could not fetch ATM option premiums."); st.stop()
+
+        expected_move = ce_prem + pe_prem
+        move_pct = expected_move / spot * 100 if spot else 0
+        upper, lower = spot + expected_move, spot - expected_move
+
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Spot", f"{spot:,.2f}")
+        c2.metric("ATM Strike", f"{ce_strike:,.0f}")
+        c3.metric("Expiry", str(expiry_date))
+
+        c1, c2, c3 = st.columns(3)
+        c1.metric("ATM CE premium", f"{ce_prem:,.2f}")
+        c2.metric("ATM PE premium", f"{pe_prem:,.2f}")
+        c3.metric("Straddle cost", f"{expected_move:,.2f}")
+
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Expected Move", f"{expected_move:,.2f}", f"{move_pct:.2f}%")
+        c2.metric("Upper bound", f"{upper:,.2f}", f"+{move_pct:.2f}%")
+        c3.metric("Lower bound", f"{lower:,.2f}", f"-{move_pct:.2f}%", delta_color="inverse")
+
+        st.info(f"The market expects **{query_upper}** to stay within "
+                f"**{lower:,.2f} – {upper:,.2f}** by expiry (~68% probability).")
+
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=[lower, spot, upper], y=[0, 0, 0], mode="markers+text",
+                                 text=[f"Lower {lower:,.0f}", f"Spot {spot:,.0f}", f"Upper {upper:,.0f}"],
+                                 textposition="top center", marker=dict(size=14,
+                                 color=["#e74c3c", "#3498db", "#2ecc71"])))
+        fig.add_shape(type="line", x0=lower, x1=upper, y0=0, y1=0, line=dict(color="#888"))
+        fig.update_layout(title="Expected move range", template="plotly_dark",
+                          height=260, yaxis=dict(visible=False), xaxis_title="Price")
+        st.plotly_chart(fig, use_container_width=True)
+
+
+elif example == "Expiry Decay":
+    client = require_client()
+    c1, c2, c3 = st.columns(3)
+    query   = c1.text_input("Underlying", value="NIFTY")
+    expiry  = c2.text_input("Expiry filter", value="current_week",
+                            help="current_week / current_month / YYYY-MM-DD")
+    strikes = c3.number_input("Strikes each side of ATM", 1, 10, 3)
+
+    st.caption("Near expiry, ATM options lose value rapidly (theta acceleration). "
+               "Premium is shown as % of spot.")
+
+    if st.button("▶ Track Decay", type="primary"):
+        with st.spinner("Fetching premiums…"):
+            try:
+                query_upper = query.upper()
+                spot_key = INDEX_KEYS_OPT.get(query_upper)
+                spot = 0
+                if spot_key:
+                    spot = lv(get_ltp(client, spot_key).get(spot_key))
+                if not spot:
+                    eq = resolve_equity(client, query)
+                    if eq:
+                        eq_key = eq["instrument_key"]
+                        spot = lv(get_ltp(client, eq_key).get(eq_key))
+                if not spot:
+                    st.error("Could not fetch spot price."); st.stop()
+
+                bar = st.progress(0.0)
+                ce_list = fetch_options_range(client, query, expiry, "CE", int(strikes), bar)
+                pe_list = fetch_options_range(client, query, expiry, "PE", int(strikes), bar)
+                bar.empty()
+                if not ce_list and not pe_list:
+                    st.warning("No options found. Try a different expiry."); st.stop()
+
+                all_keys = [i["instrument_key"] for i in ce_list + pe_list]
+                ltp_data = get_ltp(client, *all_keys) if all_keys else {}
+                ce_map = {i.get("strike_price", 0): (lv(ltp_data.get(i["instrument_key"])) or 0) for i in ce_list}
+                pe_map = {i.get("strike_price", 0): (lv(ltp_data.get(i["instrument_key"])) or 0) for i in pe_list}
+                expiry_label = ce_list[0].get("expiry", expiry) if ce_list else expiry
+            except Exception as e:
+                st.error(f"API error: {e}"); st.stop()
+
+        all_strikes = sorted(set(list(ce_map.keys()) + list(pe_map.keys())))
+        atm_strike = min(all_strikes, key=lambda s: abs(s - spot)) if all_strikes else 0
+
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Spot", f"{spot:,.2f}")
+        c2.metric("ATM", f"{atm_strike:,.0f}")
+        c3.metric("Expiry", str(expiry_label))
+
+        rows = []
+        for strike in all_strikes:
+            ce_p = ce_map.get(strike, 0)
+            pe_p = pe_map.get(strike, 0)
+            straddle = ce_p + pe_p
+            rows.append({
+                "Strike": strike,
+                "CE Prem": ce_p, "CE %Spot": ce_p / spot * 100 if spot else 0,
+                "PE Prem": pe_p, "PE %Spot": pe_p / spot * 100 if spot else 0,
+                "Straddle": straddle, "Straddle %": straddle / spot * 100 if spot else 0,
+            })
+        df = pd.DataFrame(rows)
+
+        atm_total = ce_map.get(atm_strike, 0) + pe_map.get(atm_strike, 0)
+        atm_pct = atm_total / spot * 100 if spot else 0
+        st.metric("ATM straddle premium", f"{atm_total:,.2f}", f"{atm_pct:.2f}% of spot")
+        if atm_pct < 0.5:
+            st.info("Very low premium — theta decay is nearly complete.")
+        elif atm_pct < 1.5:
+            st.info("Moderate premium — significant decay expected if near expiry.")
+        else:
+            st.success("Substantial premium remaining — time value still meaningful.")
+
+        st.dataframe(df, use_container_width=True, hide_index=True)
+
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=df["Strike"], y=df["Straddle"], mode="lines+markers",
+                                 name="Straddle", line=dict(color="#9b59b6")))
+        fig.add_vline(x=atm_strike, line_color="#f1c40f", line_dash="dash",
+                      annotation_text="ATM")
+        fig.update_layout(title=f"{query_upper} — straddle premium by strike ({expiry_label})",
+                          template="plotly_dark", height=420,
+                          xaxis_title="Strike", yaxis_title="Straddle premium")
+        st.plotly_chart(fig, use_container_width=True)
+
+
+elif example == "Option Contracts":
+    client = require_client()
+    c1, c2 = st.columns(2)
+    query  = c1.text_input("Underlying", value="NIFTY")
+    expiry = c2.text_input("Expiry filter (YYYY-MM-DD)", value="",
+                           help="Blank = all listed expiries.")
+
+    st.caption("Raw contract master (CE/PE strikes) via the Options API.")
+
+    if st.button("▶ Fetch Contracts", type="primary"):
+        with st.spinner("Fetching option contracts…"):
+            try:
+                inst = resolve_underlying(client, query)
+                if not inst:
+                    st.error(f"Could not resolve an underlying for '{query}'."); st.stop()
+                instrument_key = inst.get("instrument_key", "")
+                api = upstox_client.OptionsApi(client)
+                if expiry.strip():
+                    response = api.get_option_contracts(instrument_key, expiry_date=expiry.strip())
+                else:
+                    response = api.get_option_contracts(instrument_key)
+            except Exception as e:
+                st.error(f"API error: {e}"); st.stop()
+
+        contracts = response.data or []
+        if not contracts:
+            st.warning("No option contracts returned."); st.stop()
+
+        rows = sorted(
+            (as_dict(c) for c in contracts),
+            key=lambda d: (str(d.get("expiry") or ""), d.get("strike_price") or 0,
+                           d.get("instrument_type") or ""),
+        )
+        df = pd.DataFrame([{
+            "Expiry": str(d.get("expiry") or "")[:10],
+            "Type":   (d.get("instrument_type") or "").upper(),
+            "Strike": d.get("strike_price"),
+            "Trading Symbol": d.get("trading_symbol"),
+            "Instrument Key": d.get("instrument_key"),
+        } for d in rows])
+
+        st.success(f"Fetched {len(df)} contracts for {query.upper()}.")
+        st.dataframe(df, use_container_width=True, hide_index=True)
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# 📉 HISTORICAL ANALYSIS (extended)
+# ═════════════════════════════════════════════════════════════════════════════
+
+elif example == "VWAP":
+    client = require_client()
+    c1, c2 = st.columns(2)
+    query     = c1.text_input("Stock", value="RELIANCE")
+    instr_key = c2.text_input("Instrument Key (optional)", value="",
+                              help="Direct key skips the search step.")
+
+    st.caption("VWAP = Σ(Typical Price × Volume) / Σ(Volume), "
+               "Typical Price = (High + Low + Close) / 3.")
+
+    if st.button("▶ Compute VWAP", type="primary"):
+        with st.spinner("Fetching intraday candles…"):
+            try:
+                if instr_key.strip():
+                    instrument_key = instr_key.strip()
+                    trading_symbol = query.upper()
+                else:
+                    eq = resolve_equity(client, query)
+                    if not eq:
+                        st.error(f"Instrument '{query}' not found on NSE."); st.stop()
+                    instrument_key = eq["instrument_key"]
+                    trading_symbol = eq.get("trading_symbol", query.upper())
+
+                candles = get_historical_candles(client, instrument_key, "minutes", 1,
+                                                 date.today().isoformat())
+            except Exception as e:
+                st.error(f"API error: {e}"); st.stop()
+
+        if not candles:
+            st.warning("No intraday candle data returned. Market may be closed."); st.stop()
+
+        candles = list(reversed(candles))
+        cum_tp_vol, cum_vol, points = 0.0, 0, []
+        for c in candles:
+            if len(c) < 6:
+                continue
+            high, low, close, volume = float(c[2]), float(c[3]), float(c[4]), int(c[5])
+            cum_tp_vol += (high + low + close) / 3 * volume
+            cum_vol += volume
+            vwap = cum_tp_vol / cum_vol if cum_vol else 0
+            points.append((c[0], close, vwap, volume))
+        if not points:
+            st.warning("No valid candle data to compute VWAP."); st.stop()
+
+        current_vwap  = points[-1][2]
+        current_price = points[-1][1]
+        live_price = lv(get_ltp(client, instrument_key).get(instrument_key))
+        if live_price:
+            current_price = live_price
+        deviation = (current_price - current_vwap) / current_vwap * 100 if current_vwap else 0
+
+        c1, c2, c3 = st.columns(3)
+        c1.metric("VWAP", f"{current_vwap:,.2f}")
+        c2.metric("Current Price", f"{current_price:,.2f}", f"{deviation:+.2f}%")
+        c3.metric("Total Volume", f"{cum_vol:,}")
+
+        if current_price > current_vwap:
+            st.success("🟢 Price is **ABOVE VWAP** — bullish intraday bias (buyers in control).")
+        elif current_price < current_vwap:
+            st.error("🔴 Price is **BELOW VWAP** — bearish intraday bias (sellers in control).")
+        else:
+            st.info("⚪ Price is **AT VWAP** — neutral, at fair value.")
+
+        df = pd.DataFrame(points, columns=["timestamp", "close", "vwap", "volume"])
+        df["timestamp"] = pd.to_datetime(df["timestamp"])
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=df["timestamp"], y=df["close"], name="Close",
+                                 line=dict(color="#3498db")))
+        fig.add_trace(go.Scatter(x=df["timestamp"], y=df["vwap"], name="VWAP",
+                                 line=dict(color="#f1c40f")))
+        fig.update_layout(title=f"{trading_symbol} — Price vs VWAP (1-min)",
+                          template="plotly_dark", height=440,
+                          xaxis_title="Time", yaxis_title="Price")
+        st.plotly_chart(fig, use_container_width=True)
+        st.dataframe(df.tail(10), use_container_width=True, hide_index=True)
+
+
+elif example == "Beta Calculator":
+    client = require_client()
+    NIFTY_KEY = "NSE_INDEX|Nifty 50"
+    c1, c2 = st.columns(2)
+    query = c1.text_input("Stock", value="RELIANCE")
+    days  = c2.number_input("Trading days", 20, 500, 60)
+
+    st.caption("Beta = Cov(stock, index) / Var(index). >1 amplifies NIFTY moves, "
+               "<1 defensive, <0 inverse.")
+
+    if st.button("▶ Compute Beta", type="primary"):
+        with st.spinner("Fetching history…"):
+            try:
+                eq = resolve_equity(client, query)
+                if not eq:
+                    st.error(f"Stock '{query}' not found on NSE."); st.stop()
+                stock_key = eq["instrument_key"]
+                trading_symbol = eq.get("trading_symbol", query.upper())
+
+                to_date   = date.today().isoformat()
+                from_date = (date.today() - timedelta(days=int(days * 1.6))).isoformat()
+                stock_candles = get_historical_candles(client, stock_key, "days", 1, to_date, from_date)
+                nifty_candles = get_historical_candles(client, NIFTY_KEY, "days", 1, to_date, from_date)
+            except Exception as e:
+                st.error(f"API error: {e}"); st.stop()
+
+        if not stock_candles or not nifty_candles:
+            st.warning("Could not fetch historical data."); st.stop()
+
+        stock_closes = [float(c[4]) for c in reversed(stock_candles) if len(c) > 4]
+        nifty_closes = [float(c[4]) for c in reversed(nifty_candles) if len(c) > 4]
+        min_len = min(len(stock_closes), len(nifty_closes))
+        stock_closes, nifty_closes = stock_closes[-min_len:], nifty_closes[-min_len:]
+        if min_len < 10:
+            st.warning(f"Insufficient data: {min_len} days."); st.stop()
+        if min_len < days:
+            st.info(f"Only {min_len} common trading days available (requested {days}).")
+
+        s = np.array(stock_closes)
+        n = np.array(nifty_closes)
+        stock_rets = s[1:] / s[:-1] - 1
+        nifty_rets = n[1:] / n[:-1] - 1
+
+        cov = np.cov(stock_rets, nifty_rets, ddof=1)[0][1]
+        var_idx = np.var(nifty_rets, ddof=1)
+        beta = cov / var_idx if var_idx else 0
+        corr = np.corrcoef(stock_rets, nifty_rets)[0][1]
+        stock_vol = np.std(stock_rets, ddof=1) * math.sqrt(252) * 100
+        nifty_vol = np.std(nifty_rets, ddof=1) * math.sqrt(252) * 100
+
+        c1, c2 = st.columns(2)
+        c1.metric("Beta", f"{beta:.3f}")
+        c2.metric("Correlation (R)", f"{corr:.3f}")
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Period", f"{min_len} days")
+        c2.metric("Stock annl vol", f"{stock_vol:.1f}%")
+        c3.metric("NIFTY annl vol", f"{nifty_vol:.1f}%")
+
+        if beta > 1.2:
+            st.error(f"🔴 **High beta** — {trading_symbol} amplifies NIFTY moves (more volatile).")
+        elif beta > 0.8:
+            st.info(f"⚪ **Moderate beta** — {trading_symbol} tracks NIFTY closely.")
+        elif beta > 0:
+            st.success(f"🟢 **Low beta** — {trading_symbol} is defensive relative to NIFTY.")
+        else:
+            st.error(f"🔴 **Negative beta** — {trading_symbol} tends to move opposite to NIFTY.")
+
+        if abs(corr) > 0.7:
+            st.caption(f"Strong correlation ({corr:.2f}) — returns highly aligned with NIFTY.")
+        elif abs(corr) > 0.4:
+            st.caption(f"Moderate correlation ({corr:.2f}) — some alignment with NIFTY.")
+        else:
+            st.caption(f"Weak correlation ({corr:.2f}) — returns diverge from NIFTY.")
+
+        fig = px.scatter(x=nifty_rets, y=stock_rets, template="plotly_dark",
+                         labels={"x": "NIFTY daily return", "y": f"{trading_symbol} daily return"},
+                         title="Return scatter (stock vs NIFTY)", trendline="ols")
+        st.plotly_chart(fig, use_container_width=True)
+
+
+elif example == "Stock Correlation":
+    client = require_client()
+    c1, c2 = st.columns(2)
+    queries_raw = c1.text_input("Stocks (comma-separated)", value="RELIANCE,TCS,INFY")
+    days = c2.number_input("Trading days", 20, 500, 60)
+
+    st.caption("Pearson correlation of daily returns. R≈+1 move together, "
+               "R≈0 diversified, R≈-1 natural hedge.")
+
+    if st.button("▶ Compute Correlation", type="primary"):
+        queries = [q.strip() for q in queries_raw.split(",") if q.strip()]
+        if len(queries) < 2:
+            st.warning("Need at least 2 stocks."); st.stop()
+
+        with st.spinner("Fetching history…"):
+            try:
+                to_date   = date.today().isoformat()
+                from_date = (date.today() - timedelta(days=int(days * 1.6))).isoformat()
+                symbols, all_returns = [], []
+                for query in queries:
+                    eq = resolve_equity(client, query)
+                    if not eq:
+                        st.warning(f"'{query}' not found on NSE. Skipping."); continue
+                    candles = get_historical_candles(client, eq["instrument_key"], "days", 1, to_date, from_date)
+                    if not candles:
+                        st.warning(f"No data for '{query}'. Skipping."); continue
+                    closes = np.array([float(c[4]) for c in reversed(candles) if len(c) > 4])
+                    if len(closes) < 10:
+                        st.warning(f"Insufficient data for '{query}'. Skipping."); continue
+                    symbols.append(eq.get("trading_symbol", query.upper()))
+                    all_returns.append(closes[1:] / closes[:-1] - 1)
+            except Exception as e:
+                st.error(f"API error: {e}"); st.stop()
+
+        if len(symbols) < 2:
+            st.warning("Need at least 2 valid stocks with data."); st.stop()
+
+        min_len = min(len(r) for r in all_returns)
+        matrix = np.array([r[-min_len:] for r in all_returns])
+        corr = np.corrcoef(matrix)
+        df = pd.DataFrame(corr, index=symbols, columns=symbols)
+
+        st.caption(f"Stocks: {', '.join(symbols)} · Period: {min_len} trading days")
+        fig = px.imshow(df, text_auto=".2f", color_continuous_scale="RdYlGn",
+                        zmin=-1, zmax=1, template="plotly_dark",
+                        title="Return correlation matrix")
+        st.plotly_chart(fig, use_container_width=True)
+        st.dataframe(df.round(3), use_container_width=True)
+
+        pairs = []
+        for i in range(len(symbols)):
+            for j in range(i + 1, len(symbols)):
+                pairs.append((symbols[i], symbols[j], corr[i][j]))
+        if pairs:
+            pairs.sort(key=lambda p: p[2])
+            lowest, highest = pairs[0], pairs[-1]
+            c1, c2 = st.columns(2)
+            c1.metric("Most correlated", f"{highest[0]} & {highest[1]}", f"R = {highest[2]:.3f}")
+            c2.metric("Least correlated", f"{lowest[0]} & {lowest[1]}", f"R = {lowest[2]:.3f}")
+            if lowest[2] < 0.3:
+                st.success(f"🟢 Diversification opportunity: {lowest[0]} and {lowest[1]} have "
+                           "low correlation — holding both reduces portfolio volatility.")
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# 📡 MARKET DATA (extended)
+# ═════════════════════════════════════════════════════════════════════════════
+
+elif example == "Live Depth (30-level)":
+    client = require_client()
+    RELIANCE_KEY = "NSE_EQ|INE002A01018"
+    future = st.selectbox("Futures underlying", ["NIFTY", "BANKNIFTY", "FINNIFTY"])
+
+    st.caption("30-level `full_d30` depth requires the Upstox Plus Pack WebSocket feed. "
+               "This UI shows a REST snapshot of the available depth levels.")
+
+    if st.button("▶ Fetch Snapshot", type="primary"):
+        with st.spinner("Resolving future & fetching quotes…"):
+            try:
+                futures = get_futures_sorted(client, future, exact_symbol=True)
+                if not futures:
+                    st.error(f"No futures found for {future}."); st.stop()
+                fut_key = futures[0]["instrument_key"]
+                fut_sym = futures[0]["trading_symbol"]
+                quotes = get_full_quote(client, fut_key, RELIANCE_KEY)
+            except Exception as e:
+                st.error(f"API error: {e}"); st.stop()
+
+        def render_depth30(col, label, quote):
+            col.markdown(f"**{label}**")
+            if quote is None:
+                col.write("No data"); return
+            col.metric("LTP", f"₹{lv(quote):,.2f}", f"{lv(quote) - cv(quote):+.2f}")
+            depth = getattr(quote, "depth", None)
+            bids = getattr(depth, "buy", []) or [] if depth else []
+            asks = getattr(depth, "sell", []) or [] if depth else []
+            if not bids and not asks:
+                col.write("Depth not available"); return
+            rows = []
+            for i in range(max(len(bids), len(asks))):
+                b = bids[i] if i < len(bids) else None
+                a = asks[i] if i < len(asks) else None
+                rows.append({
+                    "#": i + 1,
+                    "Bid Qty": getattr(b, "quantity", 0) if b else 0,
+                    "Bid":     getattr(b, "price", 0) if b else 0,
+                    "Ask":     getattr(a, "price", 0) if a else 0,
+                    "Ask Qty": getattr(a, "quantity", 0) if a else 0,
+                })
+            col.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+
+        c1, c2 = st.columns(2)
+        render_depth30(c1, fut_sym, quotes.get(fut_key))
+        render_depth30(c2, "RELIANCE", quotes.get(RELIANCE_KEY))
+        st.info("REST snapshots typically expose 5 depth levels. For the full 30-level "
+                "book, subscribe to `full_d30` via MarketDataStreamerV3 (Plus Pack).")
+
+
+elif example == "OHLC Quote":
+    client = require_client()
+    c1, c2 = st.columns(2)
+    queries_raw = c1.text_input("Symbols (comma-separated)", value="RELIANCE,TCS,INFY")
+    interval    = c2.selectbox("Interval", ["1d", "I1", "I30"], index=0,
+                               help="OHLC candle interval for the snapshot.")
+
+    st.caption("Returns both the previous candle's OHLC and the live in-progress "
+               "candle's OHLC (Market Quote v3).")
+
+    if st.button("▶ Fetch OHLC", type="primary"):
+        symbols = [s.strip() for s in queries_raw.split(",") if s.strip()]
+        with st.spinner("Fetching OHLC quotes…"):
+            try:
+                resolved = {}
+                for sym in symbols:
+                    inst = resolve_equity(client, sym)
+                    if inst:
+                        resolved[inst.get("instrument_key", "")] = sym
+                if not resolved:
+                    st.error("Could not resolve any of the requested symbols."); st.stop()
+                quotes = get_ohlc_quote(client, interval, *resolved.keys())
+            except Exception as e:
+                st.error(f"API error: {e}"); st.stop()
+
+        if not quotes:
+            st.warning("No OHLC data returned."); st.stop()
+
+        rows = []
+        for key, sym in resolved.items():
+            q = as_dict(quotes.get(key))
+            if not q:
+                continue
+            for label, node in (("Prev", q.get("prev_ohlc")), ("Live", q.get("live_ohlc"))):
+                node = as_dict(node)
+                if not node:
+                    continue
+                rows.append({
+                    "Symbol": sym, "Candle": label, "Last": q.get("last_price"),
+                    "Open": node.get("open"), "High": node.get("high"),
+                    "Low": node.get("low"), "Close": node.get("close"),
+                })
+        if not rows:
+            st.warning("No OHLC data returned."); st.stop()
+        st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+
+
+elif example == "Market News":
+    client = require_client()
+    c1, c2, c3 = st.columns(3)
+    category  = c1.selectbox("Category", ["instrument_keys", "positions", "holdings"])
+    query     = c2.text_input("Symbol", value="RELIANCE",
+                              help="Used when category = instrument_keys.")
+    page_size = c3.number_input("Page size", 1, 50, 10)
+
+    st.caption("Latest news via the News API. `positions`/`holdings` require those "
+               "to exist in the account.")
+
+    if st.button("▶ Fetch News", type="primary"):
+        with st.spinner("Fetching news…"):
+            try:
+                api = upstox_client.NewsApi(client)
+                kwargs = {"page_number": 1, "page_size": int(page_size)}
+                if category == "instrument_keys":
+                    inst = resolve_equity(client, query)
+                    if not inst:
+                        st.error(f"No NSE equity instrument found for '{query}'."); st.stop()
+                    kwargs["instrument_keys"] = inst.get("instrument_key", "")
+                response = api.get_news(category, **kwargs)
+            except Exception as e:
+                st.error(f"API error: {e}"); st.stop()
+
+        data = as_dict(response.data)
+        articles = data.get("news") or data.get("articles") or (
+            response.data if isinstance(response.data, list) else [])
+        if not articles:
+            st.warning("No news articles returned."); st.stop()
+
+        st.success(f"{len(articles)} articles")
+        for art in articles:
+            a = as_dict(art)
+            headline = a.get("headline") or a.get("title") or "—"
+            source   = a.get("source") or a.get("publisher") or "—"
+            when     = a.get("published_at") or a.get("date") or a.get("timestamp") or ""
+            summary  = a.get("summary") or a.get("description") or ""
+            st.markdown(f"**{headline}**")
+            meta = " · ".join(str(x) for x in (source, when) if x and x != "—")
+            if meta:
+                st.caption(meta)
+            if summary:
+                st.write(summary)
+            st.divider()
+
+
+elif example == "Market Holiday":
+    client = require_client()
+    hol_date = st.date_input("Date to check", value=date(date.today().year, 1, 26))
+
+    st.caption("Checks whether a specific date is a market holiday "
+               "(Holidays & Timings API).")
+
+    if st.button("▶ Check Holiday", type="primary"):
+        with st.spinner("Checking…"):
+            try:
+                api = upstox_client.MarketHolidaysAndTimingsApi(client)
+                response = api.get_holiday(str(hol_date))
+            except Exception as e:
+                st.error(f"API error: {e}"); st.stop()
+
+        data = response.data
+        if not data:
+            st.success(f"🟢 {hol_date} is not a listed market holiday."); st.stop()
+
+        rows = data if isinstance(data, list) else [data]
+        for r in rows:
+            d = as_dict(r)
+            st.subheader(f"{d.get('date', hol_date)} — "
+                         f"{d.get('description') or d.get('holiday_name') or 'Holiday'}")
+            if d.get("day"):
+                st.write(f"**Day:** {d.get('day')}")
+            closed  = d.get("closed_exchanges") or d.get("closed") or []
+            open_ex = d.get("open_exchanges") or d.get("open") or []
+            if closed:
+                st.write(f"**Closed:** {', '.join(str(x) for x in closed)}")
+            if open_ex:
+                st.write(f"**Open:** {', '.join(str(x) for x in open_ex)}")
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# 👤 ACCOUNT (READ-ONLY)
+# ═════════════════════════════════════════════════════════════════════════════
+
+elif example == "User Profile":
+    client = require_client()
+    st.caption("Read-only account profile — nothing about the account is modified.")
+
+    if st.button("▶ Fetch Profile", type="primary"):
+        with st.spinner("Fetching profile…"):
+            try:
+                api = upstox_client.UserApi(client)
+                response = api.get_profile("2.0")
+            except Exception as e:
+                st.error(f"API error: {e}"); st.stop()
+
+        data = as_dict(response.data)
+        if not data:
+            st.warning("No profile data returned."); st.stop()
+
+        def _fmt_list(v):
+            if isinstance(v, (list, tuple)):
+                return ", ".join(str(x) for x in v) if v else "—"
+            return str(v) if v not in (None, "") else "—"
+
+        fields = [
+            ("User ID", data.get("user_id")), ("User Name", data.get("user_name")),
+            ("Email", data.get("email")), ("User Type", data.get("user_type")),
+            ("Broker", data.get("broker")), ("Active", data.get("is_active")),
+            ("POA", data.get("poa")), ("DDPI", data.get("ddpi")),
+            ("Exchanges", _fmt_list(data.get("exchanges"))),
+            ("Products", _fmt_list(data.get("products"))),
+            ("Order Types", _fmt_list(data.get("order_types"))),
+        ]
+        df = pd.DataFrame(
+            [{"Field": k, "Value": ("—" if v in (None, "") else v)} for k, v in fields])
+        st.dataframe(df, use_container_width=True, hide_index=True)
+        st.caption("Read-only profile — no account settings were changed.")
+
+
+elif example == "Funds & Margin":
+    client = require_client()
+    st.caption("Read-only view of available / unavailable funds (User API v3).")
+
+    if st.button("▶ Fetch Funds", type="primary"):
+        with st.spinner("Fetching funds & margin…"):
+            try:
+                api = upstox_client.UserApi(client)
+                response = api.get_user_fund_margin_v3()
+            except Exception as e:
+                st.error(f"API error: {e}"); st.stop()
+
+        data = as_dict(response.data)
+        if not data:
+            st.warning("No funds data returned."); st.stop()
+
+        def _flatten_funds(node, prefix=""):
+            node = as_dict(node)
+            rows = []
+            for key, val in node.items():
+                sub = as_dict(val)
+                if sub:
+                    rows.extend(_flatten_funds(sub, prefix=f"{prefix}{key}."))
+                else:
+                    rows.append({"Field": f"{prefix}{key}", "Amount (INR)": val})
+            return rows
+
+        for title, key in (("Available to Trade", "available_to_trade"),
+                           ("Unavailable to Trade", "unavailable_to_trade")):
+            rows = _flatten_funds(data.get(key))
+            if rows:
+                st.subheader(title)
+                st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+        st.caption("Read-only — no funds were moved.")
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# 💰 CHARGES & MARGIN
+# ═════════════════════════════════════════════════════════════════════════════
+
+elif example == "Brokerage Calculator":
+    client = require_client()
+    c1, c2, c3 = st.columns(3)
+    symbol   = c1.text_input("Symbol", value="RELIANCE")
+    quantity = c2.number_input("Quantity", 1, 1000000, 10)
+    price    = c3.number_input("Price", 0.0, 1000000.0, 1400.0)
+    c1, c2 = st.columns(2)
+    product = c1.selectbox("Product", ["D", "I"], help="D=delivery, I=intraday")
+    txn     = c2.selectbox("Transaction", ["BUY", "SELL"])
+
+    st.caption("Estimate brokerage & statutory charges via the Charge API — "
+               "no order is placed.")
+
+    if st.button("▶ Estimate Charges", type="primary"):
+        with st.spinner("Estimating charges…"):
+            try:
+                inst = resolve_equity(client, symbol)
+                if not inst:
+                    st.error(f"No NSE equity instrument found for '{symbol}'."); st.stop()
+                api = upstox_client.ChargeApi(client)
+                response = api.get_brokerage(
+                    inst.get("instrument_key", ""), int(quantity), product,
+                    txn, float(price), "2.0")
+            except Exception as e:
+                st.error(f"API error: {e}"); st.stop()
+
+        data = as_dict(response.data)
+        if not data:
+            st.warning("No charge data returned."); st.stop()
+
+        def _flatten_charges(node, prefix=""):
+            node = as_dict(node)
+            rows = []
+            for key, val in node.items():
+                sub = as_dict(val)
+                label = f"{prefix}{key}"
+                if sub:
+                    rows.extend(_flatten_charges(sub, prefix=f"{label}."))
+                else:
+                    rows.append({"Charge": label, "Amount (INR)": val})
+            return rows
+
+        charges = as_dict(data.get("charges"))
+        rows = _flatten_charges(charges) if charges else _flatten_charges(data)
+        if not rows:
+            st.warning("No charge breakdown returned."); st.stop()
+        st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+        st.caption("Estimate only — no order was placed.")
+
+
+elif example == "Margin Calculator":
+    client = require_client()
+    c1, c2, c3 = st.columns(3)
+    symbol   = c1.text_input("Symbol", value="RELIANCE")
+    quantity = c2.number_input("Quantity", 1, 1000000, 10)
+    price    = c3.number_input("Price", 0.0, 1000000.0, 1400.0)
+    c1, c2 = st.columns(2)
+    product = c1.selectbox("Product", ["D", "I"], help="D=delivery, I=intraday")
+    txn     = c2.selectbox("Transaction", ["BUY", "SELL"])
+
+    st.caption("Estimate SPAN / exposure / total margin via the Charge API — "
+               "no order is placed.")
+
+    if st.button("▶ Estimate Margin", type="primary"):
+        with st.spinner("Estimating margin…"):
+            try:
+                inst = resolve_equity(client, symbol)
+                if not inst:
+                    st.error(f"No NSE equity instrument found for '{symbol}'."); st.stop()
+                instrument = upstox_client.Instrument(
+                    instrument_key=inst.get("instrument_key", ""),
+                    quantity=int(quantity), product=product,
+                    transaction_type=txn, price=float(price))
+                body = upstox_client.MarginRequest(instruments=[instrument])
+                api = upstox_client.ChargeApi(client)
+                response = api.post_margin(body)
+            except Exception as e:
+                st.error(f"API error: {e}"); st.stop()
+
+        data = as_dict(response.data)
+        if not data:
+            st.warning("No margin data returned."); st.stop()
+
+        c1, c2 = st.columns(2)
+        c1.metric("Required Margin", f"₹{float(data.get('required_margin') or 0):,.2f}")
+        c2.metric("Final Margin",    f"₹{float(data.get('final_margin') or 0):,.2f}")
+
+        margins = data.get("margins") or []
+        rows = []
+        for i, m in enumerate(margins, start=1):
+            m = as_dict(m)
+            row = {"Leg": i}
+            for key in ("span_margin", "exposure_margin", "equity_margin",
+                        "net_buy_premium", "additional_margin", "total_margin"):
+                if key in m:
+                    row[key] = m.get(key)
+            rows.append(row)
+        if rows:
+            st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+        st.caption("Estimate only — no order was placed.")
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# 🗓️ EXPIRED INSTRUMENTS
+# ═════════════════════════════════════════════════════════════════════════════
+
+elif example == "Expiries":
+    client = require_client()
+    query = st.text_input("Underlying", value="NIFTY")
+
+    st.caption("Full list of expiry dates (expired + live) via the Expired "
+               "Instrument API — useful for back-testing.")
+
+    if st.button("▶ Fetch Expiries", type="primary"):
+        with st.spinner("Fetching expiries…"):
+            try:
+                inst = resolve_underlying(client, query)
+                if not inst:
+                    st.error(f"Could not resolve an underlying for '{query}'."); st.stop()
+                expiries = get_expiries_list(client, inst.get("instrument_key", ""))
+            except Exception as e:
+                st.error(f"API error: {e}"); st.stop()
+
+        if not expiries:
+            st.warning("No expiries returned."); st.stop()
+        st.success(f"{len(expiries)} expiries for {query.upper()}")
+        df = pd.DataFrame({"#": range(1, len(expiries) + 1), "Expiry": expiries})
+        st.dataframe(df, use_container_width=True, hide_index=True)
+
+
+elif example == "Expired Option Contracts":
+    client = require_client()
+    query = st.text_input("Underlying", value="NIFTY")
+
+    st.caption("CE/PE contracts that existed for a past expiry (Expired Instrument API).")
+
+    with st.spinner("Loading past expiries…"):
+        try:
+            inst = resolve_underlying(client, query)
+            if not inst:
+                st.error(f"Could not resolve an underlying for '{query}'."); st.stop()
+            instrument_key = inst.get("instrument_key", "")
+            all_exp = get_expiries_list(client, instrument_key)
+            past = [e for e in all_exp if e < date.today().isoformat()]
+        except Exception as e:
+            st.error(f"API error: {e}"); st.stop()
+
+    if not past:
+        st.warning("No past expiry available for this underlying."); st.stop()
+    default_exp = most_recent_past_expiry(client, instrument_key)
+    idx = past.index(default_exp) if default_exp in past else len(past) - 1
+    expiry = st.selectbox("Past expiry", past, index=idx)
+
+    if st.button("▶ Fetch Contracts", type="primary"):
+        with st.spinner("Fetching expired option contracts…"):
+            try:
+                api = upstox_client.ExpiredInstrumentApi(client)
+                response = api.get_expired_option_contracts(instrument_key, expiry)
+            except Exception as e:
+                st.error(f"API error: {e}"); st.stop()
+
+        contracts = response.data or []
+        if not contracts:
+            st.warning("No expired option contracts returned for that expiry."); st.stop()
+
+        rows = sorted(
+            (as_dict(c) for c in contracts),
+            key=lambda d: (d.get("strike_price") or 0, d.get("instrument_type") or ""))
+        df = pd.DataFrame([{
+            "Type":   (d.get("instrument_type") or "").upper(),
+            "Strike": d.get("strike_price"),
+            "Trading Symbol": d.get("trading_symbol"),
+            "Instrument Key": d.get("instrument_key"),
+        } for d in rows])
+        st.success(f"{len(df)} contracts for expiry {expiry}")
+        st.dataframe(df, use_container_width=True, hide_index=True)
+
+
+elif example == "Expired Future Contracts":
+    client = require_client()
+    query = st.text_input("Underlying", value="NIFTY")
+
+    st.caption("Futures contracts that existed for a past expiry (Expired Instrument API).")
+
+    with st.spinner("Loading past expiries…"):
+        try:
+            inst = resolve_underlying(client, query)
+            if not inst:
+                st.error(f"Could not resolve an underlying for '{query}'."); st.stop()
+            instrument_key = inst.get("instrument_key", "")
+            all_exp = get_expiries_list(client, instrument_key)
+            past = [e for e in all_exp if e < date.today().isoformat()]
+        except Exception as e:
+            st.error(f"API error: {e}"); st.stop()
+
+    if not past:
+        st.warning("No past expiry available for this underlying."); st.stop()
+    default_exp = most_recent_past_expiry(client, instrument_key)
+    idx = past.index(default_exp) if default_exp in past else len(past) - 1
+    expiry = st.selectbox("Past expiry", past, index=idx)
+
+    if st.button("▶ Fetch Contracts", type="primary"):
+        with st.spinner("Fetching expired future contracts…"):
+            try:
+                api = upstox_client.ExpiredInstrumentApi(client)
+                response = api.get_expired_future_contracts(instrument_key, expiry)
+            except Exception as e:
+                st.error(f"API error: {e}"); st.stop()
+
+        contracts = response.data or []
+        if not contracts:
+            st.warning("No expired future contracts returned for that expiry."); st.stop()
+
+        df = pd.DataFrame([{
+            "Trading Symbol": as_dict(c).get("trading_symbol"),
+            "Lot Size": as_dict(c).get("lot_size"),
+            "Expiry": as_dict(c).get("expiry"),
+            "Instrument Key": as_dict(c).get("instrument_key"),
+        } for c in contracts])
+        st.success(f"{len(df)} contracts for expiry {expiry}")
+        st.dataframe(df, use_container_width=True, hide_index=True)
+
+
+elif example == "Expired Historical Candles":
+    client = require_client()
+    c1, c2 = st.columns(2)
+    query    = c1.text_input("Underlying", value="NIFTY")
+    interval = c2.selectbox("Interval", ["day", "week", "month", "30minute", "1minute"])
+    c1, c2 = st.columns(2)
+    from_date = c1.date_input("From", value=date.today() - timedelta(days=180))
+    to_date   = c2.date_input("To",   value=date.today())
+    expired_key = st.text_input("Expired instrument key (optional)", value="",
+                                help="Blank = auto-resolve first future of most recent past expiry.")
+
+    st.caption("OHLC history for an expired contract (Expired Instrument API).")
+
+    if st.button("▶ Fetch Candles", type="primary"):
+        with st.spinner("Fetching expired historical candles…"):
+            try:
+                api = upstox_client.ExpiredInstrumentApi(client)
+                key = expired_key.strip()
+                if not key:
+                    inst = resolve_underlying(client, query)
+                    if not inst:
+                        st.error(f"Could not resolve an underlying for '{query}'."); st.stop()
+                    underlying_key = inst.get("instrument_key", "")
+                    expiry = most_recent_past_expiry(client, underlying_key)
+                    if not expiry:
+                        st.error("No past expiry found to demonstrate expired data."); st.stop()
+                    fut = api.get_expired_future_contracts(underlying_key, expiry).data or []
+                    if not fut:
+                        st.error(f"No expired contract found for expiry {expiry}."); st.stop()
+                    key = as_dict(fut[0]).get("instrument_key")
+                    st.info(f"Auto-selected expired contract {key} (expiry {expiry}).")
+                response = api.get_expired_historical_candle_data(
+                    key, interval, str(to_date), str(from_date))
+            except Exception as e:
+                st.error(f"API error: {e}"); st.stop()
+
+        candles = getattr(response.data, "candles", None) or []
+        if not candles:
+            st.warning("No candles returned for that range."); st.stop()
+
+        df = pd.DataFrame(candles, columns=["timestamp", "open", "high", "low", "close", "volume", "oi"])
+        df["timestamp"] = pd.to_datetime(df["timestamp"])
+        df = df.sort_values("timestamp")
+        st.success(f"Fetched {len(df)} candles")
+        fig = go.Figure(go.Candlestick(x=df["timestamp"], open=df["open"], high=df["high"],
+                                       low=df["low"], close=df["close"]))
+        fig.update_layout(title=f"Expired OHLC — {key}", template="plotly_dark",
+                          xaxis_title="Date", yaxis_title="Price")
+        st.plotly_chart(fig, use_container_width=True)
+        st.dataframe(df, use_container_width=True, hide_index=True)
 
 
 else:
