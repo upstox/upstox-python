@@ -1,6 +1,8 @@
 # Upstox Python Interactive Examples
 
-> **55 working examples** showcasing Upstox API features — **Instrument Search**, **Analytics Token**, **Market Data**, and **Fundamentals** — across futures spreads, options strategies, arbitrage, historical analysis, live market data, fundamentals analysis, and more.
+> **73 working examples** showcasing Upstox API features — **Instrument Search**, **Analytics Token**, **Market Data**, **Fundamentals**, **Expired Instruments**, **Charges & Margin**, and read-only **Account** data — across futures spreads, options strategies, arbitrage, historical analysis, live market data, fundamentals analysis, and more.
+>
+> Every example is **read-only**: it runs with any valid analytics or access token, needs no funded account, and never places an order. Trading/portfolio APIs are intentionally out of scope (see [What's not covered](#whats-not-covered)).
 
 [![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue)](https://www.python.org/)
 [![upstox-python-sdk](https://img.shields.io/pypi/v/upstox-python-sdk?label=upstox-python-sdk)](https://pypi.org/project/upstox-python-sdk/)
@@ -57,9 +59,11 @@ Run all examples automatically against a real token:
 python test_runner.py --token <TOKEN>
 ```
 
-- Validates the token before starting
-- Runs every script non-interactively and reports PASS / FAIL
+- Validates the token before starting (falls back to an interactive prompt if `--token` is omitted)
+- Runs every script non-interactively and reports PASS / FAIL with the reason
+- A PASS requires exit 0 **and** non-empty output **and** no Python traceback
 - Streaming scripts (WebSocket depth) are auto-aborted after 5 seconds and counted as PASS
+- A separate **edge-case suite** feeds deliberately-bad inputs (unknown ticker, malformed date) and asserts each example fails *gracefully* — a clean error message, no traceback
 
 ---
 
@@ -135,6 +139,7 @@ python options_strategies/put_call_parity.py --token <TOKEN> --query BANKNIFTY
 | `options_analytics/iv_percentile.py` | IV Percentile & IV Rank — where current IV stands vs 1-year history |
 | `options_analytics/implied_move.py` | Expected move from ATM straddle — upper/lower range as % |
 | `options_analytics/expiry_decay.py` | Expiry-day premium decay — ATM ± N premiums as % of prior close |
+| `options_analytics/option_contracts.py` | Enumerate live CE/PE contracts for an underlying via `OptionsApi.get_option_contracts` |
 
 ```bash
 python options_analytics/options_chain_builder.py --token <TOKEN> --query NIFTY --strikes 5
@@ -214,6 +219,9 @@ python portfolio_screening/futures_oi_buildup.py --token <TOKEN>
 | `market_data/live_depth_d30.py` | 30-level depth via WebSocket *(requires Upstox Plus Pack)* |
 | `market_data/live_depth_mcx.py` | Live depth for top MCX commodities (GOLD, SILVER, CRUDEOIL, NATURALGAS) |
 | `market_data/live_depth_usdinr.py` | USDINR near-month futures — NSE CDS vs BSE BCD side by side |
+| `market_data/ohlc_quote.py` | OHLC snapshot (prev + live candle) for one or more instruments via Market Quote v3 |
+| `market_data/market_news.py` | Latest news articles for an instrument (or positions/holdings) |
+| `market_data/market_holiday.py` | Whether a specific date is a market holiday, and which exchanges are closed |
 
 ```bash
 python market_data/market_status.py --token <TOKEN>
@@ -221,6 +229,9 @@ python market_data/market_holidays.py --token <TOKEN>
 python market_data/intraday_chart.py --token <TOKEN> --query SENSEX --interval 5
 python market_data/live_depth.py --token <TOKEN>        # Ctrl-C to stop
 python market_data/live_depth_mcx.py --token <TOKEN>    # Ctrl-C to stop
+python market_data/ohlc_quote.py --token <TOKEN> --queries RELIANCE,TCS --interval 1d
+python market_data/market_news.py --token <TOKEN> --query RELIANCE
+python market_data/market_holiday.py --token <TOKEN> --date 2026-01-26
 ```
 
 ---
@@ -273,10 +284,75 @@ python market_information/pcr_data.py  --token <TOKEN> --expiry 2026-05-29 --buc
 
 ---
 
+### Expired Instruments
+*Uses the [Upstox Expired Instrument API](https://upstox.com/developer/api-documentation/). Fetch expiry lists and the contracts / OHLC history of already-expired derivatives — useful for back-testing.*
+
+| Script | What it does |
+|---|---|
+| `expired_instruments/expiries.py` | List all expiry dates available for an underlying |
+| `expired_instruments/expired_option_contracts.py` | CE/PE contracts that existed for a past expiry |
+| `expired_instruments/expired_future_contracts.py` | Futures contracts that existed for a past expiry |
+| `expired_instruments/expired_historical.py` | OHLC history for an expired contract |
+
+```bash
+python expired_instruments/expiries.py --token <TOKEN> --query NIFTY
+python expired_instruments/expired_option_contracts.py --token <TOKEN> --query NIFTY --expiry 2024-12-26
+python expired_instruments/expired_future_contracts.py --token <TOKEN> --query NIFTY
+python expired_instruments/expired_historical.py --token <TOKEN> --query NIFTY --interval day
+```
+
+---
+
+### Charges & Margin
+*Uses the [Upstox Charge API](https://upstox.com/developer/api-documentation/). These **compute** brokerage and required margin for a prospective order — nothing is sent to the exchange, no order is placed.*
+
+| Script | What it does |
+|---|---|
+| `charges/brokerage_calculator.py` | Estimate brokerage + statutory charges for a what-if order |
+| `charges/margin_calculator.py` | Estimate SPAN / exposure / total margin required for an order basket |
+
+```bash
+python charges/brokerage_calculator.py --token <TOKEN> --symbol RELIANCE --quantity 10 --price 1400
+python charges/margin_calculator.py --token <TOKEN> --symbol RELIANCE --quantity 10 --price 1400
+```
+
+---
+
+### Account (Read-Only)
+*Uses read-only endpoints of the [Upstox User API](https://upstox.com/developer/api-documentation/). No account settings are changed and no funds are moved.*
+
+| Script | What it does |
+|---|---|
+| `account/user_profile.py` | Profile — name, email, broker, enabled exchanges/products |
+| `account/funds_margin.py` | Available / unavailable funds and margin (v3) |
+
+```bash
+python account/user_profile.py --token <TOKEN>
+python account/funds_margin.py --token <TOKEN>
+```
+
+---
+
+## What's not covered
+
+By design, these examples cover only **read-only** APIs so every one runs with any
+valid token and never touches a live account. The following SDK areas are
+**intentionally excluded** because they place real orders or read/modify private
+account state (they require a funded, OAuth-authenticated trading account):
+
+- **Order placement & management** — `OrderApi`, `OrderApiV3` (incl. GTT orders)
+- **Portfolio** — `PortfolioApi` (holdings, positions, MTF, convert positions)
+- **P&L & trades** — `TradeProfitAndLossApi`, `PostTradeApi`
+- **Mutual funds** — `MutualFundApi`
+- **Account actions** — `UserApi` kill-switch / pay-in / payout / IP updates, `LoginApi` OAuth flow
+- **Portfolio streaming** — `PortfolioDataStreamer` (order/position/holding updates)
+
+---
+
 
 ## 🌐 Deploy the Streamlit App
 
-The `streamlit_app.py` wraps all 47 examples in a browser UI with interactive inputs and charts (including Plotly charts for fundamentals).
+The `streamlit_app.py` wraps all 73 examples in a browser UI with interactive inputs and charts (including Plotly charts for fundamentals).
 
 ### Streamlit Cloud (free, ~5 minutes)
 
@@ -299,19 +375,25 @@ streamlit run streamlit_app.py
 ```
 interactive_examples/
 ├── utils.py                          # Shared helpers — SDK client, search, quotes, history
+├── streamlit_app.py                  # Browser UI wrapping all 73 examples
 ├── test_runner.py                    # Automated test harness for all examples
 ├── requirements.txt
 ├── instrument_search/                # 3 scripts
 ├── futures_basis/                    # 5 scripts
 ├── options_strategies/               # 7 scripts
-├── options_analytics/                # 11 scripts
+├── options_analytics/                # 12 scripts
 ├── arbitrage/                        # 3 scripts
 ├── historical_analysis/              # 7 scripts
 ├── portfolio_screening/              # 3 scripts
-├── market_data/                      # 8 scripts
+├── market_data/                      # 11 scripts
 ├── fundamentals/                     # 8 scripts
-└── market_information/               # 6 scripts
+├── market_information/               # 6 scripts
+├── expired_instruments/              # 4 scripts
+├── charges/                          # 2 scripts
+└── account/                          # 2 scripts (read-only)
 ```
+
+**Total: 73 example scripts across 13 categories.**
 
 ---
 
@@ -333,9 +415,14 @@ Every script accepts `--token` on the command line. The analytics token works **
 
 ## Requirements
 
+CLI examples need:
+
 ```
 upstox-python-sdk
 plotext
 ```
+
+The Streamlit app additionally needs `streamlit`, `plotly`, `pandas`, and `numpy`.
+Install everything at once with `pip install -r requirements.txt`.
 
 Python 3.9+ required.
