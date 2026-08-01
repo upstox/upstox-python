@@ -27,8 +27,8 @@ A Streamlit web app wraps every example with a UI — paste your token and run:
 Or run locally:
 
 ```bash
-git clone https://github.com/upstox/python-examples
-cd python-examples
+git clone https://github.com/upstox/upstox-python.git
+cd interactive_examples
 pip install -r requirements.txt
 streamlit run streamlit_app.py
 ```
