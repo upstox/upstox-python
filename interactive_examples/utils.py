@@ -6,9 +6,11 @@ Analytics tokens are 1-year, read-only tokens that skip the OAuth flow — ideal
 for data pipelines and dashboards.
 """
 
+import json
 import sys
 from datetime import date
 import upstox_client
+from upstox_client.rest import ApiException
 
 
 def get_api_client(token: str) -> upstox_client.ApiClient:
@@ -16,6 +18,49 @@ def get_api_client(token: str) -> upstox_client.ApiClient:
     config = upstox_client.Configuration()
     config.access_token = token
     return upstox_client.ApiClient(config)
+
+
+def parse_api_error(exc: ApiException):
+    """
+    Pull the useful bits out of an Upstox ApiException.
+
+    The SDK raises ApiException with a JSON body like:
+      {"status":"error","errors":[{"errorCode":"UDAPI100050",
+                                    "message":"Invalid token used to access API"}]}
+
+    Returns (status, error_code, message) — any of which may be None if the
+    body could not be parsed.
+    """
+    status = getattr(exc, "status", None)
+    code = message = None
+    body = getattr(exc, "body", None)
+    if body:
+        try:
+            errors = json.loads(body).get("errors") or []
+            if errors:
+                err = errors[0]
+                code = err.get("errorCode") or err.get("error_code")
+                message = err.get("message")
+        except (ValueError, TypeError, AttributeError):
+            pass
+    return status, code, message
+
+
+def is_invalid_token_error(exc: ApiException) -> bool:
+    """True if the exception indicates an invalid/expired access token."""
+    status, code, _ = parse_api_error(exc)
+    return status == 401 or code == "UDAPI100050"
+
+
+def check_token(api_client: upstox_client.ApiClient) -> None:
+    """
+    Verify the token by pinging a lightweight authenticated endpoint.
+
+    Uses instrument search — the same call every example relies on, so it is
+    guaranteed to be in-scope for both daily access and analytics tokens.
+    Raises ApiException on failure (e.g. 401 for an invalid token).
+    """
+    upstox_client.InstrumentsApi(api_client).search_instrument("RELIANCE", records=1)
 
 
 def search_instrument(api_client: upstox_client.ApiClient, query: str, **kwargs):

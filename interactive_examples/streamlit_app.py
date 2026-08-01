@@ -19,12 +19,16 @@ import streamlit as st
 
 sys.path.insert(0, os.path.dirname(__file__))
 import upstox_client
+from upstox_client.rest import ApiException
 from utils import (
+    check_token,
     get_api_client,
     get_futures_sorted,
     get_full_quote,
     get_historical_candles,
     get_ltp,
+    is_invalid_token_error,
+    parse_api_error,
     search_instrument,
 )
 
@@ -138,11 +142,57 @@ with st.sidebar:
 
 # ── Shared helpers ────────────────────────────────────────────────────────────
 
+def show_api_error(exc: ApiException):
+    """Render an Upstox ApiException as a friendly Streamlit message."""
+    status, code, message = parse_api_error(exc)
+    if is_invalid_token_error(exc):
+        st.error(
+            "🔒 **Invalid or expired token.**\n\n"
+            "The token in the sidebar was rejected by Upstox "
+            f"({code or 'UDAPI100050'}). Please paste a valid analytics or "
+            "daily access token and try again.\n\n"
+            "- Analytics tokens: Upstox Developer Apps → **Analytics** tab (1-year, read-only).\n"
+            "- Daily access tokens expire every day — regenerate via the OAuth login flow."
+        )
+    else:
+        st.error(
+            f"❌ **Upstox API error {status or ''}** {('· ' + code) if code else ''}\n\n"
+            f"{message or exc.reason or 'The request failed. Please try again.'}"
+        )
+
+
+# ── Global API-error interceptor ──────────────────────────────────────────────
+# Every SDK call — whether through a utils helper or a direct upstox_client.XxxApi
+# call — funnels through ApiClient.call_api. Wrapping it once turns any ApiException
+# (e.g. an invalid/expired token) into a friendly message + graceful stop for ALL
+# examples, instead of a raw traceback. Installed once per process; the sentinel
+# guard stops Streamlit's per-interaction reruns from stacking wrappers.
+if not getattr(upstox_client.ApiClient, "_friendly_errors_installed", False):
+    _orig_call_api = upstox_client.ApiClient.call_api
+
+    def _call_api_with_friendly_errors(self, *args, **kwargs):
+        try:
+            return _orig_call_api(self, *args, **kwargs)
+        except ApiException as exc:
+            show_api_error(exc)
+            st.stop()
+
+    upstox_client.ApiClient.call_api = _call_api_with_friendly_errors
+    upstox_client.ApiClient._friendly_errors_installed = True
+
+
 def require_client():
     if not token:
         st.info("👈 Paste your Upstox token in the sidebar to get started.")
         st.stop()
-    return get_api_client(token)
+    client = get_api_client(token)
+    # Validate the token once per distinct token value (cached to avoid an API ping
+    # on every rerun) so an invalid token is reported the moment an example loads,
+    # not only after clicking Run. The interceptor above handles the failure path.
+    if st.session_state.get("_validated_token") != token:
+        check_token(client)
+        st.session_state["_validated_token"] = token
+    return client
 
 
 def lv(obj):
