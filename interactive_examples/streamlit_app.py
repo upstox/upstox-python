@@ -21,6 +21,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 import upstox_client
 from upstox_client.rest import ApiException
 from utils import (
+    build_curl,
     check_token,
     get_api_client,
     get_futures_sorted,
@@ -283,6 +284,61 @@ def contango_label(spread):
     return "⚪ Spread is zero — contracts at parity."
 
 
+def curl_jump_link(slot=None, anchor="curl-call"):
+    """Right-aligned link that scrolls to the curl block below the results."""
+    (slot or st).markdown(
+        f'<div style="text-align:right;">'
+        f'<a href="#{anchor}" style="display:inline-block;border:1px solid rgba(128,138,152,0.4);'
+        'color:#6e7b8b;font-weight:500;font-size:0.85rem;padding:5px 12px;border-radius:6px;'
+        'text-decoration:none;white-space:nowrap;">See the executed curl request ↓</a></div>',
+        unsafe_allow_html=True,
+    )
+
+
+def action_row(label):
+    """
+    Primary action button with an empty right-aligned slot on the same row.
+
+    The slot is filled with curl_jump_link() only once the call has actually
+    returned results — the link must not appear while there is no curl block
+    below for it to scroll to.
+    """
+    left, right = st.columns([3, 1], vertical_alignment="center")
+    return left.button(label, type="primary"), right.empty()
+
+
+def show_curl(method, path, params=None, anchor="curl-call", note=None, extra_headers=None):
+    """Render the always-visible 'Equivalent REST API request' curl block."""
+    show_curls([{
+        "method": method, "path": path, "params": params,
+        "note": note, "extra_headers": extra_headers,
+    }], anchor=anchor)
+
+
+def show_curls(calls, anchor="curl-call"):
+    """
+    Render one or more 'Equivalent REST API request' curl blocks.
+
+    calls - list of dicts: method, path, params, and optionally label
+            (what this particular call is for, when an example fires more
+            than one distinct request) and note (a caveat shown under the
+            block, e.g. that a loop repeats this call per strike).
+    """
+    st.markdown(f'<div id="{anchor}"></div>', unsafe_allow_html=True)
+    heading = "Equivalent REST API request (curl)" if len(calls) == 1 \
+        else "Equivalent REST API requests (curl)"
+    st.markdown(f"🔗 **{heading}**")
+    for c in calls:
+        if c.get("label"):
+            st.markdown(f"_{c['label']}_")
+        st.code(
+            build_curl(c["method"], c["path"], c.get("params"), extra_headers=c.get("extra_headers")),
+            language="bash",
+        )
+        if c.get("note"):
+            st.caption(c["note"])
+
+
 # ── Page header ───────────────────────────────────────────────────────────────
 st.title(example)
 st.caption(f"Category: {category}")
@@ -299,7 +355,8 @@ if example == "Search Equity":
     exch    = c2.selectbox("Exchange", ["NSE", "BSE", "NSE,BSE"])
     records = c3.number_input("Max results", 1, 30, 10)
 
-    if st.button("🔍 Search", type="primary"):
+    go, link_slot = action_row("🔍 Search")
+    if go:
         with st.spinner("Searching…"):
             resp = search_instrument(client, query, exchanges=exch, segments="EQ", records=records)
         insts = resp.data or []
@@ -316,7 +373,11 @@ if example == "Search Equity":
                 "Tick Size":      i.get("tick_size", 0.05),
             } for i in insts])
             st.success(f"Found {len(df)} result(s)")
+            curl_jump_link(link_slot)
             st.dataframe(df, use_container_width=True)
+            show_curl("GET", "/v2/instruments/search", {
+                "query": query, "exchanges": exch, "segments": "EQ", "records": records,
+            })
 
 
 elif example == "Search Futures":
@@ -327,7 +388,8 @@ elif example == "Search Futures":
     exact = c3.checkbox("Exact underlying match", value=False,
                         help="Filter strictly by underlying_symbol to avoid e.g. NIFTYNXT50 when searching NIFTY")
 
-    if st.button("🔍 Search", type="primary"):
+    go, link_slot = action_row("🔍 Search")
+    if go:
         with st.spinner("Searching…"):
             futures = get_futures_sorted(client, query, exchange=exch, exact_symbol=exact)
         if not futures:
@@ -342,7 +404,24 @@ elif example == "Search Futures":
                 "Key":        i.get("instrument_key", ""),
             } for i in futures])
             st.success(f"Found {len(df)} contract(s)")
+            curl_jump_link(link_slot)
             st.dataframe(df, use_container_width=True)
+            show_curl(
+                "GET", "/v2/instruments/search",
+                {
+                    "query": query,
+                    "exchanges": exch,
+                    "segments": "COMM" if exch == "MCX" else "FO",
+                    "instrument_types": "FUT",
+                    "records": 30,
+                },
+                note=(
+                    "Exact underlying match and expiry sorting are applied client-side "
+                    "on the response — the API request is the same either way."
+                    if exact else
+                    "Results are sorted by expiry client-side; the API returns them unsorted."
+                ),
+            )
 
 
 elif example == "Search Options":
@@ -353,7 +432,8 @@ elif example == "Search Options":
     opt_type     = c3.selectbox("Option type", ["CE,PE", "CE", "PE"])
     strikes_each = c4.number_input("Strikes each side", 1, 15, 5)
 
-    if st.button("🔍 Fetch Options", type="primary"):
+    go, link_slot = action_row("🔍 Fetch Options")
+    if go:
         bar = st.progress(0)
         insts = fetch_options_range(client, query, expiry, opt_type, strikes_each, bar)
         bar.empty()
@@ -369,7 +449,25 @@ elif example == "Search Options":
                 "Key":    i.get("instrument_key", ""),
             } for i in insts]).sort_values(["Strike", "Type"])
             st.success(f"Found {len(df)} option(s)")
+            curl_jump_link(link_slot)
             st.dataframe(df, use_container_width=True)
+            show_curl(
+                "GET", "/v2/instruments/search",
+                {
+                    "query": query,
+                    "exchanges": "NSE",
+                    "segments": "FO",
+                    "instrument_types": opt_type,
+                    "expiry": expiry,
+                    "atm_offset": 0,
+                    "records": 1,
+                },
+                note=(
+                    f"Shown for the ATM strike (`atm_offset=0`). This page repeats the same "
+                    f"call once per offset from −{strikes_each} to +{strikes_each} "
+                    f"({strikes_each * 2 + 1} requests) and dedupes by strike."
+                ),
+            )
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -378,7 +476,8 @@ elif example == "Search Options":
 
 elif example == "NIFTY Futures Spread":
     client = require_client()
-    if st.button("▶ Run", type="primary"):
+    go, link_slot = action_row("▶ Run")
+    if go:
         with st.spinner("Fetching NIFTY futures…"):
             futures = get_futures_sorted(client, "NIFTY", exchange="NSE", exact_symbol=True)
         if len(futures) < 2:
@@ -394,6 +493,7 @@ elif example == "NIFTY Futures Spread":
         spread_pct = (spread / near_ltp * 100) if near_ltp else 0
         lot        = near.get("lot_size", 1)
 
+        curl_jump_link(link_slot)
         c1, c2, c3 = st.columns(3)
         c1.metric("Near Month LTP",  f"₹{near_ltp:,.2f}", f"Close: {cv(near_q):,.2f}")
         c2.metric("Far Month LTP",   f"₹{far_ltp:,.2f}",  f"Close: {cv(far_q):,.2f}")
@@ -409,11 +509,26 @@ elif example == "NIFTY Futures Spread":
         st.info(contango_label(spread))
         st.caption(f"Spread per lot ({lot} units): ₹{spread * lot:+,.2f}")
         st.caption("Arbitrage: Buy near + Sell far if spread > cost-of-carry. Spread collapses at near-month expiry.")
+        show_curls([
+            {
+                "label": "1. Find NIFTY futures, sorted by expiry",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": "NIFTY", "exchanges": "NSE", "segments": "FO",
+                           "instrument_types": "FUT", "records": 30},
+                "note": "Sorting by expiry and picking the nearest two contracts happens client-side.",
+            },
+            {
+                "label": "2. Fetch LTP for the near + far contracts",
+                "method": "GET", "path": "/v3/market-quote/ltp",
+                "params": {"instrument_key": f'{near["instrument_key"]},{far["instrument_key"]}'},
+            },
+        ])
 
 
 elif example == "BankNifty Futures Spread":
     client = require_client()
-    if st.button("▶ Run", type="primary"):
+    go, link_slot = action_row("▶ Run")
+    if go:
         with st.spinner("Fetching BANKNIFTY futures…"):
             futures = get_futures_sorted(client, "BANKNIFTY", exchange="NSE", exact_symbol=True)
         if len(futures) < 2:
@@ -429,6 +544,7 @@ elif example == "BankNifty Futures Spread":
         spread_pct = (spread / near_ltp * 100) if near_ltp else 0
         lot        = near.get("lot_size", 1)
 
+        curl_jump_link(link_slot)
         c1, c2, c3 = st.columns(3)
         c1.metric("Near Contract LTP", f"₹{near_ltp:,.2f}", f"Close: {cv(near_q):,.2f}")
         c2.metric("Far Contract LTP",  f"₹{far_ltp:,.2f}",  f"Close: {cv(far_q):,.2f}")
@@ -444,13 +560,28 @@ elif example == "BankNifty Futures Spread":
         st.info(contango_label(spread))
         st.caption(f"Spread per lot ({lot} units): ₹{spread * lot:+,.2f}")
         st.caption("BankNifty has weekly expiries — near/far may both be in the current month.")
+        show_curls([
+            {
+                "label": "1. Find BANKNIFTY futures, sorted by expiry",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": "BANKNIFTY", "exchanges": "NSE", "segments": "FO",
+                           "instrument_types": "FUT", "records": 30},
+                "note": "Sorting by expiry and picking the nearest two contracts happens client-side.",
+            },
+            {
+                "label": "2. Fetch LTP for the near + far contracts",
+                "method": "GET", "path": "/v3/market-quote/ltp",
+                "params": {"instrument_key": f'{near["instrument_key"]},{far["instrument_key"]}'},
+            },
+        ])
 
 
 elif example == "Cash-Futures Basis":
     client = require_client()
     underlying = st.selectbox("Underlying", ["NIFTY 50", "BANKNIFTY", "FINNIFTY", "MIDCPNIFTY"])
 
-    if st.button("▶ Run", type="primary"):
+    go, link_slot = action_row("▶ Run")
+    if go:
         fut_q_map = {"NIFTY 50": "NIFTY", "BANKNIFTY": "BANKNIFTY",
                      "FINNIFTY": "FINNIFTY", "MIDCPNIFTY": "MIDCPNIFTY"}
         fut_sym = fut_q_map[underlying]
@@ -482,6 +613,7 @@ elif example == "Cash-Futures Basis":
         d        = dte(near.get("expiry", ""))
         ann      = (basis_pct / d * 365) if d else 0
 
+        curl_jump_link(link_slot)
         c1, c2, c3, c4 = st.columns(4)
         c1.metric("Spot (Index)",       f"₹{spot_ltp:,.2f}")
         c2.metric("Futures (Near)",     f"₹{fut_ltp:,.2f}")
@@ -493,6 +625,26 @@ elif example == "Cash-Futures Basis":
             st.success("🟢 Futures at premium — positive carry (interest rate > dividend yield).")
         else:
             st.warning("🔴 Futures at discount — dividend yield > cost of carry, or bearish sentiment.")
+        show_curls([
+            {
+                "label": "1. Resolve the spot index instrument",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": underlying, "exchanges": "NSE", "segments": "INDEX",
+                           "instrument_types": "INDEX", "records": 5},
+            },
+            {
+                "label": "2. Find the futures, sorted by expiry",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": fut_sym, "exchanges": "NSE", "segments": "FO",
+                           "instrument_types": "FUT", "records": 30},
+                "note": "Sorting by expiry and picking the nearest contract happens client-side.",
+            },
+            {
+                "label": "3. Fetch LTP for spot + near-month futures",
+                "method": "GET", "path": "/v3/market-quote/ltp",
+                "params": {"instrument_key": f'{spot_inst["instrument_key"]},{near["instrument_key"]}'},
+            },
+        ])
 
 
 elif example == "Futures Roll Cost":
@@ -501,7 +653,8 @@ elif example == "Futures Roll Cost":
     query = c1.text_input("Underlying", value="NIFTY")
     side  = c2.selectbox("Position side", ["long", "short"])
 
-    if st.button("▶ Run", type="primary"):
+    go, link_slot = action_row("▶ Run")
+    if go:
         with st.spinner("Fetching futures…"):
             futures = get_futures_sorted(client, query, exchange="NSE", exact_symbol=True)
         if len(futures) < 2:
@@ -526,6 +679,7 @@ elif example == "Futures Roll Cost":
 
         ann = (roll_pct / gap * 365) if gap else 0
 
+        curl_jump_link(link_slot)
         c1, c2, c3 = st.columns(3)
         c1.metric("Roll Cost (pts)", f"{roll:+.2f}")
         c2.metric("Roll Cost (%)",   f"{roll_pct:+.2f}%")
@@ -539,6 +693,20 @@ elif example == "Futures Roll Cost":
             {"Action": action_far,  "Contract": far["trading_symbol"],  "Expiry": far["expiry"],  "LTP": far_ltp},
         ]), use_container_width=True)
         st.caption(f"Roll cost per lot: ₹{roll * lot:+,.2f} | Days between expiries: {gap} | DTE near: {dte_near}")
+        show_curls([
+            {
+                "label": "1. Find futures, sorted by expiry",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": query, "exchanges": "NSE", "segments": "FO",
+                           "instrument_types": "FUT", "records": 30},
+                "note": "Sorting by expiry and picking the nearest two contracts happens client-side.",
+            },
+            {
+                "label": "2. Fetch LTP for the near + far contracts",
+                "method": "GET", "path": "/v3/market-quote/ltp",
+                "params": {"instrument_key": f'{near["instrument_key"]},{far["instrument_key"]}'},
+            },
+        ])
 
 
 elif example == "MCX Crude Spread":
@@ -546,7 +714,8 @@ elif example == "MCX Crude Spread":
     query = st.text_input("Commodity symbol", value="CRUDEOIL",
                           help="e.g. CRUDEOIL, NATURALGAS, GOLD, SILVER")
 
-    if st.button("▶ Run", type="primary"):
+    go, link_slot = action_row("▶ Run")
+    if go:
         with st.spinner("Fetching MCX futures…"):
             futures = get_futures_sorted(client, query, exchange="MCX", exact_symbol=False, segment="COMM")
         if len(futures) < 2:
@@ -561,6 +730,7 @@ elif example == "MCX Crude Spread":
         spread_pct = (spread / near_ltp * 100) if near_ltp else 0
         lot        = near.get("lot_size", 1)
 
+        curl_jump_link(link_slot)
         c1, c2, c3 = st.columns(3)
         c1.metric("Near LTP",  f"₹{near_ltp:,.2f}", f"Close: {cv(data.get(near['instrument_key'])):,.2f}")
         c2.metric("Far LTP",   f"₹{far_ltp:,.2f}",  f"Close: {cv(data.get(far['instrument_key'])):,.2f}")
@@ -573,6 +743,20 @@ elif example == "MCX Crude Spread":
         ]), use_container_width=True)
         st.info(contango_label(spread))
         st.caption(f"Spread per lot ({lot} units): ₹{spread * lot:+,.2f}")
+        show_curls([
+            {
+                "label": "1. Find MCX futures, sorted by expiry",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": query, "exchanges": "MCX", "segments": "COMM",
+                           "instrument_types": "FUT", "records": 30},
+                "note": "Sorting by expiry and picking the nearest two contracts happens client-side.",
+            },
+            {
+                "label": "2. Fetch LTP for the near + far contracts",
+                "method": "GET", "path": "/v3/market-quote/ltp",
+                "params": {"instrument_key": f'{near["instrument_key"]},{far["instrument_key"]}'},
+            },
+        ])
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -585,7 +769,8 @@ elif example == "Straddle Pricer":
     query  = c1.text_input("Underlying", value="NIFTY")
     expiry = c2.selectbox("Expiry", ["current_month", "current_week", "next_month"])
 
-    if st.button("▶ Price Straddle", type="primary"):
+    go, link_slot = action_row("▶ Price Straddle")
+    if go:
         with st.spinner("Fetching ATM options…"):
             ce = fetch_one(client, query, expiry, "CE", 0)
             pe = fetch_one(client, query, expiry, "PE", 0)
@@ -602,6 +787,7 @@ elif example == "Straddle Pricer":
         lower_be = strike - premium
         lot      = ce.get("lot_size", 1)
 
+        curl_jump_link(link_slot)
         c1, c2, c3 = st.columns(3)
         c1.metric("ATM Strike",            f"₹{strike:,.0f}")
         c2.metric("Total Premium (CE+PE)", f"₹{premium:,.2f}")
@@ -618,6 +804,25 @@ elif example == "Straddle Pricer":
         ]), use_container_width=True)
         st.caption(f"Buyer profits if underlying moves > ₹{premium:.2f} in either direction.")
         st.caption(f"Seller max profit ₹{premium * lot:,.2f}/lot if underlying stays within ₹{lower_be:,.2f}–₹{upper_be:,.2f}.")
+        show_curls([
+            {
+                "label": "1. Find the ATM call",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": query, "exchanges": "NSE", "segments": "FO",
+                           "instrument_types": "CE", "expiry": expiry, "atm_offset": 0, "records": 1},
+            },
+            {
+                "label": "2. Find the ATM put",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": query, "exchanges": "NSE", "segments": "FO",
+                           "instrument_types": "PE", "expiry": expiry, "atm_offset": 0, "records": 1},
+            },
+            {
+                "label": "3. Fetch LTP for both legs",
+                "method": "GET", "path": "/v3/market-quote/ltp",
+                "params": {"instrument_key": f'{ce["instrument_key"]},{pe["instrument_key"]}'},
+            },
+        ])
 
 
 elif example == "Strangle Pricer":
@@ -627,7 +832,8 @@ elif example == "Strangle Pricer":
     expiry     = c2.selectbox("Expiry", ["current_month", "current_week", "next_month"])
     otm_offset = c3.number_input("OTM offset (strikes)", 1, 10, 2)
 
-    if st.button("▶ Price Strangle", type="primary"):
+    go, link_slot = action_row("▶ Price Strangle")
+    if go:
         with st.spinner("Fetching OTM options…"):
             ce = fetch_one(client, query, expiry, "CE", +otm_offset)
             pe = fetch_one(client, query, expiry, "PE", -otm_offset)
@@ -643,6 +849,7 @@ elif example == "Strangle Pricer":
         premium   = ce_ltp + pe_ltp
         lot       = ce.get("lot_size", 1)
 
+        curl_jump_link(link_slot)
         c1, c2, c3 = st.columns(3)
         c1.metric(f"CE Strike (+{otm_offset})", f"₹{ce_strike:,.0f}", f"LTP: {ce_ltp:.2f}")
         c2.metric(f"PE Strike (-{otm_offset})", f"₹{pe_strike:,.0f}", f"LTP: {pe_ltp:.2f}")
@@ -658,6 +865,27 @@ elif example == "Strangle Pricer":
             {"Leg": f"Buy PE -{otm_offset}", "Strike": pe_strike, "LTP": pe_ltp, "Symbol": pe["trading_symbol"]},
         ]), use_container_width=True)
         st.caption(f"Max loss per lot: ₹{premium * lot:,.2f} (if underlying stays between strikes).")
+        show_curls([
+            {
+                "label": f"1. Find the CE +{otm_offset} strikes OTM",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": query, "exchanges": "NSE", "segments": "FO",
+                           "instrument_types": "CE", "expiry": expiry,
+                           "atm_offset": otm_offset, "records": 1},
+            },
+            {
+                "label": f"2. Find the PE -{otm_offset} strikes OTM",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": query, "exchanges": "NSE", "segments": "FO",
+                           "instrument_types": "PE", "expiry": expiry,
+                           "atm_offset": -otm_offset, "records": 1},
+            },
+            {
+                "label": "3. Fetch LTP for both legs",
+                "method": "GET", "path": "/v3/market-quote/ltp",
+                "params": {"instrument_key": f'{ce["instrument_key"]},{pe["instrument_key"]}'},
+            },
+        ])
 
 
 elif example == "Bull Call Spread":
@@ -667,7 +895,8 @@ elif example == "Bull Call Spread":
     expiry        = c2.selectbox("Expiry", ["current_month", "current_week", "next_month"])
     spread_width  = c3.number_input("Spread width (strikes)", 1, 10, 2)
 
-    if st.button("▶ Price Bull Call Spread", type="primary"):
+    go, link_slot = action_row("▶ Price Bull Call Spread")
+    if go:
         with st.spinner("Fetching options…"):
             buy_ce  = fetch_one(client, query, expiry, "CE", 0)
             sell_ce = fetch_one(client, query, expiry, "CE", +spread_width)
@@ -684,6 +913,7 @@ elif example == "Bull Call Spread":
         max_prof  = (sell_k - buy_k) - debit
         lot       = buy_ce.get("lot_size", 1)
 
+        curl_jump_link(link_slot)
         c1, c2, c3 = st.columns(3)
         c1.metric("Net Debit",  f"₹{debit:,.2f}", "Cost per unit")
         c2.metric("Max Profit", f"₹{max_prof:,.2f}", f"₹{max_prof * lot:,.2f}/lot")
@@ -696,6 +926,26 @@ elif example == "Bull Call Spread":
         ]), use_container_width=True)
         st.caption(f"Max loss: ₹{debit:.2f}/unit if spot < {buy_k:,.0f} at expiry.")
         st.caption(f"Max profit: ₹{max_prof:.2f}/unit if spot > {sell_k:,.0f} at expiry.")
+        show_curls([
+            {
+                "label": "1. Find the ATM call (buy leg)",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": query, "exchanges": "NSE", "segments": "FO",
+                           "instrument_types": "CE", "expiry": expiry, "atm_offset": 0, "records": 1},
+            },
+            {
+                "label": f"2. Find the CE +{spread_width} strikes OTM (sell leg)",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": query, "exchanges": "NSE", "segments": "FO",
+                           "instrument_types": "CE", "expiry": expiry,
+                           "atm_offset": spread_width, "records": 1},
+            },
+            {
+                "label": "3. Fetch LTP for both legs",
+                "method": "GET", "path": "/v3/market-quote/ltp",
+                "params": {"instrument_key": f'{buy_ce["instrument_key"]},{sell_ce["instrument_key"]}'},
+            },
+        ])
 
 
 elif example == "Iron Condor":
@@ -707,7 +957,8 @@ elif example == "Iron Condor":
                                     help="Strikes from ATM for the sold legs")
     long_offset   = short_offset + 2
 
-    if st.button("▶ Price Iron Condor", type="primary"):
+    go, link_slot = action_row("▶ Price Iron Condor")
+    if go:
         with st.spinner("Fetching 4 legs…"):
             sell_ce = fetch_one(client, query, expiry, "CE", +short_offset)
             buy_ce  = fetch_one(client, query, expiry, "CE", +long_offset)
@@ -729,6 +980,7 @@ elif example == "Iron Condor":
         max_loss     = wing_width - net_credit
         lot          = sell_ce.get("lot_size", 1)
 
+        curl_jump_link(link_slot)
         c1, c2, c3 = st.columns(3)
         c1.metric("Net Credit", f"₹{net_credit:,.2f}", f"₹{net_credit * lot:,.2f}/lot")
         c2.metric("Max Loss",   f"₹{max_loss:,.2f}",   f"₹{max_loss * lot:,.2f}/lot")
@@ -742,6 +994,37 @@ elif example == "Iron Condor":
             {"Leg": f"Sell PE -{short_offset}", "Strike": sell_pe["strike_price"], "LTP": sell_pe_ltp, "Symbol": sell_pe["trading_symbol"]},
             {"Leg": f"Buy PE  -{long_offset}",  "Strike": buy_pe["strike_price"],  "LTP": buy_pe_ltp,  "Symbol": buy_pe["trading_symbol"]},
         ]), use_container_width=True)
+        show_curls([
+            {
+                "label": f"1. Sell CE +{short_offset}",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": query, "exchanges": "NSE", "segments": "FO", "instrument_types": "CE",
+                           "expiry": expiry, "atm_offset": short_offset, "records": 1},
+            },
+            {
+                "label": f"2. Buy CE +{long_offset}",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": query, "exchanges": "NSE", "segments": "FO", "instrument_types": "CE",
+                           "expiry": expiry, "atm_offset": long_offset, "records": 1},
+            },
+            {
+                "label": f"3. Sell PE -{short_offset}",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": query, "exchanges": "NSE", "segments": "FO", "instrument_types": "PE",
+                           "expiry": expiry, "atm_offset": -short_offset, "records": 1},
+            },
+            {
+                "label": f"4. Buy PE -{long_offset}",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": query, "exchanges": "NSE", "segments": "FO", "instrument_types": "PE",
+                           "expiry": expiry, "atm_offset": -long_offset, "records": 1},
+            },
+            {
+                "label": "5. Fetch LTP for all 4 legs",
+                "method": "GET", "path": "/v3/market-quote/ltp",
+                "params": {"instrument_key": ",".join(l["instrument_key"] for l in legs)},
+            },
+        ])
 
 
 elif example == "Butterfly Spread":
@@ -750,7 +1033,8 @@ elif example == "Butterfly Spread":
     query  = c1.text_input("Underlying", value="NIFTY")
     expiry = c2.selectbox("Expiry", ["current_month", "current_week", "next_month"])
 
-    if st.button("▶ Price Butterfly", type="primary"):
+    go, link_slot = action_row("▶ Price Butterfly")
+    if go:
         with st.spinner("Fetching 3 legs…"):
             lower_ce = fetch_one(client, query, expiry, "CE", -1)
             atm_ce   = fetch_one(client, query, expiry, "CE",  0)
@@ -769,6 +1053,7 @@ elif example == "Butterfly Spread":
         max_profit = wing_width - net_debit
         lot        = atm_ce.get("lot_size", 1)
 
+        curl_jump_link(link_slot)
         c1, c2, c3 = st.columns(3)
         c1.metric("Net Debit",  f"₹{net_debit:,.2f}")
         c2.metric("Max Profit", f"₹{max_profit:,.2f}", f"at {atm_ce['strike_price']:,.0f}")
@@ -781,6 +1066,32 @@ elif example == "Butterfly Spread":
             {"Leg": "Buy CE (+1)",  "Strike": upper_ce["strike_price"], "Qty": "+1", "LTP": upper_ltp},
         ]), use_container_width=True)
         st.caption(f"Max profit per lot: ₹{max_profit * lot:,.2f}. Max loss per lot: ₹{net_debit * lot:,.2f}.")
+        show_curls([
+            {
+                "label": "1. Buy CE -1 strike",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": query, "exchanges": "NSE", "segments": "FO", "instrument_types": "CE",
+                           "expiry": expiry, "atm_offset": -1, "records": 1},
+            },
+            {
+                "label": "2. Sell 2x CE ATM",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": query, "exchanges": "NSE", "segments": "FO", "instrument_types": "CE",
+                           "expiry": expiry, "atm_offset": 0, "records": 1},
+            },
+            {
+                "label": "3. Buy CE +1 strike",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": query, "exchanges": "NSE", "segments": "FO", "instrument_types": "CE",
+                           "expiry": expiry, "atm_offset": 1, "records": 1},
+            },
+            {
+                "label": "4. Fetch LTP for all 3 legs",
+                "method": "GET", "path": "/v3/market-quote/ltp",
+                "params": {"instrument_key":
+                           f'{lower_ce["instrument_key"]},{atm_ce["instrument_key"]},{upper_ce["instrument_key"]}'},
+            },
+        ])
 
 
 elif example == "Calendar Spread":
@@ -789,7 +1100,8 @@ elif example == "Calendar Spread":
     query    = c1.text_input("Underlying", value="NIFTY")
     opt_type = c2.selectbox("Option type", ["CE", "PE"])
 
-    if st.button("▶ Price Calendar Spread", type="primary"):
+    go, link_slot = action_row("▶ Price Calendar Spread")
+    if go:
         with st.spinner("Fetching near + far month options…"):
             near_opt = fetch_one(client, query, "current_month", opt_type, 0)
             far_opt  = fetch_one(client, query, "next_month",    opt_type, 0)
@@ -803,6 +1115,7 @@ elif example == "Calendar Spread":
         net_debit = far_ltp - near_ltp
         lot       = near_opt.get("lot_size", 1)
 
+        curl_jump_link(link_slot)
         c1, c2, c3 = st.columns(3)
         c1.metric(f"Near {opt_type}", f"₹{near_ltp:,.2f}", near_opt["expiry"])
         c2.metric(f"Far {opt_type}",  f"₹{far_ltp:,.2f}",  far_opt["expiry"])
@@ -816,6 +1129,25 @@ elif example == "Calendar Spread":
              "Expiry": far_opt["expiry"],  "LTP": far_ltp,  "Symbol": far_opt["trading_symbol"]},
         ]), use_container_width=True)
         st.caption("Strategy profits from faster time-decay of the near-month leg.")
+        show_curls([
+            {
+                "label": f"1. Sell near-month {opt_type} ATM",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": query, "exchanges": "NSE", "segments": "FO", "instrument_types": opt_type,
+                           "expiry": "current_month", "atm_offset": 0, "records": 1},
+            },
+            {
+                "label": f"2. Buy far-month {opt_type} ATM",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": query, "exchanges": "NSE", "segments": "FO", "instrument_types": opt_type,
+                           "expiry": "next_month", "atm_offset": 0, "records": 1},
+            },
+            {
+                "label": "3. Fetch LTP for both legs",
+                "method": "GET", "path": "/v3/market-quote/ltp",
+                "params": {"instrument_key": f'{near_opt["instrument_key"]},{far_opt["instrument_key"]}'},
+            },
+        ])
 
 
 elif example == "Put-Call Parity":
@@ -824,7 +1156,8 @@ elif example == "Put-Call Parity":
     query  = c1.text_input("Underlying", value="NIFTY")
     expiry = c2.selectbox("Expiry", ["current_month", "current_week", "next_month"])
 
-    if st.button("▶ Check Parity", type="primary"):
+    go, link_slot = action_row("▶ Check Parity")
+    if go:
         with st.spinner("Fetching options + futures…"):
             ce      = fetch_one(client, query, expiry, "CE", 0)
             pe      = fetch_one(client, query, expiry, "PE", 0)
@@ -846,6 +1179,7 @@ elif example == "Put-Call Parity":
         dev     = lhs - rhs
         dev_pct = (dev / strike * 100) if strike else 0
 
+        curl_jump_link(link_slot)
         c1, c2, c3 = st.columns(3)
         c1.metric("CE − PE (LHS)",             f"₹{lhs:+.2f}")
         c2.metric("Futures − Strike (RHS)",    f"₹{rhs:+.2f}")
@@ -862,6 +1196,33 @@ elif example == "Put-Call Parity":
             {"Item": "PE (ATM)", "Strike": strike, "LTP": pe_ltp, "Symbol": pe["trading_symbol"]},
             {"Item": "Futures (Near)", "Strike": "—", "LTP": fut_ltp, "Symbol": futures[0]["trading_symbol"]},
         ]), use_container_width=True)
+        show_curls([
+            {
+                "label": "1. Find the ATM call",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": query, "exchanges": "NSE", "segments": "FO", "instrument_types": "CE",
+                           "expiry": expiry, "atm_offset": 0, "records": 1},
+            },
+            {
+                "label": "2. Find the ATM put",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": query, "exchanges": "NSE", "segments": "FO", "instrument_types": "PE",
+                           "expiry": expiry, "atm_offset": 0, "records": 1},
+            },
+            {
+                "label": "3. Find futures, sorted by expiry",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": query, "exchanges": "NSE", "segments": "FO", "instrument_types": "FUT",
+                           "records": 30},
+                "note": "Sorting by expiry and picking the nearest contract happens client-side.",
+            },
+            {
+                "label": "4. Fetch LTP for CE, PE and the near-month future",
+                "method": "GET", "path": "/v3/market-quote/ltp",
+                "params": {"instrument_key":
+                           f'{ce["instrument_key"]},{pe["instrument_key"]},{futures[0]["instrument_key"]}'},
+            },
+        ])
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -875,7 +1236,8 @@ elif example == "Options Chain Builder":
     expiry       = c2.selectbox("Expiry", ["current_month", "current_week", "next_month"])
     strikes_each = c3.number_input("Strikes each side of ATM", 1, 15, 5)
 
-    if st.button("▶ Build Chain", type="primary"):
+    go, link_slot = action_row("▶ Build Chain")
+    if go:
         bar     = st.progress(0, text="Fetching chain…")
         offsets = list(range(-strikes_each, strikes_each + 1))
         ce_map, pe_map = {}, {}
@@ -920,7 +1282,24 @@ elif example == "Options Chain Builder":
             return (["background-color: #fff3cd"] * len(row)
                     if row["ATM"] == "◀ ATM" else [""] * len(row))
 
+        curl_jump_link(link_slot)
         st.dataframe(df.style.apply(highlight_atm, axis=1), use_container_width=True)
+        show_curls([
+            {
+                "label": "1. Fetch one strike (shown here for the ATM call)",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": query, "exchanges": "NSE", "segments": "FO", "instrument_types": "CE",
+                           "expiry": expiry, "atm_offset": 0, "records": 1},
+                "note": (f"This page repeats the same call for CE and PE at every offset from "
+                         f"−{strikes_each} to +{strikes_each} ({len(offsets) * 2} requests total)."),
+            },
+            {
+                "label": "2. Fetch LTP for every strike found",
+                "method": "GET", "path": "/v3/market-quote/ltp",
+                "params": {"instrument_key": ",".join(all_keys[:3]) + (",…" if len(all_keys) > 3 else "")},
+                "note": f"{len(all_keys)} instrument key(s) in the real call; truncated here for display.",
+            },
+        ])
 
 
 elif example == "Max Pain Calculator":
@@ -930,7 +1309,8 @@ elif example == "Max Pain Calculator":
     expiry       = c2.selectbox("Expiry", ["current_month", "current_week", "next_month"])
     strikes_each = c3.number_input("Strikes each side", 3, 15, 8)
 
-    if st.button("▶ Calculate Max Pain", type="primary"):
+    go, link_slot = action_row("▶ Calculate Max Pain")
+    if go:
         bar = st.progress(0, text="Fetching OI data…")
         ce_insts, pe_insts = [], []
         total = strikes_each * 2 + 1
@@ -969,6 +1349,7 @@ elif example == "Max Pain Calculator":
             )
 
         max_pain_strike = min(pain, key=pain.get)
+        curl_jump_link(link_slot)
         st.metric("🎯 Max Pain Strike", f"₹{max_pain_strike:,.0f}")
 
         df = pd.DataFrame([{
@@ -987,6 +1368,23 @@ elif example == "Max Pain Calculator":
         st.plotly_chart(fig, use_container_width=True)
         st.dataframe(df, use_container_width=True)
         st.caption("Interpretation: underlying tends to gravitate toward max pain at expiry.")
+        show_curls([
+            {
+                "label": "1. Fetch one strike (shown here for the ATM call)",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": query, "exchanges": "NSE", "segments": "FO", "instrument_types": "CE",
+                           "expiry": expiry, "atm_offset": 0, "records": 1},
+                "note": (f"This page repeats the same call for CE and PE at every offset from "
+                         f"−{strikes_each} to +{strikes_each} ({total * 2} requests total)."),
+            },
+            {
+                "label": "2. Fetch full quotes (for open interest) for every strike found",
+                "method": "GET", "path": "/v2/market-quote/quotes",
+                "params": {"symbol": ",".join(all_keys[:3]) + (",…" if len(all_keys) > 3 else "")},
+                "extra_headers": {"Api-Version": "2.0"},
+                "note": f"{len(all_keys)} instrument key(s) in the real call; truncated here for display.",
+            },
+        ])
 
 
 elif example == "OI Skew":
@@ -996,7 +1394,8 @@ elif example == "OI Skew":
     expiry       = c2.selectbox("Expiry", ["current_month", "current_week", "next_month"])
     strikes_each = c3.number_input("Strikes each side", 3, 12, 7)
 
-    if st.button("▶ Analyse OI Skew", type="primary"):
+    go, link_slot = action_row("▶ Analyse OI Skew")
+    if go:
         bar = st.progress(0)
         ce_insts, pe_insts = [], []
         total = strikes_each * 2 + 1
@@ -1029,6 +1428,7 @@ elif example == "OI Skew":
         total_ce = sum(ce_oi.values()); total_pe = sum(pe_oi.values())
         pcr      = total_pe / total_ce if total_ce else 0
 
+        curl_jump_link(link_slot)
         c1, c2, c3 = st.columns(3)
         c1.metric("Total CE OI", f"{total_ce:,.0f}")
         c2.metric("Total PE OI", f"{total_pe:,.0f}")
@@ -1061,6 +1461,23 @@ elif example == "OI Skew":
             st.info("⚖️ Balanced OI — no strong directional bias.")
 
         st.dataframe(df, use_container_width=True)
+        show_curls([
+            {
+                "label": "1. Fetch one strike (shown here for the ATM call)",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": query, "exchanges": "NSE", "segments": "FO", "instrument_types": "CE",
+                           "expiry": expiry, "atm_offset": 0, "records": 1},
+                "note": (f"This page repeats the same call for CE and PE at every offset from "
+                         f"−{strikes_each} to +{strikes_each} ({total * 2} requests total)."),
+            },
+            {
+                "label": "2. Fetch full quotes (for open interest) for every strike found",
+                "method": "GET", "path": "/v2/market-quote/quotes",
+                "params": {"symbol": ",".join(all_keys[:3]) + (",…" if len(all_keys) > 3 else "")},
+                "extra_headers": {"Api-Version": "2.0"},
+                "note": f"{len(all_keys)} instrument key(s) in the real call; truncated here for display.",
+            },
+        ])
 
 
 elif example == "Volatility Skew":
@@ -1070,7 +1487,8 @@ elif example == "Volatility Skew":
     expiry = c2.selectbox("Expiry", ["current_month", "current_week", "next_month"])
     depth  = c3.number_input("OTM depth (strikes)", 1, 10, 4)
 
-    if st.button("▶ Analyse Skew", type="primary"):
+    go, link_slot = action_row("▶ Analyse Skew")
+    if go:
         with st.spinner("Fetching options…"):
             atm_ce = fetch_one(client, query, expiry, "CE", 0)
             atm_pe = fetch_one(client, query, expiry, "PE", 0)
@@ -1097,10 +1515,28 @@ elif example == "Volatility Skew":
         atm_pe_p  = price(atm_pe)
         atm_strike = atm_ce.get("strike_price", 0) if atm_ce else 0
 
+        curl_jump_link(link_slot)
         c1, c2, c3 = st.columns(3)
         c1.metric("ATM Strike", f"₹{atm_strike:,.0f}")
         c2.metric("ATM CE",     f"₹{atm_ce_p:.2f}")
         c3.metric("ATM Skew (PE/CE)", f"{atm_pe_p/atm_ce_p:.3f}" if atm_ce_p else "N/A")
+
+        show_curls([
+            {
+                "label": "1. Fetch the ATM strike (shown here for the call)",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": query, "exchanges": "NSE", "segments": "FO", "instrument_types": "CE",
+                           "expiry": expiry, "atm_offset": 0, "records": 1},
+                "note": (f"This page repeats the same call for CE and PE at ATM plus every OTM depth "
+                         f"from 1 to {depth} ({2 * depth + 2} requests total)."),
+            },
+            {
+                "label": "2. Fetch LTP for every strike found",
+                "method": "GET", "path": "/v3/market-quote/ltp",
+                "params": {"instrument_key": ",".join(all_keys[:3]) + (",…" if len(all_keys) > 3 else "")},
+                "note": f"{len(all_keys)} instrument key(s) in the real call; truncated here for display.",
+            },
+        ])
 
         chart = []
         for offset, ce, pe in rows:
@@ -1133,7 +1569,8 @@ elif example == "Gamma Exposure":
     strikes_each = c3.number_input("Strikes each side", 3, 12, 8)
     dte_est      = c4.number_input("Est. DTE for gamma calc", 1, 60, 15)
 
-    if st.button("▶ Estimate GEX", type="primary"):
+    go, link_slot = action_row("▶ Estimate GEX")
+    if go:
         bar = st.progress(0)
         ce_insts, pe_insts = [], []
         total = strikes_each * 2 + 1
@@ -1183,6 +1620,7 @@ elif example == "Gamma Exposure":
         total_gex = df["GEX"].sum()
 
         label = "🟢 Positive — dealers dampen volatility" if total_gex > 0 else "🔴 Negative — dealers may amplify moves"
+        curl_jump_link(link_slot)
         st.metric("Net Dealer GEX (proxy)", f"{total_gex:+,.0f}", label)
 
         colors = ["#27ae60" if v > 0 else "#e74c3c" for v in df["GEX"]]
@@ -1193,6 +1631,24 @@ elif example == "Gamma Exposure":
         st.plotly_chart(fig, use_container_width=True)
         st.dataframe(df, use_container_width=True)
         st.caption("GEX uses simplified Black-Scholes gamma with IV=15%. For approximate direction only.")
+        show_curls([
+            {
+                "label": "1. Fetch one strike (shown here for the ATM call)",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": query, "exchanges": "NSE", "segments": "FO", "instrument_types": "CE",
+                           "expiry": expiry, "atm_offset": 0, "records": 1},
+                "note": (f"This page repeats the same call for CE and PE at every offset from "
+                         f"−{strikes_each} to +{strikes_each} ({total * 2} requests total), plus one "
+                         f"extra ATM call to read the spot proxy."),
+            },
+            {
+                "label": "2. Fetch full quotes (for open interest) for every strike found",
+                "method": "GET", "path": "/v2/market-quote/quotes",
+                "params": {"symbol": ",".join(all_keys[:3]) + (",…" if len(all_keys) > 3 else "")},
+                "extra_headers": {"Api-Version": "2.0"},
+                "note": f"{len(all_keys)} instrument key(s) in the real call; truncated here for display.",
+            },
+        ])
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -1203,7 +1659,8 @@ elif example == "NSE / BSE Arbitrage":
     client = require_client()
     query = st.text_input("Stock symbol", value="RELIANCE")
 
-    if st.button("▶ Check Arbitrage", type="primary"):
+    go, link_slot = action_row("▶ Check Arbitrage")
+    if go:
         def find_eq(exchange):
             resp  = search_instrument(client, query, exchanges=exchange, segments="EQ", records=5)
             insts = resp.data or []
@@ -1228,6 +1685,7 @@ elif example == "NSE / BSE Arbitrage":
         spread  = nse_ltp - bse_ltp
         spr_pct = (spread / bse_ltp * 100) if bse_ltp else 0
 
+        curl_jump_link(link_slot)
         c1, c2, c3 = st.columns(3)
         c1.metric("NSE LTP", f"₹{nse_ltp:,.2f}", f"Vol: {nse_vol:,}")
         c2.metric("BSE LTP", f"₹{bse_ltp:,.2f}", f"Vol: {bse_vol:,}")
@@ -1245,6 +1703,23 @@ elif example == "NSE / BSE Arbitrage":
             {"Exchange": "NSE", "Symbol": nse.get("trading_symbol"), "LTP": nse_ltp, "Volume": nse_vol},
             {"Exchange": "BSE", "Symbol": bse.get("trading_symbol"), "LTP": bse_ltp, "Volume": bse_vol},
         ]), use_container_width=True)
+        show_curls([
+            {
+                "label": "1. Find the NSE listing",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": query, "exchanges": "NSE", "segments": "EQ", "records": 5},
+            },
+            {
+                "label": "2. Find the BSE listing",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": query, "exchanges": "BSE", "segments": "EQ", "records": 5},
+            },
+            {
+                "label": "3. Fetch LTP for both listings",
+                "method": "GET", "path": "/v3/market-quote/ltp",
+                "params": {"instrument_key": f'{nse["instrument_key"]},{bse["instrument_key"]}'},
+            },
+        ])
 
 
 elif example == "ETF vs Index":
@@ -1257,7 +1732,8 @@ elif example == "ETF vs Index":
     choice           = st.selectbox("ETF", list(ETFs.keys()))
     etf_sym, idx_q   = ETFs[choice]
 
-    if st.button("▶ Compare", type="primary"):
+    go, link_slot = action_row("▶ Compare")
+    if go:
         with st.spinner("Fetching ETF and index prices…"):
             etf_resp  = search_instrument(client, etf_sym,  exchanges="NSE", segments="EQ",    records=3)
             idx_resp  = search_instrument(client, idx_q,    exchanges="NSE", segments="INDEX",
@@ -1275,6 +1751,7 @@ elif example == "ETF vs Index":
         premium  = etf_ltp - nav_prx
         prm_pct  = (premium / nav_prx * 100) if nav_prx else 0
 
+        curl_jump_link(link_slot)
         c1, c2, c3 = st.columns(3)
         c1.metric("ETF LTP",       f"₹{etf_ltp:,.2f}")
         c2.metric("NAV Proxy",     f"₹{nav_prx:,.2f}", f"Index: {idx_ltp:,.2f}")
@@ -1288,13 +1765,32 @@ elif example == "ETF vs Index":
         else:
             st.info(f"📉 ETF at discount ({prm_pct:+.2f}%). Arb: Buy ETF + Short index futures.")
         st.caption("NAV proxy = Index / 100. Actual intraday NAV from AMC may differ slightly.")
+        show_curls([
+            {
+                "label": "1. Find the ETF listing",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": etf_sym, "exchanges": "NSE", "segments": "EQ", "records": 3},
+            },
+            {
+                "label": "2. Find the tracking index",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": idx_q, "exchanges": "NSE", "segments": "INDEX",
+                           "instrument_types": "INDEX", "records": 3},
+            },
+            {
+                "label": "3. Fetch LTP for both",
+                "method": "GET", "path": "/v3/market-quote/ltp",
+                "params": {"instrument_key": f'{etf_inst["instrument_key"]},{idx_inst["instrument_key"]}'},
+            },
+        ])
 
 
 elif example == "Currency Futures Spread":
     client = require_client()
     pair = st.selectbox("Currency pair", ["USDINR", "EURINR", "GBPINR", "JPYINR"])
 
-    if st.button("▶ Run", type="primary"):
+    go, link_slot = action_row("▶ Run")
+    if go:
         with st.spinner("Fetching currency futures…"):
             futures = get_futures_sorted(client, pair, exchange="NSE", exact_symbol=True, segment="CURR")
             if not futures:
@@ -1310,6 +1806,7 @@ elif example == "Currency Futures Spread":
         far_ltp    = lv(data.get(far["instrument_key"]))
         spread     = far_ltp - near_ltp
 
+        curl_jump_link(link_slot)
         c1, c2, c3 = st.columns(3)
         c1.metric("Near Month", f"₹{near_ltp:.4f}", near["expiry"])
         c2.metric("Far Month",  f"₹{far_ltp:.4f}",  far["expiry"])
@@ -1320,6 +1817,20 @@ elif example == "Currency Futures Spread":
             {"Contract": far["trading_symbol"],  "Expiry": far["expiry"],  "LTP": far_ltp},
         ]), use_container_width=True)
         st.caption("Currency spread reflects interest rate differential (covered interest parity).")
+        show_curls([
+            {
+                "label": "1. Find currency futures, sorted by expiry",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": pair, "exchanges": "NSE", "segments": "CURR",
+                           "instrument_types": "FUT", "records": 30},
+                "note": "Falls back to exchanges=BSE if NSE returns no contracts.",
+            },
+            {
+                "label": "2. Fetch LTP for the near + far contracts",
+                "method": "GET", "path": "/v3/market-quote/ltp",
+                "params": {"instrument_key": f'{near["instrument_key"]},{far["instrument_key"]}'},
+            },
+        ])
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -1343,7 +1854,8 @@ elif example == "Historical Candles":
     from_date = c1.date_input("From", value=today - timedelta(days=365))
     to_date   = c2.date_input("To",   value=today)
 
-    if st.button("▶ Fetch Candles", type="primary"):
+    go, link_slot = action_row("▶ Fetch Candles")
+    if go:
         with st.spinner("Fetching historical data…"):
             candles = get_historical_candles(client, instr_key, unit, num, str(to_date), str(from_date))
         if not candles:
@@ -1355,6 +1867,7 @@ elif example == "Historical Candles":
         df = df.sort_values("timestamp")
 
         st.success(f"Fetched {len(df)} candles")
+        curl_jump_link(link_slot)
         fig = go.Figure(go.Candlestick(
             x=df["timestamp"], open=df["open"], high=df["high"],
             low=df["low"],     close=df["close"],
@@ -1362,6 +1875,10 @@ elif example == "Historical Candles":
         fig.update_layout(title=f"OHLC — {instr_key}", xaxis_title="Date", yaxis_title="Price")
         st.plotly_chart(fig, use_container_width=True)
         st.dataframe(df, use_container_width=True)
+        show_curl(
+            "GET", f"/v3/historical-candle/{instr_key}/{unit}/{num}/{to_date}/{from_date}",
+            note="Path segments are the instrument key, unit, interval, to-date and from-date, in that order.",
+        )
 
 
 elif example == "Moving Average (SMA)":
@@ -1374,7 +1891,8 @@ elif example == "Moving Average (SMA)":
     today     = date.today()
     from_date = today - timedelta(days=400)
 
-    if st.button("▶ Plot Moving Averages", type="primary"):
+    go, link_slot = action_row("▶ Plot Moving Averages")
+    if go:
         with st.spinner("Fetching data…"):
             candles = get_historical_candles(client, instr_key, "days", 1, str(today), str(from_date))
         if not candles:
@@ -1405,6 +1923,7 @@ elif example == "Moving Average (SMA)":
                                   mode="markers", name="Bearish Cross",
                                   marker=dict(symbol="triangle-down", size=12, color="red")))
         fig.update_layout(title=f"SMA Crossover — {instr_key}")
+        curl_jump_link(link_slot)
         st.plotly_chart(fig, use_container_width=True)
 
         signal_now = "📈 Bullish (fast > slow)" if df["signal"].iloc[-1] == 1 else "📉 Bearish (fast < slow)"
@@ -1412,6 +1931,10 @@ elif example == "Moving Average (SMA)":
         c1, c2 = st.columns(2)
         c1.metric(f"SMA{sma_fast}", f"₹{df[f'SMA{sma_fast}'].iloc[-1]:,.2f}")
         c2.metric(f"SMA{sma_slow}", f"₹{df[f'SMA{sma_slow}'].iloc[-1]:,.2f}")
+        show_curl(
+            "GET", f"/v3/historical-candle/{instr_key}/days/1/{today}/{from_date}",
+            note="Path segments are the instrument key, unit, interval, to-date and from-date, in that order.",
+        )
 
 
 elif example == "Historical Volatility":
@@ -1423,7 +1946,8 @@ elif example == "Historical Volatility":
     today     = date.today()
     from_date = today - timedelta(days=400)
 
-    if st.button("▶ Calculate HV", type="primary"):
+    go, link_slot = action_row("▶ Calculate HV")
+    if go:
         with st.spinner("Fetching data…"):
             candles = get_historical_candles(client, instr_key, "days", 1, str(today), str(from_date))
         if not candles:
@@ -1438,6 +1962,7 @@ elif example == "Historical Volatility":
         cur = df["hv"].iloc[-1]; avg = df["hv"].mean()
         mx  = df["hv"].max();    mn  = df["hv"].dropna().min()
 
+        curl_jump_link(link_slot)
         c1, c2, c3, c4 = st.columns(4)
         c1.metric(f"{window}D HV (now)", f"{cur:.1f}%")
         c2.metric("1Y Average HV",       f"{avg:.1f}%")
@@ -1452,13 +1977,18 @@ elif example == "Historical Volatility":
         fig.update_layout(title=f"{window}-Day Historical Volatility (Annualised) — {instr_key}",
                           yaxis_title="HV (%)")
         st.plotly_chart(fig, use_container_width=True)
+        show_curl(
+            "GET", f"/v3/historical-candle/{instr_key}/days/1/{today}/{from_date}",
+            note="Path segments are the instrument key, unit, interval, to-date and from-date, in that order.",
+        )
 
 
 elif example == "52-Week High / Low":
     client    = require_client()
     instr_key = st.text_input("Instrument Key", value="NSE_EQ|INE002A01018")
 
-    if st.button("▶ Fetch 52-Week Range", type="primary"):
+    go, link_slot = action_row("▶ Fetch 52-Week Range")
+    if go:
         today     = date.today()
         from_date = today - timedelta(days=365)
 
@@ -1480,6 +2010,7 @@ elif example == "52-Week High / Low":
         pct_l   = (cur - low_52)  / low_52  * 100
         rng_pct = (cur - low_52) / (high_52 - low_52) * 100 if high_52 != low_52 else 0
 
+        curl_jump_link(link_slot)
         c1, c2, c3 = st.columns(3)
         c1.metric("Current LTP",   f"₹{cur:,.2f}")
         c2.metric("52-Week High",  f"₹{high_52:,.2f}", f"{pct_h:+.1f}% from high")
@@ -1497,6 +2028,18 @@ elif example == "52-Week High / Low":
                       annotation_text=f"52W Low ₹{low_52:,.2f}")
         fig.update_layout(title=f"52-Week Range — {instr_key}")
         st.plotly_chart(fig, use_container_width=True)
+        show_curls([
+            {
+                "label": "1. Fetch 1 year of daily candles",
+                "method": "GET", "path": f"/v3/historical-candle/{instr_key}/days/1/{today}/{from_date}",
+                "note": "Path segments are the instrument key, unit, interval, to-date and from-date, in that order.",
+            },
+            {
+                "label": "2. Fetch current LTP",
+                "method": "GET", "path": "/v3/market-quote/ltp",
+                "params": {"instrument_key": instr_key},
+            },
+        ])
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -1522,7 +2065,8 @@ elif example == "Sector Index Comparison":
         default=["Nifty 50", "Nifty Bank", "Nifty IT", "Nifty Pharma", "Nifty Auto"],
     )
 
-    if st.button("▶ Compare Sectors", type="primary"):
+    go, link_slot = action_row("▶ Compare Sectors")
+    if go:
         keys = [INDICES[s] for s in selected]
         with st.spinner("Fetching index prices…"):
             data = get_ltp(client, *keys)
@@ -1544,6 +2088,7 @@ elif example == "Sector Index Comparison":
                      color_continuous_scale=["#e74c3c", "#f9f0a0", "#27ae60"],
                      title="Sector Performance — Day Change %")
         fig.add_hline(y=0, line_color="black", line_width=1)
+        curl_jump_link(link_slot)
         st.plotly_chart(fig, use_container_width=True)
 
         def color_chg(val):
@@ -1552,6 +2097,7 @@ elif example == "Sector Index Comparison":
 
         st.dataframe(df.style.map(color_chg, subset=["Change", "Change %"]),
                      use_container_width=True)
+        show_curl("GET", "/v3/market-quote/ltp", {"instrument_key": ",".join(keys)})
 
 
 elif example == "Top Volume Stocks":
@@ -1561,7 +2107,8 @@ elif example == "Top Volume Stocks":
                             help="Pulls matching equity instruments and ranks by volume")
     exch   = c2.selectbox("Exchange", ["NSE", "BSE"])
 
-    if st.button("▶ Screen by Volume", type="primary"):
+    go, link_slot = action_row("▶ Screen by Volume")
+    if go:
         with st.spinner("Searching…"):
             resp  = search_instrument(client, query, exchanges=exch, segments="EQ", records=20)
         insts = resp.data or []
@@ -1591,8 +2138,22 @@ elif example == "Top Volume Stocks":
         fig = px.bar(df.head(10), x="Symbol", y="Volume", color="Change %",
                      color_continuous_scale=["#e74c3c", "#f9f0a0", "#27ae60"],
                      title="Top 10 by Volume")
+        curl_jump_link(link_slot)
         st.plotly_chart(fig, use_container_width=True)
         st.dataframe(df, use_container_width=True)
+        show_curls([
+            {
+                "label": "1. Search matching equity instruments",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": query, "exchanges": exch, "segments": "EQ", "records": 20},
+            },
+            {
+                "label": "2. Fetch LTP for every result",
+                "method": "GET", "path": "/v3/market-quote/ltp",
+                "params": {"instrument_key": ",".join(keys[:3]) + (",…" if len(keys) > 3 else "")},
+                "note": f"{len(keys)} instrument key(s) in the real call; truncated here for display.",
+            },
+        ])
 
 
 elif example == "Futures OI Buildup":
@@ -1601,7 +2162,8 @@ elif example == "Futures OI Buildup":
     query  = c1.text_input("Search query", value="NIFTY")
     exch   = c2.selectbox("Exchange", ["NSE", "BSE", "MCX"])
 
-    if st.button("▶ Analyse OI Buildup", type="primary"):
+    go, link_slot = action_row("▶ Analyse OI Buildup")
+    if go:
         with st.spinner("Searching futures…"):
             futures = get_futures_sorted(client, query, exchange=exch, exact_symbol=False)
         if not futures:
@@ -1633,9 +2195,26 @@ elif example == "Futures OI Buildup":
         fig = px.bar(df, x="Symbol", y="OI", color="Volume",
                      title="Futures Open Interest Buildup",
                      labels={"OI": "Open Interest"})
+        curl_jump_link(link_slot)
         st.plotly_chart(fig, use_container_width=True)
         st.dataframe(df, use_container_width=True)
         st.caption("High OI + high volume → trend confirmation. High OI + low volume → unwinding signal.")
+        show_curls([
+            {
+                "label": "1. Find futures contracts",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": query, "exchanges": exch,
+                           "segments": "COMM" if exch == "MCX" else "FO",
+                           "instrument_types": "FUT", "records": 30},
+            },
+            {
+                "label": "2. Fetch full quotes (for OI + volume) for every contract",
+                "method": "GET", "path": "/v2/market-quote/quotes",
+                "params": {"symbol": ",".join(keys[:3]) + (",…" if len(keys) > 3 else "")},
+                "extra_headers": {"Api-Version": "2.0"},
+                "note": f"{len(keys)} instrument key(s) in the real call; truncated here for display.",
+            },
+        ])
 
 # ═════════════════════════════════════════════════════════════════════════════
 # 📊 OPTIONS ANALYTICS (new)
@@ -1657,7 +2236,8 @@ elif example == "Option Chain (Native)":
     expiry_input = c2.text_input("Expiry date (YYYY-MM-DD)", value="",
                                   placeholder="leave blank for nearest")
 
-    if st.button("▶ Fetch Chain", type="primary"):
+    go, link_slot = action_row("▶ Fetch Chain")
+    if go:
         und_key = INDEX_KEYS_OC[underlying]
 
         # Resolve nearest expiry if not specified
@@ -1716,6 +2296,7 @@ elif example == "Option Chain (Native)":
         total_ce_oi = df["CE OI"].sum(); total_pe_oi = df["PE OI"].sum()
         pcr = total_pe_oi / total_ce_oi if total_ce_oi else 0
 
+        curl_jump_link(link_slot)
         c1, c2, c3 = st.columns(3)
         if spot: c1.metric("Spot", f"₹{spot:,.2f}")
         if atm_strike: c2.metric("ATM Strike", f"₹{atm_strike:,.0f}")
@@ -1733,6 +2314,24 @@ elif example == "Option Chain (Native)":
 
         sentiment = "📈 Bullish bias" if pcr >= 1.2 else ("📉 Bearish bias" if pcr <= 0.8 else "⚖️ Neutral")
         st.info(f"{sentiment} — PCR {pcr:.2f} | Expiry: {expiry_date}")
+        show_curls([
+            {
+                "label": "1. Resolve nearest expiry (skipped if an expiry date was entered above)",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": underlying, "exchanges": "BSE" if underlying in ("SENSEX", "BANKEX") else "NSE",
+                           "segments": "FO", "instrument_types": "CE", "expiry": "current_month", "records": 1},
+            },
+            {
+                "label": "2. Fetch the option chain",
+                "method": "GET", "path": "/v2/option/chain",
+                "params": {"instrument_key": und_key, "expiry_date": expiry_date},
+            },
+            {
+                "label": "3. Fetch the underlying's spot LTP (to mark the ATM row)",
+                "method": "GET", "path": "/v3/market-quote/ltp",
+                "params": {"instrument_key": und_key},
+            },
+        ])
 
 
 elif example == "Option Greeks":
@@ -1743,7 +2342,8 @@ elif example == "Option Greeks":
     strikes = c2.slider("Strikes each side", 1, 8, 4)
     expiry = c3.selectbox("Expiry", ["current_month", "current_week", "next_month"])
 
-    if st.button("▶ Fetch Greeks", type="primary"):
+    go, link_slot = action_row("▶ Fetch Greeks")
+    if go:
         bar = st.progress(0)
         ce_insts, pe_insts = [], []
         total = strikes * 2 + 1
@@ -1812,11 +2412,28 @@ elif example == "Option Greeks":
                 return ["color: #27ae60"] * len(row)
             return ["color: #e74c3c"] * len(row)
 
+        curl_jump_link(link_slot)
         st.dataframe(df.style.apply(highlight_greeks, axis=1).format({
             "LTP": "{:.2f}", "IV %": "{:.1f}", "Delta": "{:.4f}",
             "Gamma": "{:.6f}", "Theta": "{:.4f}", "Vega": "{:.4f}", "OI": "{:,.0f}",
         }), use_container_width=True)
         st.caption("ATM row highlighted blue · CE green · PE red")
+        show_curls([
+            {
+                "label": "1. Fetch one strike (shown here for the ATM call)",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": query, "exchanges": "NSE", "segments": "FO", "instrument_types": "CE",
+                           "expiry": expiry, "atm_offset": 0, "records": 1},
+                "note": (f"This page repeats the same call for CE and PE at every offset from "
+                         f"−{strikes} to +{strikes} ({total * 2} requests total)."),
+            },
+            {
+                "label": "2. Fetch option greeks for every strike found",
+                "method": "GET", "path": "/v3/market-quote/option-greek",
+                "params": {"instrument_key": ",".join(all_keys[:3]) + (",…" if len(all_keys) > 3 else "")},
+                "note": f"{len(all_keys)} instrument key(s) in the real call; truncated here for display.",
+            },
+        ])
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -1825,7 +2442,8 @@ elif example == "Option Greeks":
 
 elif example == "Market Status":
     client = require_client()
-    if st.button("▶ Fetch Status", type="primary"):
+    go, link_slot = action_row("▶ Fetch Status")
+    if go:
         api = upstox_client.MarketHolidaysAndTimingsApi(client)
         EXCHANGES = ["NSE", "BSE", "MCX", "NFO", "BFO", "CDS"]
         rows = []
@@ -1849,13 +2467,19 @@ elif example == "Market Status":
             if "PRE" in str(val).upper():    return "color: #f39c12; font-weight: bold"
             return ""
 
+        curl_jump_link(link_slot)
         st.dataframe(df.style.map(colour_status, subset=["Status"]),
                      use_container_width=True)
+        show_curl(
+            "GET", "/v2/market/status/NSE",
+            note=f"Shown for NSE; this page loops the same call over {EXCHANGES}.",
+        )
 
 
 elif example == "Market Holidays":
     client = require_client()
-    if st.button("▶ Fetch Holidays", type="primary"):
+    go, link_slot = action_row("▶ Fetch Holidays")
+    if go:
         with st.spinner("Fetching holiday calendar…"):
             api  = upstox_client.MarketHolidaysAndTimingsApi(client)
             resp = api.get_holidays()
@@ -1934,6 +2558,7 @@ elif example == "Market Holidays":
             else:
                 rows_past.append(row)
 
+        curl_jump_link(link_slot)
         tab1, tab2 = st.tabs([f"Upcoming ({len(rows_upcoming)})", f"Past ({len(rows_past)})"])
         for tab, rows in [(tab1, rows_upcoming), (tab2, sorted(rows_past, key=lambda r: r["Date"], reverse=True))]:
             with tab:
@@ -1942,13 +2567,15 @@ elif example == "Market Holidays":
                 else:
                     df = pd.DataFrame(rows)
                     st.dataframe(df, use_container_width=True)
+        show_curl("GET", "/v2/market/holidays")
 
 
 elif example == "Market Timings":
     client = require_client()
     sel_date = st.date_input("Date", value=date.today())
 
-    if st.button("▶ Fetch Timings", type="primary"):
+    go, link_slot = action_row("▶ Fetch Timings")
+    if go:
         with st.spinner("Fetching exchange timings…"):
             api  = upstox_client.MarketHolidaysAndTimingsApi(client)
             resp = api.get_exchange_timings(str(sel_date))
@@ -1984,11 +2611,13 @@ elif example == "Market Timings":
                 "Status":   status,
             })
 
+        curl_jump_link(link_slot)
         if not rows:
             st.warning("No timing data returned for this date.")
         else:
             df = pd.DataFrame(rows).sort_values("Exchange")
             st.dataframe(df, use_container_width=True)
+        show_curl("GET", f"/v2/market/timings/{sel_date}")
 
 
 elif example == "Intraday Chart":
@@ -2006,7 +2635,8 @@ elif example == "Intraday Chart":
     query    = c1.selectbox("Instrument", list(INDEX_KEYS_IC.keys()))
     interval = c2.selectbox("Interval (minutes)", [1, 5, 15, 30, 60], index=1)
 
-    if st.button("▶ Load Chart", type="primary"):
+    go, link_slot = action_row("▶ Load Chart")
+    if go:
         inst_key = INDEX_KEYS_IC[query]
         with st.spinner(f"Fetching {interval}-min intraday candles for {query}…"):
             api  = upstox_client.HistoryV3Api(client)
@@ -2037,6 +2667,7 @@ elif example == "Intraday Chart":
             template="plotly_dark",
             height=450,
         )
+        curl_jump_link(link_slot)
         st.plotly_chart(fig, use_container_width=True)
 
         vol_fig = go.Figure()
@@ -2048,6 +2679,7 @@ elif example == "Intraday Chart":
         st.plotly_chart(vol_fig, use_container_width=True)
 
         st.caption(f"{len(candles)} candles · {times[0]} → {times[-1]} IST")
+        show_curl("GET", f"/v3/historical-candle/intraday/{inst_key}/minutes/{interval}")
 
 
 elif example == "Live Depth (5-level)":
@@ -2255,7 +2887,8 @@ elif example == "Company Profile":
 
     symbol = st.text_input("Stock Symbol", value="RELIANCE")
 
-    if st.button("▶ Get Company Profile", type="primary"):
+    go, link_slot = action_row("▶ Get Company Profile")
+    if go:
         with st.spinner("Resolving instrument…"):
             resp = search_instrument(client, symbol, exchanges="NSE", segments="EQ", records=1)
             hits = resp.data or []
@@ -2293,6 +2926,7 @@ elif example == "Company Profile":
         sym_name = hits[0].get("name", "") or symbol.upper()
         st.subheader(sym_name)
 
+        curl_jump_link(link_slot)
         c1, c2, c3 = st.columns(3)
         c1.metric("Sector", str(sector))
         c2.metric("Sector Mkt Cap (INR)", str(mcap_inr.get("formatted") or "—"))
@@ -2314,6 +2948,17 @@ elif example == "Company Profile":
         df = pd.DataFrame(list(rows.items()), columns=["Field", "Value"])
         st.dataframe(df, use_container_width=True, hide_index=True)
         st.caption("Note: sector market cap is the aggregate for the sector, not the company's own market cap.")
+        show_curls([
+            {
+                "label": "1. Resolve the ISIN from the trading symbol",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": symbol, "exchanges": "NSE", "segments": "EQ", "records": 1},
+            },
+            {
+                "label": "2. Fetch the company profile",
+                "method": "GET", "path": f"/v2/fundamentals/{isin}/profile",
+            },
+        ])
 
 
 elif example == "Key Ratios":
@@ -2321,7 +2966,8 @@ elif example == "Key Ratios":
 
     symbol = st.text_input("Stock Symbol", value="RELIANCE")
 
-    if st.button("▶ Get Key Ratios", type="primary"):
+    go, link_slot = action_row("▶ Get Key Ratios")
+    if go:
         with st.spinner("Resolving instrument…"):
             resp = search_instrument(client, symbol, exchanges="NSE", segments="EQ", records=1)
             hits = resp.data or []
@@ -2358,6 +3004,7 @@ elif example == "Key Ratios":
             st.warning("No ratio data found."); st.stop()
 
         df = pd.DataFrame(rows)
+        curl_jump_link(link_slot)
         st.dataframe(df, use_container_width=True, hide_index=True)
 
         # Chart: bar of numeric ratios — values may include "%" suffix
@@ -2392,6 +3039,17 @@ elif example == "Key Ratios":
             )
             st.plotly_chart(fig, use_container_width=True)
             st.caption("Company value (blue) vs sector average (orange) for each ratio.")
+        show_curls([
+            {
+                "label": "1. Resolve the ISIN from the trading symbol",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": symbol, "exchanges": "NSE", "segments": "EQ", "records": 1},
+            },
+            {
+                "label": "2. Fetch key ratios",
+                "method": "GET", "path": f"/v2/fundamentals/{isin}/key-ratios",
+            },
+        ])
 
 
 elif example == "Balance Sheet":
@@ -2402,7 +3060,8 @@ elif example == "Balance Sheet":
     stmt_type = c2.selectbox("Type", ["consolidated", "standalone"])
     fs_flag   = c3.selectbox("Full Statement", ["false", "true"])
 
-    if st.button("▶ Get Balance Sheet", type="primary"):
+    go, link_slot = action_row("▶ Get Balance Sheet")
+    if go:
         with st.spinner("Resolving instrument…"):
             resp = search_instrument(client, symbol, exchanges="NSE", segments="EQ", records=1)
             hits = resp.data or []
@@ -2427,6 +3086,7 @@ elif example == "Balance Sheet":
         units   = raw.get("units_in") or ""
         history = raw.get("history") or []
 
+        curl_jump_link(link_slot)
         if history:
             rows = []
             for entry in history:
@@ -2525,6 +3185,18 @@ elif example == "Balance Sheet":
                 st.dataframe(pd.DataFrame(fs_rows), use_container_width=True, hide_index=True)
                 if units:
                     st.caption(f"Values in {units}")
+        show_curls([
+            {
+                "label": "1. Resolve the ISIN from the trading symbol",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": symbol, "exchanges": "NSE", "segments": "EQ", "records": 1},
+            },
+            {
+                "label": "2. Fetch the balance sheet",
+                "method": "GET", "path": f"/v2/fundamentals/{isin}/balance-sheet",
+                "params": {"type": stmt_type, "fs": fs_flag},
+            },
+        ])
 
 
 elif example == "Income Statement":
@@ -2536,7 +3208,8 @@ elif example == "Income Statement":
     period    = c3.selectbox("Period", ["yearly", "quarterly"])
     fs_flag   = c4.selectbox("Full Statement", ["false", "true"])
 
-    if st.button("▶ Get Income Statement", type="primary"):
+    go, link_slot = action_row("▶ Get Income Statement")
+    if go:
         with st.spinner("Resolving instrument…"):
             resp = search_instrument(client, symbol, exchanges="NSE", segments="EQ", records=1)
             hits = resp.data or []
@@ -2597,6 +3270,7 @@ elif example == "Income Statement":
             table_rows.append(row)
 
         df = pd.DataFrame(table_rows)
+        curl_jump_link(link_slot)
         st.dataframe(df, use_container_width=True, hide_index=True)
         if units:
             st.caption(f"Values in {units}")
@@ -2647,6 +3321,18 @@ elif example == "Income Statement":
                 st.dataframe(pd.DataFrame(fs_rows), use_container_width=True, hide_index=True)
                 if units:
                     st.caption(f"Values in {units}")
+        show_curls([
+            {
+                "label": "1. Resolve the ISIN from the trading symbol",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": symbol, "exchanges": "NSE", "segments": "EQ", "records": 1},
+            },
+            {
+                "label": "2. Fetch the income statement",
+                "method": "GET", "path": f"/v2/fundamentals/{isin}/income-statement",
+                "params": {"type": stmt_type, "time_period": period, "fs": fs_flag},
+            },
+        ])
 
 
 elif example == "Cash Flow":
@@ -2657,7 +3343,8 @@ elif example == "Cash Flow":
     stmt_type = c2.selectbox("Type", ["consolidated", "standalone"])
     fs_flag   = c3.selectbox("Full Statement", ["false", "true"])
 
-    if st.button("▶ Get Cash Flow", type="primary"):
+    go, link_slot = action_row("▶ Get Cash Flow")
+    if go:
         with st.spinner("Resolving instrument…"):
             resp = search_instrument(client, symbol, exchanges="NSE", segments="EQ", records=1)
             hits = resp.data or []
@@ -2718,6 +3405,7 @@ elif example == "Cash Flow":
             table_rows.append(row)
 
         df = pd.DataFrame(table_rows)
+        curl_jump_link(link_slot)
         st.dataframe(df, use_container_width=True, hide_index=True)
         if units:
             st.caption(f"Values in {units}")
@@ -2774,6 +3462,18 @@ elif example == "Cash Flow":
                 st.dataframe(pd.DataFrame(fs_rows), use_container_width=True, hide_index=True)
                 if units:
                     st.caption(f"Values in {units}")
+        show_curls([
+            {
+                "label": "1. Resolve the ISIN from the trading symbol",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": symbol, "exchanges": "NSE", "segments": "EQ", "records": 1},
+            },
+            {
+                "label": "2. Fetch the cash flow statement",
+                "method": "GET", "path": f"/v2/fundamentals/{isin}/cash-flow",
+                "params": {"type": stmt_type, "fs": fs_flag},
+            },
+        ])
 
 
 elif example == "Corporate Actions":
@@ -2781,7 +3481,8 @@ elif example == "Corporate Actions":
 
     symbol = st.text_input("Stock Symbol", value="RELIANCE")
 
-    if st.button("▶ Get Corporate Actions", type="primary"):
+    go, link_slot = action_row("▶ Get Corporate Actions")
+    if go:
         with st.spinner("Resolving instrument…"):
             resp = search_instrument(client, symbol, exchanges="NSE", segments="EQ", records=1)
             hits = resp.data or []
@@ -2843,6 +3544,7 @@ elif example == "Corporate Actions":
         extras = [c for c in df.columns if c not in core]
         df = df[core + extras]
 
+        curl_jump_link(link_slot)
         st.metric("Total Actions", len(df))
         st.dataframe(df, use_container_width=True, hide_index=True)
 
@@ -2860,6 +3562,17 @@ elif example == "Corporate Actions":
             fig.update_layout(height=380)
             st.plotly_chart(fig, use_container_width=True)
             st.caption("Each point represents a corporate action with a declared amount (e.g. dividend).")
+        show_curls([
+            {
+                "label": "1. Resolve the ISIN from the trading symbol",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": symbol, "exchanges": "NSE", "segments": "EQ", "records": 1},
+            },
+            {
+                "label": "2. Fetch corporate actions",
+                "method": "GET", "path": f"/v2/fundamentals/{isin}/corporate-actions",
+            },
+        ])
 
 
 elif example == "Share Holdings":
@@ -2867,7 +3580,8 @@ elif example == "Share Holdings":
 
     symbol = st.text_input("Stock Symbol", value="RELIANCE")
 
-    if st.button("▶ Get Share Holdings", type="primary"):
+    go, link_slot = action_row("▶ Get Share Holdings")
+    if go:
         with st.spinner("Resolving instrument…"):
             resp = search_instrument(client, symbol, exchanges="NSE", segments="EQ", records=1)
             hits = resp.data or []
@@ -2931,6 +3645,7 @@ elif example == "Share Holdings":
         for col in cols:
             df[col] = pd.to_numeric(df[col], errors="coerce")
 
+        curl_jump_link(link_slot)
         st.dataframe(df, use_container_width=True, hide_index=True)
 
         # Stacked bar over quarters
@@ -2972,6 +3687,17 @@ elif example == "Share Holdings":
             pie_fig.update_layout(height=380)
             st.plotly_chart(pie_fig, use_container_width=True)
             st.caption("Latest quarter shareholding breakdown by category.")
+        show_curls([
+            {
+                "label": "1. Resolve the ISIN from the trading symbol",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": symbol, "exchanges": "NSE", "segments": "EQ", "records": 1},
+            },
+            {
+                "label": "2. Fetch share holdings",
+                "method": "GET", "path": f"/v2/fundamentals/{isin}/share-holdings",
+            },
+        ])
 
 
 elif example == "Competitors":
@@ -2979,7 +3705,8 @@ elif example == "Competitors":
 
     symbol = st.text_input("Stock Symbol", value="RELIANCE")
 
-    if st.button("▶ Get Competitors", type="primary"):
+    go, link_slot = action_row("▶ Get Competitors")
+    if go:
         with st.spinner("Resolving instrument…"):
             resp = search_instrument(client, symbol, exchanges="NSE", segments="EQ", records=1)
             hits = resp.data or []
@@ -3047,6 +3774,7 @@ elif example == "Competitors":
         df["_mcap_value"] = pd.to_numeric(df["_mcap_value"], errors="coerce")
         df = df.sort_values("_mcap_value", ascending=False)
 
+        curl_jump_link(link_slot)
         st.metric("Peers Found", len(df))
         st.dataframe(
             df.drop(columns=["_mcap_value"]),
@@ -3076,6 +3804,23 @@ elif example == "Competitors":
             fig.update_layout(height=420, showlegend=False, xaxis_tickangle=-25)
             st.plotly_chart(fig, use_container_width=True)
             st.caption("Sector market capitalisation for each peer (INR). Note: this is the aggregate for the peer's sector, not the peer's own market cap.")
+        show_curls([
+            {
+                "label": "1. Resolve the instrument key from the trading symbol",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": symbol, "exchanges": "NSE", "segments": "EQ", "records": 1},
+            },
+            {
+                "label": "2. Fetch competitors",
+                "method": "GET", "path": f"/v2/fundamentals/{instrument_key}/competitors",
+            },
+            {
+                "label": "3. Resolve each competitor's trading symbol (repeated per peer)",
+                "method": "GET", "path": "/v2/instruments/search",
+                "params": {"query": "<peer ISIN>", "exchanges": "NSE", "segments": "EQ", "records": 1},
+                "note": f"Runs once per peer found in step 2 ({len(rows)} call(s) here).",
+            },
+        ])
 
 
 # ── Market Information ───────────────────────────────────────────────────────
@@ -3095,7 +3840,8 @@ elif example == "FII Data":
     interval  = c2.selectbox("Interval", ["1D", "1M"])
     from_date = c3.date_input("From (optional)", value=None)
 
-    if st.button("▶ Fetch FII Data", type="primary"):
+    go, link_slot = action_row("▶ Fetch FII Data")
+    if go:
         with st.spinner("Fetching FII activity…"):
             try:
                 api = upstox_client.MarketApi(client)
@@ -3157,6 +3903,7 @@ elif example == "FII Data":
         if "date" in df.columns:
             df = df.sort_values(["segment", "date"])
 
+        curl_jump_link(link_slot)
         st.dataframe(df, use_container_width=True, hide_index=True)
 
         if "buy_amount" in df.columns and "sell_amount" in df.columns:
@@ -3182,6 +3929,10 @@ elif example == "FII Data":
             )
             st.plotly_chart(fig, use_container_width=True)
             st.caption("Buy / sell amounts per period with net flow on the right axis.")
+        show_curl(
+            "GET", "/v2/market/fii",
+            {"data_type": data_type, "interval": interval, "from": str(from_date) if from_date else None},
+        )
 
 
 elif example == "DII Data":
@@ -3192,7 +3943,8 @@ elif example == "DII Data":
     from_date = c2.date_input("From (optional)", value=None)
     data_type = "NSE_EQ|CASH"
 
-    if st.button("▶ Fetch DII Data", type="primary"):
+    go, link_slot = action_row("▶ Fetch DII Data")
+    if go:
         with st.spinner("Fetching DII activity…"):
             try:
                 api = upstox_client.MarketApi(client)
@@ -3247,6 +3999,7 @@ elif example == "DII Data":
         if "date" in df.columns:
             df = df.sort_values(["segment", "date"])
 
+        curl_jump_link(link_slot)
         st.dataframe(df, use_container_width=True, hide_index=True)
 
         if "buy_amount" in df.columns and "sell_amount" in df.columns:
@@ -3272,6 +4025,10 @@ elif example == "DII Data":
             )
             st.plotly_chart(fig, use_container_width=True)
             st.caption("Domestic Institutional Investor buy / sell flow over the requested interval.")
+        show_curl(
+            "GET", "/v2/market/dii",
+            {"data_type": data_type, "interval": interval, "from": str(from_date) if from_date else None},
+        )
 
 
 elif example == "OI":
@@ -3288,7 +4045,8 @@ elif example == "OI":
     expiry   = c2.date_input("Expiry", value=date.today() + timedelta(days=7))
     sel_date = c3.date_input("Date", value=date.today())
 
-    if st.button("▶ Fetch OI", type="primary"):
+    go, link_slot = action_row("▶ Fetch OI")
+    if go:
         with st.spinner("Fetching OI data…"):
             try:
                 api = upstox_client.MarketApi(client)
@@ -3320,6 +4078,7 @@ elif example == "OI":
         except (TypeError, ValueError):
             pcr = None
         c4.metric("PCR (Puts/Calls)", f"{pcr:.3f}" if pcr is not None else "—")
+        curl_jump_link(link_slot)
 
         rows = []
         for s in strikes:
@@ -3354,6 +4113,9 @@ elif example == "OI":
         )
         st.plotly_chart(fig, use_container_width=True)
         st.caption("Call vs put OI across strikes; dashed line is spot close.")
+        show_curl("GET", "/v2/market/oi", {
+            "instrument_key": UNDERLYINGS_OI[label], "expiry": str(expiry), "date": str(sel_date),
+        })
 
 
 elif example == "Change in OI":
@@ -3371,7 +4133,8 @@ elif example == "Change in OI":
     sel_date = c3.date_input("Date", value=date.today())
     interval = c4.number_input("Lookback (days)", min_value=1, max_value=30, value=5, step=1)
 
-    if st.button("▶ Fetch Change in OI", type="primary"):
+    go, link_slot = action_row("▶ Fetch Change in OI")
+    if go:
         with st.spinner("Fetching change-in-OI…"):
             try:
                 api = upstox_client.MarketApi(client)
@@ -3410,6 +4173,7 @@ elif example == "Change in OI":
         df["Δ Call OI"] = pd.to_numeric(df["Δ Call OI"], errors="coerce")
         df["Δ Put OI"]  = pd.to_numeric(df["Δ Put OI"],  errors="coerce")
 
+        curl_jump_link(link_slot)
         st.dataframe(df, use_container_width=True, hide_index=True)
 
         call_colors = ["#27ae60" if v >= 0 else "#e74c3c" for v in df["Δ Call OI"].fillna(0)]
@@ -3431,6 +4195,10 @@ elif example == "Change in OI":
         )
         st.plotly_chart(fig, use_container_width=True)
         st.caption("Green = OI added, Red = OI unwound, over the chosen lookback window.")
+        show_curl("GET", "/v2/market/change-oi", {
+            "instrument_key": UNDERLYINGS_COI[label], "expiry": str(expiry),
+            "date": str(sel_date), "interval": str(interval),
+        })
 
 
 elif example == "Max Pain":
@@ -3448,7 +4216,8 @@ elif example == "Max Pain":
     sel_date = c3.date_input("Date", value=date.today())
     bucket   = c4.selectbox("Bucket (mins)", [15, 30, 60], index=2)
 
-    if st.button("▶ Fetch Max Pain", type="primary"):
+    go, link_slot = action_row("▶ Fetch Max Pain")
+    if go:
         with st.spinner("Fetching max pain…"):
             try:
                 api = upstox_client.MarketApi(client)
@@ -3472,6 +4241,7 @@ elif example == "Max Pain":
         spot     = data.get("spot_closing_price")
         insights = data.get("insights") or []
 
+        curl_jump_link(link_slot)
         c1, c2 = st.columns(2)
         c1.metric("Max Pain", f"{float(max_pain):,.2f}" if max_pain is not None else "—")
         c2.metric("Spot Close", f"{float(spot):,.2f}" if spot is not None else "—")
@@ -3506,6 +4276,10 @@ elif example == "Max Pain":
         )
         st.plotly_chart(fig, use_container_width=True)
         st.caption("Max-pain strike alongside spot price across the trading session.")
+        show_curl("GET", "/v2/market/max-pain", {
+            "instrument_key": UNDERLYINGS_MP[label], "expiry": str(expiry),
+            "date": str(sel_date), "bucket_interval": str(bucket),
+        })
 
 
 elif example == "PCR":
@@ -3523,7 +4297,8 @@ elif example == "PCR":
     sel_date = c3.date_input("Date", value=date.today())
     bucket   = c4.selectbox("Bucket (mins)", [15, 30, 60], index=2)
 
-    if st.button("▶ Fetch PCR", type="primary"):
+    go, link_slot = action_row("▶ Fetch PCR")
+    if go:
         with st.spinner("Fetching PCR…"):
             try:
                 api = upstox_client.MarketApi(client)
@@ -3547,6 +4322,7 @@ elif example == "PCR":
         spot        = data.get("spot_closing_price")
         insights    = data.get("insights") or []
 
+        curl_jump_link(link_slot)
         c1, c2 = st.columns(2)
         c1.metric("Overall PCR", f"{float(overall_pcr):.3f}" if overall_pcr is not None else "—")
         c2.metric("Spot Close",  f"{float(spot):,.2f}" if spot is not None else "—")
@@ -3583,6 +4359,10 @@ elif example == "PCR":
         )
         st.plotly_chart(fig, use_container_width=True)
         st.caption("Put-call ratio over time; spot is plotted on the right axis for context.")
+        show_curl("GET", "/v2/market/pcr", {
+            "instrument_key": UNDERLYINGS_PCR[label], "expiry": str(expiry),
+            "date": str(sel_date), "bucket_interval": str(bucket),
+        })
 
 
 else:

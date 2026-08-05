@@ -11,7 +11,7 @@ import sys
 import os
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-from utils import get_api_client, search_instrument
+from utils import get_api_client, search_instrument, build_curl
 
 
 def main():
@@ -57,6 +57,18 @@ def main():
         print(f"\nPage {p.page_number} of {p.total_pages}  |  Showing {p.records} of {p.total_records} total results")
         if p.total_pages and int(str(p.total_pages)) > 1:
             print("Tip: use --records 30 or add --page to paginate further.")
+
+    print("\nEquivalent REST API request (curl):")
+    print(build_curl(
+        "GET",
+        "/v2/instruments/search",
+        params={
+            "query": args.query,
+            "exchanges": args.exchange,
+            "segments": "EQ",
+            "records": args.records,
+        },
+    ))
 
 
 if __name__ == "__main__":

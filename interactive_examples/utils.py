@@ -9,8 +9,52 @@ for data pipelines and dashboards.
 import json
 import sys
 from datetime import date
+from urllib.parse import urlencode
 import upstox_client
 from upstox_client.rest import ApiException
+
+UPSTOX_API_HOST = "https://api.upstox.com"
+
+
+def build_curl(
+    method: str,
+    path: str,
+    params: dict = None,
+    host: str = UPSTOX_API_HOST,
+    extra_headers: dict = None,
+) -> str:
+    """
+    Build the curl command equivalent to an SDK API call, for learning/docs.
+
+    The SDK wraps a plain REST endpoint; this reconstructs the underlying HTTP
+    request so you can see exactly what the SDK sent (and try it standalone).
+
+    The Authorization header is printed with a <ACCESS_TOKEN> placeholder — the
+    real token is never echoed to stdout.
+
+    method        - HTTP verb, e.g. 'GET'
+    path          - endpoint path, with any {placeholders} already substituted,
+                    e.g. '/v2/fundamentals/INE002A01018/balance-sheet'
+    params        - query parameters (None values are dropped)
+    extra_headers - additional required headers, e.g. {'Api-Version': '2.0'}
+                    for the older v2 market-quote endpoints
+    """
+    url = host + path
+    if params:
+        query = urlencode(
+            {k: v for k, v in params.items() if v is not None}, safe=","
+        )
+        if query:
+            url = f"{url}?{query}"
+    lines = [
+        f"curl -X {method} \\",
+        f"  '{url}' \\",
+        "  -H 'Accept: application/json' \\",
+    ]
+    for name, value in (extra_headers or {}).items():
+        lines.append(f"  -H '{name}: {value}' \\")
+    lines.append("  -H 'Authorization: Bearer <ACCESS_TOKEN>'")
+    return "\n".join(lines)
 
 
 def get_api_client(token: str) -> upstox_client.ApiClient:
