@@ -1,6 +1,11 @@
 upstox-python-sdk
 plotext
 streamlit
+# Pin Starlette below 1.4.0: Streamlit's GZip middleware subclasses
+# Starlette's GZipResponder and calls __init__ without the
+# thread_minimum_size kwarg that 1.4.0 made required, which 500s every
+# request on Streamlit Cloud. Streamlit doesn't cap Starlette itself.
+starlette<1.4.0
 plotly
 pandas
 numpy
