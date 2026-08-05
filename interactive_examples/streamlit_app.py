@@ -355,8 +355,8 @@ if example == "Search Equity":
     exch    = c2.selectbox("Exchange", ["NSE", "BSE", "NSE,BSE"])
     records = c3.number_input("Max results", 1, 30, 10)
 
-    go, link_slot = action_row("🔍 Search")
-    if go:
+    clicked, link_slot = action_row("🔍 Search")
+    if clicked:
         with st.spinner("Searching…"):
             resp = search_instrument(client, query, exchanges=exch, segments="EQ", records=records)
         insts = resp.data or []
@@ -388,8 +388,8 @@ elif example == "Search Futures":
     exact = c3.checkbox("Exact underlying match", value=False,
                         help="Filter strictly by underlying_symbol to avoid e.g. NIFTYNXT50 when searching NIFTY")
 
-    go, link_slot = action_row("🔍 Search")
-    if go:
+    clicked, link_slot = action_row("🔍 Search")
+    if clicked:
         with st.spinner("Searching…"):
             futures = get_futures_sorted(client, query, exchange=exch, exact_symbol=exact)
         if not futures:
@@ -432,8 +432,8 @@ elif example == "Search Options":
     opt_type     = c3.selectbox("Option type", ["CE,PE", "CE", "PE"])
     strikes_each = c4.number_input("Strikes each side", 1, 15, 5)
 
-    go, link_slot = action_row("🔍 Fetch Options")
-    if go:
+    clicked, link_slot = action_row("🔍 Fetch Options")
+    if clicked:
         bar = st.progress(0)
         insts = fetch_options_range(client, query, expiry, opt_type, strikes_each, bar)
         bar.empty()
@@ -476,8 +476,8 @@ elif example == "Search Options":
 
 elif example == "NIFTY Futures Spread":
     client = require_client()
-    go, link_slot = action_row("▶ Run")
-    if go:
+    clicked, link_slot = action_row("▶ Run")
+    if clicked:
         with st.spinner("Fetching NIFTY futures…"):
             futures = get_futures_sorted(client, "NIFTY", exchange="NSE", exact_symbol=True)
         if len(futures) < 2:
@@ -527,8 +527,8 @@ elif example == "NIFTY Futures Spread":
 
 elif example == "BankNifty Futures Spread":
     client = require_client()
-    go, link_slot = action_row("▶ Run")
-    if go:
+    clicked, link_slot = action_row("▶ Run")
+    if clicked:
         with st.spinner("Fetching BANKNIFTY futures…"):
             futures = get_futures_sorted(client, "BANKNIFTY", exchange="NSE", exact_symbol=True)
         if len(futures) < 2:
@@ -580,8 +580,8 @@ elif example == "Cash-Futures Basis":
     client = require_client()
     underlying = st.selectbox("Underlying", ["NIFTY 50", "BANKNIFTY", "FINNIFTY", "MIDCPNIFTY"])
 
-    go, link_slot = action_row("▶ Run")
-    if go:
+    clicked, link_slot = action_row("▶ Run")
+    if clicked:
         fut_q_map = {"NIFTY 50": "NIFTY", "BANKNIFTY": "BANKNIFTY",
                      "FINNIFTY": "FINNIFTY", "MIDCPNIFTY": "MIDCPNIFTY"}
         fut_sym = fut_q_map[underlying]
@@ -653,8 +653,8 @@ elif example == "Futures Roll Cost":
     query = c1.text_input("Underlying", value="NIFTY")
     side  = c2.selectbox("Position side", ["long", "short"])
 
-    go, link_slot = action_row("▶ Run")
-    if go:
+    clicked, link_slot = action_row("▶ Run")
+    if clicked:
         with st.spinner("Fetching futures…"):
             futures = get_futures_sorted(client, query, exchange="NSE", exact_symbol=True)
         if len(futures) < 2:
@@ -714,8 +714,8 @@ elif example == "MCX Crude Spread":
     query = st.text_input("Commodity symbol", value="CRUDEOIL",
                           help="e.g. CRUDEOIL, NATURALGAS, GOLD, SILVER")
 
-    go, link_slot = action_row("▶ Run")
-    if go:
+    clicked, link_slot = action_row("▶ Run")
+    if clicked:
         with st.spinner("Fetching MCX futures…"):
             futures = get_futures_sorted(client, query, exchange="MCX", exact_symbol=False, segment="COMM")
         if len(futures) < 2:
@@ -769,8 +769,8 @@ elif example == "Straddle Pricer":
     query  = c1.text_input("Underlying", value="NIFTY")
     expiry = c2.selectbox("Expiry", ["current_month", "current_week", "next_month"])
 
-    go, link_slot = action_row("▶ Price Straddle")
-    if go:
+    clicked, link_slot = action_row("▶ Price Straddle")
+    if clicked:
         with st.spinner("Fetching ATM options…"):
             ce = fetch_one(client, query, expiry, "CE", 0)
             pe = fetch_one(client, query, expiry, "PE", 0)
@@ -832,8 +832,8 @@ elif example == "Strangle Pricer":
     expiry     = c2.selectbox("Expiry", ["current_month", "current_week", "next_month"])
     otm_offset = c3.number_input("OTM offset (strikes)", 1, 10, 2)
 
-    go, link_slot = action_row("▶ Price Strangle")
-    if go:
+    clicked, link_slot = action_row("▶ Price Strangle")
+    if clicked:
         with st.spinner("Fetching OTM options…"):
             ce = fetch_one(client, query, expiry, "CE", +otm_offset)
             pe = fetch_one(client, query, expiry, "PE", -otm_offset)
@@ -895,8 +895,8 @@ elif example == "Bull Call Spread":
     expiry        = c2.selectbox("Expiry", ["current_month", "current_week", "next_month"])
     spread_width  = c3.number_input("Spread width (strikes)", 1, 10, 2)
 
-    go, link_slot = action_row("▶ Price Bull Call Spread")
-    if go:
+    clicked, link_slot = action_row("▶ Price Bull Call Spread")
+    if clicked:
         with st.spinner("Fetching options…"):
             buy_ce  = fetch_one(client, query, expiry, "CE", 0)
             sell_ce = fetch_one(client, query, expiry, "CE", +spread_width)
@@ -957,8 +957,8 @@ elif example == "Iron Condor":
                                     help="Strikes from ATM for the sold legs")
     long_offset   = short_offset + 2
 
-    go, link_slot = action_row("▶ Price Iron Condor")
-    if go:
+    clicked, link_slot = action_row("▶ Price Iron Condor")
+    if clicked:
         with st.spinner("Fetching 4 legs…"):
             sell_ce = fetch_one(client, query, expiry, "CE", +short_offset)
             buy_ce  = fetch_one(client, query, expiry, "CE", +long_offset)
@@ -1033,8 +1033,8 @@ elif example == "Butterfly Spread":
     query  = c1.text_input("Underlying", value="NIFTY")
     expiry = c2.selectbox("Expiry", ["current_month", "current_week", "next_month"])
 
-    go, link_slot = action_row("▶ Price Butterfly")
-    if go:
+    clicked, link_slot = action_row("▶ Price Butterfly")
+    if clicked:
         with st.spinner("Fetching 3 legs…"):
             lower_ce = fetch_one(client, query, expiry, "CE", -1)
             atm_ce   = fetch_one(client, query, expiry, "CE",  0)
@@ -1100,8 +1100,8 @@ elif example == "Calendar Spread":
     query    = c1.text_input("Underlying", value="NIFTY")
     opt_type = c2.selectbox("Option type", ["CE", "PE"])
 
-    go, link_slot = action_row("▶ Price Calendar Spread")
-    if go:
+    clicked, link_slot = action_row("▶ Price Calendar Spread")
+    if clicked:
         with st.spinner("Fetching near + far month options…"):
             near_opt = fetch_one(client, query, "current_month", opt_type, 0)
             far_opt  = fetch_one(client, query, "next_month",    opt_type, 0)
@@ -1156,8 +1156,8 @@ elif example == "Put-Call Parity":
     query  = c1.text_input("Underlying", value="NIFTY")
     expiry = c2.selectbox("Expiry", ["current_month", "current_week", "next_month"])
 
-    go, link_slot = action_row("▶ Check Parity")
-    if go:
+    clicked, link_slot = action_row("▶ Check Parity")
+    if clicked:
         with st.spinner("Fetching options + futures…"):
             ce      = fetch_one(client, query, expiry, "CE", 0)
             pe      = fetch_one(client, query, expiry, "PE", 0)
@@ -1236,8 +1236,8 @@ elif example == "Options Chain Builder":
     expiry       = c2.selectbox("Expiry", ["current_month", "current_week", "next_month"])
     strikes_each = c3.number_input("Strikes each side of ATM", 1, 15, 5)
 
-    go, link_slot = action_row("▶ Build Chain")
-    if go:
+    clicked, link_slot = action_row("▶ Build Chain")
+    if clicked:
         bar     = st.progress(0, text="Fetching chain…")
         offsets = list(range(-strikes_each, strikes_each + 1))
         ce_map, pe_map = {}, {}
@@ -1309,8 +1309,8 @@ elif example == "Max Pain Calculator":
     expiry       = c2.selectbox("Expiry", ["current_month", "current_week", "next_month"])
     strikes_each = c3.number_input("Strikes each side", 3, 15, 8)
 
-    go, link_slot = action_row("▶ Calculate Max Pain")
-    if go:
+    clicked, link_slot = action_row("▶ Calculate Max Pain")
+    if clicked:
         bar = st.progress(0, text="Fetching OI data…")
         ce_insts, pe_insts = [], []
         total = strikes_each * 2 + 1
@@ -1394,8 +1394,8 @@ elif example == "OI Skew":
     expiry       = c2.selectbox("Expiry", ["current_month", "current_week", "next_month"])
     strikes_each = c3.number_input("Strikes each side", 3, 12, 7)
 
-    go, link_slot = action_row("▶ Analyse OI Skew")
-    if go:
+    clicked, link_slot = action_row("▶ Analyse OI Skew")
+    if clicked:
         bar = st.progress(0)
         ce_insts, pe_insts = [], []
         total = strikes_each * 2 + 1
@@ -1487,8 +1487,8 @@ elif example == "Volatility Skew":
     expiry = c2.selectbox("Expiry", ["current_month", "current_week", "next_month"])
     depth  = c3.number_input("OTM depth (strikes)", 1, 10, 4)
 
-    go, link_slot = action_row("▶ Analyse Skew")
-    if go:
+    clicked, link_slot = action_row("▶ Analyse Skew")
+    if clicked:
         with st.spinner("Fetching options…"):
             atm_ce = fetch_one(client, query, expiry, "CE", 0)
             atm_pe = fetch_one(client, query, expiry, "PE", 0)
@@ -1569,8 +1569,8 @@ elif example == "Gamma Exposure":
     strikes_each = c3.number_input("Strikes each side", 3, 12, 8)
     dte_est      = c4.number_input("Est. DTE for gamma calc", 1, 60, 15)
 
-    go, link_slot = action_row("▶ Estimate GEX")
-    if go:
+    clicked, link_slot = action_row("▶ Estimate GEX")
+    if clicked:
         bar = st.progress(0)
         ce_insts, pe_insts = [], []
         total = strikes_each * 2 + 1
@@ -1659,8 +1659,8 @@ elif example == "NSE / BSE Arbitrage":
     client = require_client()
     query = st.text_input("Stock symbol", value="RELIANCE")
 
-    go, link_slot = action_row("▶ Check Arbitrage")
-    if go:
+    clicked, link_slot = action_row("▶ Check Arbitrage")
+    if clicked:
         def find_eq(exchange):
             resp  = search_instrument(client, query, exchanges=exchange, segments="EQ", records=5)
             insts = resp.data or []
@@ -1732,8 +1732,8 @@ elif example == "ETF vs Index":
     choice           = st.selectbox("ETF", list(ETFs.keys()))
     etf_sym, idx_q   = ETFs[choice]
 
-    go, link_slot = action_row("▶ Compare")
-    if go:
+    clicked, link_slot = action_row("▶ Compare")
+    if clicked:
         with st.spinner("Fetching ETF and index prices…"):
             etf_resp  = search_instrument(client, etf_sym,  exchanges="NSE", segments="EQ",    records=3)
             idx_resp  = search_instrument(client, idx_q,    exchanges="NSE", segments="INDEX",
@@ -1789,8 +1789,8 @@ elif example == "Currency Futures Spread":
     client = require_client()
     pair = st.selectbox("Currency pair", ["USDINR", "EURINR", "GBPINR", "JPYINR"])
 
-    go, link_slot = action_row("▶ Run")
-    if go:
+    clicked, link_slot = action_row("▶ Run")
+    if clicked:
         with st.spinner("Fetching currency futures…"):
             futures = get_futures_sorted(client, pair, exchange="NSE", exact_symbol=True, segment="CURR")
             if not futures:
@@ -1854,8 +1854,8 @@ elif example == "Historical Candles":
     from_date = c1.date_input("From", value=today - timedelta(days=365))
     to_date   = c2.date_input("To",   value=today)
 
-    go, link_slot = action_row("▶ Fetch Candles")
-    if go:
+    clicked, link_slot = action_row("▶ Fetch Candles")
+    if clicked:
         with st.spinner("Fetching historical data…"):
             candles = get_historical_candles(client, instr_key, unit, num, str(to_date), str(from_date))
         if not candles:
@@ -1891,8 +1891,8 @@ elif example == "Moving Average (SMA)":
     today     = date.today()
     from_date = today - timedelta(days=400)
 
-    go, link_slot = action_row("▶ Plot Moving Averages")
-    if go:
+    clicked, link_slot = action_row("▶ Plot Moving Averages")
+    if clicked:
         with st.spinner("Fetching data…"):
             candles = get_historical_candles(client, instr_key, "days", 1, str(today), str(from_date))
         if not candles:
@@ -1946,8 +1946,8 @@ elif example == "Historical Volatility":
     today     = date.today()
     from_date = today - timedelta(days=400)
 
-    go, link_slot = action_row("▶ Calculate HV")
-    if go:
+    clicked, link_slot = action_row("▶ Calculate HV")
+    if clicked:
         with st.spinner("Fetching data…"):
             candles = get_historical_candles(client, instr_key, "days", 1, str(today), str(from_date))
         if not candles:
@@ -1987,8 +1987,8 @@ elif example == "52-Week High / Low":
     client    = require_client()
     instr_key = st.text_input("Instrument Key", value="NSE_EQ|INE002A01018")
 
-    go, link_slot = action_row("▶ Fetch 52-Week Range")
-    if go:
+    clicked, link_slot = action_row("▶ Fetch 52-Week Range")
+    if clicked:
         today     = date.today()
         from_date = today - timedelta(days=365)
 
@@ -2065,8 +2065,8 @@ elif example == "Sector Index Comparison":
         default=["Nifty 50", "Nifty Bank", "Nifty IT", "Nifty Pharma", "Nifty Auto"],
     )
 
-    go, link_slot = action_row("▶ Compare Sectors")
-    if go:
+    clicked, link_slot = action_row("▶ Compare Sectors")
+    if clicked:
         keys = [INDICES[s] for s in selected]
         with st.spinner("Fetching index prices…"):
             data = get_ltp(client, *keys)
@@ -2107,8 +2107,8 @@ elif example == "Top Volume Stocks":
                             help="Pulls matching equity instruments and ranks by volume")
     exch   = c2.selectbox("Exchange", ["NSE", "BSE"])
 
-    go, link_slot = action_row("▶ Screen by Volume")
-    if go:
+    clicked, link_slot = action_row("▶ Screen by Volume")
+    if clicked:
         with st.spinner("Searching…"):
             resp  = search_instrument(client, query, exchanges=exch, segments="EQ", records=20)
         insts = resp.data or []
@@ -2162,8 +2162,8 @@ elif example == "Futures OI Buildup":
     query  = c1.text_input("Search query", value="NIFTY")
     exch   = c2.selectbox("Exchange", ["NSE", "BSE", "MCX"])
 
-    go, link_slot = action_row("▶ Analyse OI Buildup")
-    if go:
+    clicked, link_slot = action_row("▶ Analyse OI Buildup")
+    if clicked:
         with st.spinner("Searching futures…"):
             futures = get_futures_sorted(client, query, exchange=exch, exact_symbol=False)
         if not futures:
@@ -2236,8 +2236,8 @@ elif example == "Option Chain (Native)":
     expiry_input = c2.text_input("Expiry date (YYYY-MM-DD)", value="",
                                   placeholder="leave blank for nearest")
 
-    go, link_slot = action_row("▶ Fetch Chain")
-    if go:
+    clicked, link_slot = action_row("▶ Fetch Chain")
+    if clicked:
         und_key = INDEX_KEYS_OC[underlying]
 
         # Resolve nearest expiry if not specified
@@ -2342,8 +2342,8 @@ elif example == "Option Greeks":
     strikes = c2.slider("Strikes each side", 1, 8, 4)
     expiry = c3.selectbox("Expiry", ["current_month", "current_week", "next_month"])
 
-    go, link_slot = action_row("▶ Fetch Greeks")
-    if go:
+    clicked, link_slot = action_row("▶ Fetch Greeks")
+    if clicked:
         bar = st.progress(0)
         ce_insts, pe_insts = [], []
         total = strikes * 2 + 1
@@ -2442,8 +2442,8 @@ elif example == "Option Greeks":
 
 elif example == "Market Status":
     client = require_client()
-    go, link_slot = action_row("▶ Fetch Status")
-    if go:
+    clicked, link_slot = action_row("▶ Fetch Status")
+    if clicked:
         api = upstox_client.MarketHolidaysAndTimingsApi(client)
         EXCHANGES = ["NSE", "BSE", "MCX", "NFO", "BFO", "CDS"]
         rows = []
@@ -2478,8 +2478,8 @@ elif example == "Market Status":
 
 elif example == "Market Holidays":
     client = require_client()
-    go, link_slot = action_row("▶ Fetch Holidays")
-    if go:
+    clicked, link_slot = action_row("▶ Fetch Holidays")
+    if clicked:
         with st.spinner("Fetching holiday calendar…"):
             api  = upstox_client.MarketHolidaysAndTimingsApi(client)
             resp = api.get_holidays()
@@ -2574,8 +2574,8 @@ elif example == "Market Timings":
     client = require_client()
     sel_date = st.date_input("Date", value=date.today())
 
-    go, link_slot = action_row("▶ Fetch Timings")
-    if go:
+    clicked, link_slot = action_row("▶ Fetch Timings")
+    if clicked:
         with st.spinner("Fetching exchange timings…"):
             api  = upstox_client.MarketHolidaysAndTimingsApi(client)
             resp = api.get_exchange_timings(str(sel_date))
@@ -2635,8 +2635,8 @@ elif example == "Intraday Chart":
     query    = c1.selectbox("Instrument", list(INDEX_KEYS_IC.keys()))
     interval = c2.selectbox("Interval (minutes)", [1, 5, 15, 30, 60], index=1)
 
-    go, link_slot = action_row("▶ Load Chart")
-    if go:
+    clicked, link_slot = action_row("▶ Load Chart")
+    if clicked:
         inst_key = INDEX_KEYS_IC[query]
         with st.spinner(f"Fetching {interval}-min intraday candles for {query}…"):
             api  = upstox_client.HistoryV3Api(client)
@@ -2887,8 +2887,8 @@ elif example == "Company Profile":
 
     symbol = st.text_input("Stock Symbol", value="RELIANCE")
 
-    go, link_slot = action_row("▶ Get Company Profile")
-    if go:
+    clicked, link_slot = action_row("▶ Get Company Profile")
+    if clicked:
         with st.spinner("Resolving instrument…"):
             resp = search_instrument(client, symbol, exchanges="NSE", segments="EQ", records=1)
             hits = resp.data or []
@@ -2966,8 +2966,8 @@ elif example == "Key Ratios":
 
     symbol = st.text_input("Stock Symbol", value="RELIANCE")
 
-    go, link_slot = action_row("▶ Get Key Ratios")
-    if go:
+    clicked, link_slot = action_row("▶ Get Key Ratios")
+    if clicked:
         with st.spinner("Resolving instrument…"):
             resp = search_instrument(client, symbol, exchanges="NSE", segments="EQ", records=1)
             hits = resp.data or []
@@ -3060,8 +3060,8 @@ elif example == "Balance Sheet":
     stmt_type = c2.selectbox("Type", ["consolidated", "standalone"])
     fs_flag   = c3.selectbox("Full Statement", ["false", "true"])
 
-    go, link_slot = action_row("▶ Get Balance Sheet")
-    if go:
+    clicked, link_slot = action_row("▶ Get Balance Sheet")
+    if clicked:
         with st.spinner("Resolving instrument…"):
             resp = search_instrument(client, symbol, exchanges="NSE", segments="EQ", records=1)
             hits = resp.data or []
@@ -3208,8 +3208,8 @@ elif example == "Income Statement":
     period    = c3.selectbox("Period", ["yearly", "quarterly"])
     fs_flag   = c4.selectbox("Full Statement", ["false", "true"])
 
-    go, link_slot = action_row("▶ Get Income Statement")
-    if go:
+    clicked, link_slot = action_row("▶ Get Income Statement")
+    if clicked:
         with st.spinner("Resolving instrument…"):
             resp = search_instrument(client, symbol, exchanges="NSE", segments="EQ", records=1)
             hits = resp.data or []
@@ -3343,8 +3343,8 @@ elif example == "Cash Flow":
     stmt_type = c2.selectbox("Type", ["consolidated", "standalone"])
     fs_flag   = c3.selectbox("Full Statement", ["false", "true"])
 
-    go, link_slot = action_row("▶ Get Cash Flow")
-    if go:
+    clicked, link_slot = action_row("▶ Get Cash Flow")
+    if clicked:
         with st.spinner("Resolving instrument…"):
             resp = search_instrument(client, symbol, exchanges="NSE", segments="EQ", records=1)
             hits = resp.data or []
@@ -3481,8 +3481,8 @@ elif example == "Corporate Actions":
 
     symbol = st.text_input("Stock Symbol", value="RELIANCE")
 
-    go, link_slot = action_row("▶ Get Corporate Actions")
-    if go:
+    clicked, link_slot = action_row("▶ Get Corporate Actions")
+    if clicked:
         with st.spinner("Resolving instrument…"):
             resp = search_instrument(client, symbol, exchanges="NSE", segments="EQ", records=1)
             hits = resp.data or []
@@ -3580,8 +3580,8 @@ elif example == "Share Holdings":
 
     symbol = st.text_input("Stock Symbol", value="RELIANCE")
 
-    go, link_slot = action_row("▶ Get Share Holdings")
-    if go:
+    clicked, link_slot = action_row("▶ Get Share Holdings")
+    if clicked:
         with st.spinner("Resolving instrument…"):
             resp = search_instrument(client, symbol, exchanges="NSE", segments="EQ", records=1)
             hits = resp.data or []
@@ -3705,8 +3705,8 @@ elif example == "Competitors":
 
     symbol = st.text_input("Stock Symbol", value="RELIANCE")
 
-    go, link_slot = action_row("▶ Get Competitors")
-    if go:
+    clicked, link_slot = action_row("▶ Get Competitors")
+    if clicked:
         with st.spinner("Resolving instrument…"):
             resp = search_instrument(client, symbol, exchanges="NSE", segments="EQ", records=1)
             hits = resp.data or []
@@ -3840,8 +3840,8 @@ elif example == "FII Data":
     interval  = c2.selectbox("Interval", ["1D", "1M"])
     from_date = c3.date_input("From (optional)", value=None)
 
-    go, link_slot = action_row("▶ Fetch FII Data")
-    if go:
+    clicked, link_slot = action_row("▶ Fetch FII Data")
+    if clicked:
         with st.spinner("Fetching FII activity…"):
             try:
                 api = upstox_client.MarketApi(client)
@@ -3943,8 +3943,8 @@ elif example == "DII Data":
     from_date = c2.date_input("From (optional)", value=None)
     data_type = "NSE_EQ|CASH"
 
-    go, link_slot = action_row("▶ Fetch DII Data")
-    if go:
+    clicked, link_slot = action_row("▶ Fetch DII Data")
+    if clicked:
         with st.spinner("Fetching DII activity…"):
             try:
                 api = upstox_client.MarketApi(client)
@@ -4045,8 +4045,8 @@ elif example == "OI":
     expiry   = c2.date_input("Expiry", value=date.today() + timedelta(days=7))
     sel_date = c3.date_input("Date", value=date.today())
 
-    go, link_slot = action_row("▶ Fetch OI")
-    if go:
+    clicked, link_slot = action_row("▶ Fetch OI")
+    if clicked:
         with st.spinner("Fetching OI data…"):
             try:
                 api = upstox_client.MarketApi(client)
@@ -4133,8 +4133,8 @@ elif example == "Change in OI":
     sel_date = c3.date_input("Date", value=date.today())
     interval = c4.number_input("Lookback (days)", min_value=1, max_value=30, value=5, step=1)
 
-    go, link_slot = action_row("▶ Fetch Change in OI")
-    if go:
+    clicked, link_slot = action_row("▶ Fetch Change in OI")
+    if clicked:
         with st.spinner("Fetching change-in-OI…"):
             try:
                 api = upstox_client.MarketApi(client)
@@ -4216,8 +4216,8 @@ elif example == "Max Pain":
     sel_date = c3.date_input("Date", value=date.today())
     bucket   = c4.selectbox("Bucket (mins)", [15, 30, 60], index=2)
 
-    go, link_slot = action_row("▶ Fetch Max Pain")
-    if go:
+    clicked, link_slot = action_row("▶ Fetch Max Pain")
+    if clicked:
         with st.spinner("Fetching max pain…"):
             try:
                 api = upstox_client.MarketApi(client)
@@ -4297,8 +4297,8 @@ elif example == "PCR":
     sel_date = c3.date_input("Date", value=date.today())
     bucket   = c4.selectbox("Bucket (mins)", [15, 30, 60], index=2)
 
-    go, link_slot = action_row("▶ Fetch PCR")
-    if go:
+    clicked, link_slot = action_row("▶ Fetch PCR")
+    if clicked:
         with st.spinner("Fetching PCR…"):
             try:
                 api = upstox_client.MarketApi(client)
