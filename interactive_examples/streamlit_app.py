@@ -324,7 +324,7 @@ elif example == "Search Futures":
     c1, c2, c3 = st.columns([2, 1, 1])
     query = c1.text_input("Search query", value="NIFTY")
     exch  = c2.selectbox("Exchange", ["NSE", "BSE", "MCX"])
-    exact = c3.checkbox("Exact underlying match", value=True,
+    exact = c3.checkbox("Exact underlying match", value=False,
                         help="Filter strictly by underlying_symbol to avoid e.g. NIFTYNXT50 when searching NIFTY")
 
     if st.button("🔍 Search", type="primary"):
