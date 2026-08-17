@@ -229,3 +229,387 @@ class IpoApi(object):
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
             collection_formats=collection_formats)
+
+    def apply_for_ipo(self, body, **kwargs):  # noqa: E501
+        """Apply for IPO  # noqa: E501
+
+        Places an IPO application for the authenticated user.  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.apply_for_ipo(body, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param IpoApplyRequest body: (required)
+        :return: IpoApplyResponse
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('async_req'):
+            return self.apply_for_ipo_with_http_info(body, **kwargs)  # noqa: E501
+        else:
+            (data) = self.apply_for_ipo_with_http_info(body, **kwargs)  # noqa: E501
+            return data
+
+    def apply_for_ipo_with_http_info(self, body, **kwargs):  # noqa: E501
+        """Apply for IPO  # noqa: E501
+
+        Places an IPO application for the authenticated user.  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.apply_for_ipo_with_http_info(body, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param IpoApplyRequest body: (required)
+        :return: IpoApplyResponse
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['body']  # noqa: E501
+        all_params.append('async_req')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in six.iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method apply_for_ipo" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'body' is set
+        if ('body' not in params or
+                params['body'] is None):
+            raise ValueError("Missing the required parameter `body` when calling `apply_for_ipo`")  # noqa: E501
+
+        collection_formats = {}
+
+        path_params = {}
+
+        query_params = []
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        if 'body' in params:
+            body_params = params['body']
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.select_header_accept(
+            ['*/*', 'application/json'])  # noqa: E501
+
+        # HTTP header `Content-Type`
+        header_params['Content-Type'] = self.api_client.select_header_content_type(  # noqa: E501
+            ['application/json'])  # noqa: E501
+
+        # Authentication setting
+        auth_settings = ['OAUTH2']  # noqa: E501
+
+        return self.api_client.call_api(
+            '/v2/ipos/orders', 'POST',
+            path_params,
+            query_params,
+            header_params,
+            body=body_params,
+            post_params=form_params,
+            files=local_var_files,
+            response_type='IpoApplyResponse',  # noqa: E501
+            auth_settings=auth_settings,
+            async_req=params.get('async_req'),
+            _return_http_data_only=params.get('_return_http_data_only'),
+            _preload_content=params.get('_preload_content', True),
+            _request_timeout=params.get('_request_timeout'),
+            collection_formats=collection_formats)
+
+    def cancel_ipo_order(self, order_id, **kwargs):  # noqa: E501
+        """Cancel IPO Order  # noqa: E501
+
+        Cancels/deletes an IPO order of the authenticated user by order id.  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.cancel_ipo_order(order_id, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param object order_id: IPO application id, as returned in `order_id` by the apply and orders APIs (required)
+        :return: IpoCancelResponse
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('async_req'):
+            return self.cancel_ipo_order_with_http_info(order_id, **kwargs)  # noqa: E501
+        else:
+            (data) = self.cancel_ipo_order_with_http_info(order_id, **kwargs)  # noqa: E501
+            return data
+
+    def cancel_ipo_order_with_http_info(self, order_id, **kwargs):  # noqa: E501
+        """Cancel IPO Order  # noqa: E501
+
+        Cancels/deletes an IPO order of the authenticated user by order id.  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.cancel_ipo_order_with_http_info(order_id, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param object order_id: IPO application id, as returned in `order_id` by the apply and orders APIs (required)
+        :return: IpoCancelResponse
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['order_id']  # noqa: E501
+        all_params.append('async_req')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in six.iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method cancel_ipo_order" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'order_id' is set
+        if ('order_id' not in params or
+                params['order_id'] is None):
+            raise ValueError("Missing the required parameter `order_id` when calling `cancel_ipo_order`")  # noqa: E501
+
+        collection_formats = {}
+
+        path_params = {}
+        if 'order_id' in params:
+            path_params['order_id'] = params['order_id']  # noqa: E501
+
+        query_params = []
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.select_header_accept(
+            ['*/*', 'application/json'])  # noqa: E501
+
+        # Authentication setting
+        auth_settings = ['OAUTH2']  # noqa: E501
+
+        return self.api_client.call_api(
+            '/v2/ipos/orders/{order_id}', 'DELETE',
+            path_params,
+            query_params,
+            header_params,
+            body=body_params,
+            post_params=form_params,
+            files=local_var_files,
+            response_type='IpoCancelResponse',  # noqa: E501
+            auth_settings=auth_settings,
+            async_req=params.get('async_req'),
+            _return_http_data_only=params.get('_return_http_data_only'),
+            _preload_content=params.get('_preload_content', True),
+            _request_timeout=params.get('_request_timeout'),
+            collection_formats=collection_formats)
+
+    def get_ipo_order_by_id(self, order_id, **kwargs):  # noqa: E501
+        """Get IPO Order  # noqa: E501
+
+        Fetches a single IPO order of the authenticated user by order id.  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.get_ipo_order_by_id(order_id, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param object order_id: IPO application id, as returned in `order_id` by the apply and orders APIs (required)
+        :return: IpoOrderDetailResponse
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('async_req'):
+            return self.get_ipo_order_by_id_with_http_info(order_id, **kwargs)  # noqa: E501
+        else:
+            (data) = self.get_ipo_order_by_id_with_http_info(order_id, **kwargs)  # noqa: E501
+            return data
+
+    def get_ipo_order_by_id_with_http_info(self, order_id, **kwargs):  # noqa: E501
+        """Get IPO Order  # noqa: E501
+
+        Fetches a single IPO order of the authenticated user by order id.  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.get_ipo_order_by_id_with_http_info(order_id, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param object order_id: IPO application id, as returned in `order_id` by the apply and orders APIs (required)
+        :return: IpoOrderDetailResponse
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['order_id']  # noqa: E501
+        all_params.append('async_req')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in six.iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method get_ipo_order_by_id" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'order_id' is set
+        if ('order_id' not in params or
+                params['order_id'] is None):
+            raise ValueError("Missing the required parameter `order_id` when calling `get_ipo_order_by_id`")  # noqa: E501
+
+        collection_formats = {}
+
+        path_params = {}
+        if 'order_id' in params:
+            path_params['order_id'] = params['order_id']  # noqa: E501
+
+        query_params = []
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.select_header_accept(
+            ['*/*', 'application/json'])  # noqa: E501
+
+        # Authentication setting
+        auth_settings = ['OAUTH2']  # noqa: E501
+
+        return self.api_client.call_api(
+            '/v2/ipos/orders/{order_id}', 'GET',
+            path_params,
+            query_params,
+            header_params,
+            body=body_params,
+            post_params=form_params,
+            files=local_var_files,
+            response_type='IpoOrderDetailResponse',  # noqa: E501
+            auth_settings=auth_settings,
+            async_req=params.get('async_req'),
+            _return_http_data_only=params.get('_return_http_data_only'),
+            _preload_content=params.get('_preload_content', True),
+            _request_timeout=params.get('_request_timeout'),
+            collection_formats=collection_formats)
+
+    def get_ipo_orders(self, **kwargs):  # noqa: E501
+        """Get IPO Orders  # noqa: E501
+
+        Fetches the authenticated user's IPO orders/applications.  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.get_ipo_orders(async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param object page_number: Page number, starting at 1
+        :param object records: Number of records per page
+        :return: IpoOrderResponse
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('async_req'):
+            return self.get_ipo_orders_with_http_info(**kwargs)  # noqa: E501
+        else:
+            (data) = self.get_ipo_orders_with_http_info(**kwargs)  # noqa: E501
+            return data
+
+    def get_ipo_orders_with_http_info(self, **kwargs):  # noqa: E501
+        """Get IPO Orders  # noqa: E501
+
+        Fetches the authenticated user's IPO orders/applications.  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.get_ipo_orders_with_http_info(async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param object page_number: Page number, starting at 1
+        :param object records: Number of records per page
+        :return: IpoOrderResponse
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['page_number', 'records']  # noqa: E501
+        all_params.append('async_req')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in six.iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method get_ipo_orders" % key
+                )
+            params[key] = val
+        del params['kwargs']
+
+        collection_formats = {}
+
+        path_params = {}
+
+        query_params = []
+        if 'page_number' in params:
+            query_params.append(('page_number', params['page_number']))  # noqa: E501
+        if 'records' in params:
+            query_params.append(('records', params['records']))  # noqa: E501
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.select_header_accept(
+            ['*/*', 'application/json'])  # noqa: E501
+
+        # Authentication setting
+        auth_settings = ['OAUTH2']  # noqa: E501
+
+        return self.api_client.call_api(
+            '/v2/ipos/orders', 'GET',
+            path_params,
+            query_params,
+            header_params,
+            body=body_params,
+            post_params=form_params,
+            files=local_var_files,
+            response_type='IpoOrderResponse',  # noqa: E501
+            auth_settings=auth_settings,
+            async_req=params.get('async_req'),
+            _return_http_data_only=params.get('_return_http_data_only'),
+            _preload_content=params.get('_preload_content', True),
+            _request_timeout=params.get('_request_timeout'),
+            collection_formats=collection_formats)
