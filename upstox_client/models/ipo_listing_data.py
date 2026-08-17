@@ -40,7 +40,8 @@ class IpoListingData(object):
         'maximum_price': 'object',
         'bidding_start_date': 'object',
         'bidding_end_date': 'object',
-        'total_subscription': 'object'
+        'total_subscription': 'object',
+        'investors': 'list[IpoInvestorType]'
     }
 
     attribute_map = {
@@ -56,10 +57,11 @@ class IpoListingData(object):
         'maximum_price': 'maximum_price',
         'bidding_start_date': 'bidding_start_date',
         'bidding_end_date': 'bidding_end_date',
-        'total_subscription': 'total_subscription'
+        'total_subscription': 'total_subscription',
+        'investors': 'investors'
     }
 
-    def __init__(self, id=None, symbol=None, name=None, status=None, isin=None, issue_type=None, issue_size=None, industry=None, minimum_price=None, maximum_price=None, bidding_start_date=None, bidding_end_date=None, total_subscription=None):  # noqa: E501
+    def __init__(self, id=None, symbol=None, name=None, status=None, isin=None, issue_type=None, issue_size=None, industry=None, minimum_price=None, maximum_price=None, bidding_start_date=None, bidding_end_date=None, total_subscription=None, investors=None):  # noqa: E501
         """IpoListingData - a model defined in Swagger"""  # noqa: E501
         self._id = None
         self._symbol = None
@@ -74,6 +76,7 @@ class IpoListingData(object):
         self._bidding_start_date = None
         self._bidding_end_date = None
         self._total_subscription = None
+        self._investors = None
         self.discriminator = None
         if id is not None:
             self.id = id
@@ -101,6 +104,8 @@ class IpoListingData(object):
             self.bidding_end_date = bidding_end_date
         if total_subscription is not None:
             self.total_subscription = total_subscription
+        if investors is not None:
+            self.investors = investors
 
     @property
     def id(self):
@@ -374,6 +379,27 @@ class IpoListingData(object):
         """
 
         self._total_subscription = total_subscription
+
+    @property
+    def investors(self):
+        """Gets the investors of this IpoListingData.  # noqa: E501
+
+
+        :return: The investors of this IpoListingData.  # noqa: E501
+        :rtype: list[IpoInvestorType]
+        """
+        return self._investors
+
+    @investors.setter
+    def investors(self, investors):
+        """Sets the investors of this IpoListingData.
+
+
+        :param investors: The investors of this IpoListingData.  # noqa: E501
+        :type: list[IpoInvestorType]
+        """
+
+        self._investors = investors
 
     def to_dict(self):
         """Returns the model properties as a dict"""
