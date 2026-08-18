@@ -142,6 +142,11 @@ EXAMPLES = [
     ("Market Information",  "market_information/change_oi.py",                 ["--expiry", NEXT_THU, "--interval", "5"]),
     ("Market Information",  "market_information/max_pain.py",                  ["--expiry", NEXT_THU, "--bucket-interval", "60"]),
     ("Market Information",  "market_information/pcr_data.py",                  ["--expiry", NEXT_THU, "--bucket-interval", "60"]),
+
+    ("IPO",                 "ipo/ipo_listing.py",                              ["--records", "5"]),
+    ("IPO",                 "ipo/ipo_details.py",                              []),
+    # Reads your own IPO applications — needs a full access token, not an analytics token.
+    ("IPO",                 "ipo/ipo_orders.py",                               ["--records", "5"]),
 ]
 
 # Scripts that run indefinitely — killed after this many seconds and counted as PASS
