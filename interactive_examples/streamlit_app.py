@@ -4502,8 +4502,10 @@ elif example == "IPO Details":
             ("Daily start", _g(d, "daily_start_time")),
             ("Daily end", _g(d, "daily_end_time")),
         ]
+        # Values are a mix of strings and numbers; cast to str so Arrow can serialize
+        # the single "Value" column without falling back to type coercion.
         prof_df = pd.DataFrame(
-            [{"Field": k, "Value": v} for k, v in profile if v is not None and v != ""])
+            [{"Field": k, "Value": str(v)} for k, v in profile if v is not None and v != ""])
         if not prof_df.empty:
             st.markdown("**Profile**")
             st.dataframe(prof_df, use_container_width=True, hide_index=True)
@@ -4520,7 +4522,7 @@ elif example == "IPO Details":
             ("Listing", _g(tl, "listing_date")),
         ]
         tl_df = pd.DataFrame(
-            [{"Milestone": k, "Date": v} for k, v in tl_rows if v is not None and v != ""])
+            [{"Milestone": k, "Date": str(v)} for k, v in tl_rows if v is not None and v != ""])
         if not tl_df.empty:
             st.markdown("**Timeline**")
             st.dataframe(tl_df, use_container_width=True, hide_index=True)
@@ -4532,7 +4534,7 @@ elif example == "IPO Details":
             ("Email", _g(reg, "email")), ("Website", _g(reg, "website")),
         ]
         reg_df = pd.DataFrame(
-            [{"Field": k, "Value": v} for k, v in reg_rows if v is not None and v != ""])
+            [{"Field": k, "Value": str(v)} for k, v in reg_rows if v is not None and v != ""])
         if not reg_df.empty:
             st.markdown("**Registrar**")
             st.dataframe(reg_df, use_container_width=True, hide_index=True)
@@ -4598,7 +4600,7 @@ elif example == "IPO Orders":
 
             detail = [(k.replace("_", " ").title(), v) for k, v in order.items()
                       if k != "bids" and v is not None and v != ""]
-            st.dataframe(pd.DataFrame([{"Field": k, "Value": v} for k, v in detail]),
+            st.dataframe(pd.DataFrame([{"Field": k, "Value": str(v)} for k, v in detail]),
                          use_container_width=True, hide_index=True)
 
             bids = order.get("bids") or []
