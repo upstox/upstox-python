@@ -120,6 +120,11 @@ with st.sidebar:
             "Max Pain",
             "PCR",
         ],
+        "🏛️ IPO": [
+            "IPO Listing",
+            "IPO Details",
+            "IPO Orders",
+        ],
         "🔬 Fundamentals Analysis": [
             "Company Profile",
             "Key Ratios",
@@ -4363,6 +4368,288 @@ elif example == "PCR":
             "instrument_key": UNDERLYINGS_PCR[label], "expiry": str(expiry),
             "date": str(sel_date), "bucket_interval": str(bucket),
         })
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# 🏛️ IPO
+# ═════════════════════════════════════════════════════════════════════════════
+
+elif example == "IPO Listing":
+    client = require_client()
+
+    c1, c2, c3 = st.columns([1, 1, 1])
+    status     = c1.selectbox("Status", ["all", "open", "closed", "listed", "upcoming"])
+    issue_type = c2.selectbox("Issue type", ["all", "regular", "sme"])
+    records    = c3.number_input("Records", 1, 30, 20)
+
+    clicked, link_slot = action_row("🏛️ Fetch IPOs")
+    if clicked:
+        kwargs = {"page_number": 1, "records": int(records)}
+        if status != "all":
+            kwargs["status"] = status
+        if issue_type != "all":
+            kwargs["issue_type"] = issue_type
+
+        with st.spinner("Fetching IPOs…"):
+            api  = upstox_client.IpoApi(client)
+            resp = api.get_ipo_listing(**kwargs)
+
+        rows = resp.data or []
+        if not rows:
+            st.warning("No IPOs found for the selected filters.")
+            st.stop()
+
+        curl_jump_link(link_slot)
+
+        def _d(o):
+            if isinstance(o, dict):
+                return o
+            return o.to_dict() if hasattr(o, "to_dict") else vars(o)
+
+        recs = [_d(r) for r in rows]
+
+        m1, m2, m3 = st.columns(3)
+        m1.metric("IPOs found", len(recs))
+        m2.metric("Open", sum(1 for r in recs if str(r.get("status", "")).lower() == "open"))
+        m3.metric("SME", sum(1 for r in recs if str(r.get("issue_type", "")).lower() == "sme"))
+        st.divider()
+
+        df = pd.DataFrame([{
+            "Symbol":       r.get("symbol"),
+            "Name":         r.get("name"),
+            "Status":       r.get("status"),
+            "Type":         r.get("issue_type"),
+            "Min Price":    r.get("minimum_price"),
+            "Max Price":    r.get("maximum_price"),
+            "Issue Size":   r.get("issue_size"),
+            "Industry":     r.get("industry"),
+            "Bid Start":    r.get("bidding_start_date"),
+            "Bid End":      r.get("bidding_end_date"),
+            "Subscription": r.get("total_subscription"),
+            "ID":           r.get("id"),
+        } for r in recs])
+        st.dataframe(df, use_container_width=True, hide_index=True)
+
+        sub = df[["Symbol", "Subscription"]].copy()
+        sub["Subscription"] = pd.to_numeric(sub["Subscription"], errors="coerce")
+        sub = sub.dropna(subset=["Subscription"]).sort_values("Subscription", ascending=False)
+        if not sub.empty:
+            fig = go.Figure()
+            fig.add_trace(go.Bar(x=sub["Symbol"], y=sub["Subscription"],
+                                 marker_color="#3498db", name="Subscription"))
+            fig.update_layout(title="Total subscription (times)", template="plotly_dark",
+                              height=420, xaxis_title="Symbol",
+                              yaxis=dict(title="Times subscribed"))
+            st.plotly_chart(fig, use_container_width=True)
+
+        st.caption("Copy an **ID** from the table into **IPO Details** for the full profile.")
+
+        show_curl("GET", "/v2/ipos", kwargs)
+
+
+elif example == "IPO Details":
+    client = require_client()
+
+    c1, c2 = st.columns([3, 1])
+    ipo_id = c1.text_input("IPO slug ID", value="",
+                           placeholder="e.g. the ID column from IPO Listing")
+
+    clicked, link_slot = action_row("🔎 Fetch details")
+    if clicked:
+        if not ipo_id.strip():
+            st.warning("Enter an IPO slug ID. You can copy one from the **IPO Listing** page.")
+            st.stop()
+
+        with st.spinner("Fetching IPO details…"):
+            api  = upstox_client.IpoApi(client)
+            resp = api.get_ipo_details(ipo_id.strip())
+
+        d = resp.data
+        if d is None:
+            st.warning(f"No IPO found with ID '{ipo_id}'.")
+            st.stop()
+
+        curl_jump_link(link_slot)
+
+        def _g(obj, key):
+            if obj is None:
+                return None
+            if isinstance(obj, dict):
+                return obj.get(key)
+            return getattr(obj, key, None)
+
+        st.subheader(f"{_g(d, 'name') or ipo_id}  ·  {_g(d, 'symbol') or '—'}")
+
+        m1, m2, m3, m4 = st.columns(4)
+        lo, hi = _g(d, "minimum_price"), _g(d, "maximum_price")
+        band = f"{lo} – {hi}" if lo is not None and hi is not None and lo != hi else str(
+            lo if lo is not None else hi if hi is not None else "—")
+        m1.metric("Price band", band)
+        m2.metric("Lot size", str(_g(d, "lot_size") or "—"))
+        m3.metric("Status", str(_g(d, "status") or "—"))
+        m4.metric("Subscription", str(_g(d, "total_subscription") or "—"))
+        st.divider()
+
+        profile = [
+            ("ISIN", _g(d, "isin")), ("Issue type", _g(d, "issue_type")),
+            ("Industry", _g(d, "industry")), ("Issue size", _g(d, "issue_size")),
+            ("Face value", _g(d, "face_value")), ("Tick size", _g(d, "tick_size")),
+            ("Min quantity", _g(d, "minimum_quantity")), ("Cut-off price", _g(d, "cut_off_price")),
+            ("Listing price", _g(d, "listing_price")),
+            ("Listing exchange", _g(d, "listing_exchange")),
+            ("Bidding start", _g(d, "bidding_start_date")),
+            ("Bidding end", _g(d, "bidding_end_date")),
+            ("Daily start", _g(d, "daily_start_time")),
+            ("Daily end", _g(d, "daily_end_time")),
+        ]
+        prof_df = pd.DataFrame(
+            [{"Field": k, "Value": v} for k, v in profile if v is not None and v != ""])
+        if not prof_df.empty:
+            st.markdown("**Profile**")
+            st.dataframe(prof_df, use_container_width=True, hide_index=True)
+
+        tl = _g(d, "timeline")
+        tl_rows = [
+            ("Pre-apply start", _g(tl, "pre_apply_start_date")),
+            ("Application start", _g(tl, "application_start_date")),
+            ("Application end", _g(tl, "application_end_date")),
+            ("Allotment start", _g(tl, "allotment_start_date")),
+            ("Allotment", _g(tl, "allotment_date")),
+            ("Refund initiation", _g(tl, "refund_initiation_date")),
+            ("Mandate end", _g(tl, "mandate_end_date")),
+            ("Listing", _g(tl, "listing_date")),
+        ]
+        tl_df = pd.DataFrame(
+            [{"Milestone": k, "Date": v} for k, v in tl_rows if v is not None and v != ""])
+        if not tl_df.empty:
+            st.markdown("**Timeline**")
+            st.dataframe(tl_df, use_container_width=True, hide_index=True)
+
+        reg = _g(d, "registrar_info")
+        reg_rows = [
+            ("Registrar", _g(reg, "name")), ("Registrar code", _g(reg, "registrar")),
+            ("Contact", _g(reg, "contact_name")), ("Phone", _g(reg, "contact_number")),
+            ("Email", _g(reg, "email")), ("Website", _g(reg, "website")),
+        ]
+        reg_df = pd.DataFrame(
+            [{"Field": k, "Value": v} for k, v in reg_rows if v is not None and v != ""])
+        if not reg_df.empty:
+            st.markdown("**Registrar**")
+            st.dataframe(reg_df, use_container_width=True, hide_index=True)
+
+        investors = _g(d, "investors") or []
+        if investors:
+            inv_df = pd.DataFrame([{
+                "Category": _g(i, "category"), "Description": _g(i, "description"),
+            } for i in investors])
+            st.markdown("**Investor categories**")
+            st.dataframe(inv_df, use_container_width=True, hide_index=True)
+
+        links = [(lbl, _g(d, a)) for a, lbl in (("rhp_url", "RHP"), ("drhp_url", "DRHP"))]
+        links = [(lbl, u) for lbl, u in links if u]
+        if links:
+            st.markdown("  ·  ".join(f"[{lbl}]({u})" for lbl, u in links))
+
+        st.caption("Prospectus links and registrar contact come straight from the IPO record.")
+
+        show_curl("GET", f"/v2/ipos/{ipo_id.strip()}")
+
+
+elif example == "IPO Orders":
+    client = require_client()
+
+    st.info(
+        "This reads **your own** IPO applications, so it needs a full access token — "
+        "a read-only analytics token will not work here."
+    )
+
+    c1, c2 = st.columns([3, 1])
+    order_id = c1.text_input("Order ID (optional)", value="",
+                             placeholder="leave blank to list all your IPO orders")
+    records  = c2.number_input("Records", 1, 30, 20)
+
+    clicked, link_slot = action_row("📄 Fetch orders")
+    if clicked:
+        api = upstox_client.IpoApi(client)
+
+        def _d(o):
+            if o is None:
+                return {}
+            if isinstance(o, dict):
+                return o
+            return o.to_dict() if hasattr(o, "to_dict") else vars(o)
+
+        if order_id.strip():
+            with st.spinner("Fetching IPO order…"):
+                resp = api.get_ipo_order_by_id(order_id.strip())
+
+            order = _d(resp.data)
+            if not order:
+                st.warning(f"No IPO order found with ID '{order_id}'.")
+                st.stop()
+
+            curl_jump_link(link_slot)
+
+            m1, m2, m3 = st.columns(3)
+            m1.metric("Status", str(order.get("order_status") or order.get("status") or "—"))
+            m2.metric("Payment", str(order.get("payment_status") or "—"))
+            m3.metric("Units allotted", str(order.get("units_allotted") or "—"))
+            st.divider()
+
+            detail = [(k.replace("_", " ").title(), v) for k, v in order.items()
+                      if k != "bids" and v is not None and v != ""]
+            st.dataframe(pd.DataFrame([{"Field": k, "Value": v} for k, v in detail]),
+                         use_container_width=True, hide_index=True)
+
+            bids = order.get("bids") or []
+            if bids:
+                st.markdown("**Bids**")
+                st.dataframe(pd.DataFrame([{
+                    "Quantity": _d(b).get("quantity"), "Price": _d(b).get("price"),
+                    "Amount":   _d(b).get("amount"),   "Message": _d(b).get("message"),
+                } for b in bids]), use_container_width=True, hide_index=True)
+
+            st.caption("Single IPO order fetched by its order ID.")
+
+            show_curl("GET", f"/v2/ipos/orders/{order_id.strip()}")
+        else:
+            with st.spinner("Fetching IPO orders…"):
+                resp = api.get_ipo_orders(page_number=1, records=int(records))
+
+            rows = [_d(r) for r in (resp.data or [])]
+            if not rows:
+                st.warning("No IPO orders found for this account.")
+                st.stop()
+
+            curl_jump_link(link_slot)
+
+            blocked = pd.to_numeric(
+                pd.Series([r.get("upi_amount_blocked") for r in rows]), errors="coerce")
+            m1, m2, m3 = st.columns(3)
+            m1.metric("Orders", len(rows))
+            m2.metric("Total blocked", f"{blocked.sum():,.2f}" if blocked.notna().any() else "—")
+            m3.metric("Allotted", sum(
+                1 for r in rows if pd.to_numeric(
+                    pd.Series([r.get("units_allotted")]), errors="coerce").fillna(0).iloc[0] > 0))
+            st.divider()
+
+            df = pd.DataFrame([{
+                "Symbol":       r.get("symbol"),
+                "Exchange":     r.get("exchange"),
+                "Order ID":     r.get("order_id"),
+                "Status":       r.get("order_status") or r.get("status"),
+                "Payment":      r.get("payment_status"),
+                "Category":     r.get("category"),
+                "Type":         r.get("issue_type"),
+                "Blocked":      r.get("upi_amount_blocked"),
+                "Allotted":     r.get("units_allotted"),
+                "Created":      r.get("created_at"),
+            } for r in rows])
+            st.dataframe(df, use_container_width=True, hide_index=True)
+
+            st.caption("Paste an **Order ID** above to drill into a single application's bids.")
+
+            show_curl("GET", "/v2/ipos/orders", {"page_number": 1, "records": int(records)})
 
 
 else:
