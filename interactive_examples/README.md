@@ -273,6 +273,28 @@ python market_information/pcr_data.py  --token <TOKEN> --expiry 2026-05-29 --buc
 
 ---
 
+### IPO
+*Uses the [Upstox IPO API](https://upstox.com/developer/api-documentation/). Read-only: these examples cover the GET endpoints only — applying for and cancelling an IPO are not included.*
+
+| Script | What it does |
+|---|---|
+| `ipo/ipo_listing.py` | Lists IPOs filtered by status (open / closed / listed / upcoming) and issue type |
+| `ipo/ipo_details.py` | Full profile for one IPO — price band, timeline, registrar, investor categories |
+| `ipo/ipo_orders.py` | Your IPO applications, or a single application by order ID |
+
+```bash
+python ipo/ipo_listing.py --token <TOKEN> --status open
+python ipo/ipo_listing.py --token <TOKEN> --status upcoming --issue-type sme --records 30
+python ipo/ipo_details.py --token <TOKEN>
+python ipo/ipo_details.py --token <TOKEN> --id <IPO_SLUG_ID>
+python ipo/ipo_orders.py  --token <TOKEN> --records 5
+python ipo/ipo_orders.py  --token <TOKEN> --order-id <ORDER_ID>
+```
+
+> `ipo/ipo_orders.py` reads **your own** applications, so it needs a full access token — a read-only analytics token will not work. The other two work with either.
+
+---
+
 
 ## 🌐 Deploy the Streamlit App
 
@@ -310,7 +332,8 @@ interactive_examples/
 ├── portfolio_screening/              # 3 scripts
 ├── market_data/                      # 8 scripts
 ├── fundamentals/                     # 8 scripts
-└── market_information/               # 6 scripts
+├── market_information/               # 6 scripts
+└── ipo/                              # 3 scripts
 ```
 
 ---

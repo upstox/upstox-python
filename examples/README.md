@@ -35,7 +35,7 @@ Samples are grouped by API area. Each `.md` file contains one or more Python sni
 | [**expired-instruments/**](expired-instruments/) | Expiries, expired future/option contracts, expired historical candle data. |
 | [**market-information/**](market-information/) | Exchange status, market timings, market holidays, OI, change in OI, PCR, max pain, FII, and DII. |
 | [**smartlist/**](smartlist/) | Analytics-enriched smartlists for options, futures, and MTF stocks. |
-| [**ipo/**](ipo/) | IPO listing (by status/issue type) and IPO details by id. |
+| [**ipo/**](ipo/) | IPO listing (by status/issue type), IPO details by id, and IPO orders — apply, list, fetch by order id and cancel. |
 | [**gtt-orders/**](gtt-orders/) | Place, modify, cancel, and get details for GTT (Good Till Triggered) orders. |
 | [**margins/**](margins/) | Margin details. |
 | [**charges/**](charges/) | Brokerage details. |

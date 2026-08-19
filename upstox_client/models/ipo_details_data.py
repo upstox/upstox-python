@@ -53,7 +53,8 @@ class IpoDetailsData(object):
         'drhp_url': 'object',
         'timeline': 'IpoTimeline',
         'registrar_info': 'IpoRegistrarInfo',
-        'total_subscription': 'object'
+        'total_subscription': 'object',
+        'investors': 'list[IpoInvestorType]'
     }
 
     attribute_map = {
@@ -82,10 +83,11 @@ class IpoDetailsData(object):
         'drhp_url': 'drhp_url',
         'timeline': 'timeline',
         'registrar_info': 'registrar_info',
-        'total_subscription': 'total_subscription'
+        'total_subscription': 'total_subscription',
+        'investors': 'investors'
     }
 
-    def __init__(self, id=None, symbol=None, name=None, status=None, isin=None, issue_type=None, issue_size=None, industry=None, minimum_price=None, maximum_price=None, bidding_start_date=None, bidding_end_date=None, daily_start_time=None, daily_end_time=None, face_value=None, tick_size=None, lot_size=None, minimum_quantity=None, cut_off_price=None, listing_price=None, listing_exchange=None, rhp_url=None, drhp_url=None, timeline=None, registrar_info=None, total_subscription=None):  # noqa: E501
+    def __init__(self, id=None, symbol=None, name=None, status=None, isin=None, issue_type=None, issue_size=None, industry=None, minimum_price=None, maximum_price=None, bidding_start_date=None, bidding_end_date=None, daily_start_time=None, daily_end_time=None, face_value=None, tick_size=None, lot_size=None, minimum_quantity=None, cut_off_price=None, listing_price=None, listing_exchange=None, rhp_url=None, drhp_url=None, timeline=None, registrar_info=None, total_subscription=None, investors=None):  # noqa: E501
         """IpoDetailsData - a model defined in Swagger"""  # noqa: E501
         self._id = None
         self._symbol = None
@@ -113,6 +115,7 @@ class IpoDetailsData(object):
         self._timeline = None
         self._registrar_info = None
         self._total_subscription = None
+        self._investors = None
         self.discriminator = None
         if id is not None:
             self.id = id
@@ -166,6 +169,8 @@ class IpoDetailsData(object):
             self.registrar_info = registrar_info
         if total_subscription is not None:
             self.total_subscription = total_subscription
+        if investors is not None:
+            self.investors = investors
 
     @property
     def id(self):
@@ -712,6 +717,27 @@ class IpoDetailsData(object):
         """
 
         self._total_subscription = total_subscription
+
+    @property
+    def investors(self):
+        """Gets the investors of this IpoDetailsData.  # noqa: E501
+
+
+        :return: The investors of this IpoDetailsData.  # noqa: E501
+        :rtype: list[IpoInvestorType]
+        """
+        return self._investors
+
+    @investors.setter
+    def investors(self, investors):
+        """Sets the investors of this IpoDetailsData.
+
+
+        :param investors: The investors of this IpoDetailsData.  # noqa: E501
+        :type: list[IpoInvestorType]
+        """
+
+        self._investors = investors
 
     def to_dict(self):
         """Returns the model properties as a dict"""
