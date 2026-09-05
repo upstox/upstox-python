@@ -29,7 +29,7 @@ Samples are grouped by API area. Each `.md` file contains one or more Python sni
 | [**user/**](user/) | User profile, fund and margin details, IP management, kill switch. |
 | [**orders/**](orders/) | Order lifecycle: place (single/multi, v2 & v3), modify, cancel, order book, order details, order history, trades, historical trades, exit all positions. |
 | [**portfolio/**](portfolio/) | Positions, holdings, MTF positions, convert positions. |
-| [**market-quote/**](market-quote/) | LTP, full market quotes, OHLC (v2 & v3), option Greeks. |
+| [**market-quote/**](market-quote/) | LTP, full market quotes (v2 & v3), OHLC (v2 & v3), option Greeks. |
 | [**historical-data/**](historical-data/) | Historical and intraday candle data (v2 & v3). |
 | [**option-chain/**](option-chain/) | Option contracts, put-call option chain. |
 | [**expired-instruments/**](expired-instruments/) | Expiries, expired future/option contracts, expired historical candle data. |
