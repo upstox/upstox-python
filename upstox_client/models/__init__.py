@@ -61,6 +61,7 @@ from upstox_client.models.get_exchange_timing_response import GetExchangeTimingR
 from upstox_client.models.get_expired_futures_contract_response import GetExpiredFuturesContractResponse
 from upstox_client.models.get_expiries import GetExpiriesResponse
 from upstox_client.models.get_full_market_quote_response import GetFullMarketQuoteResponse
+from upstox_client.models.get_full_market_quote_response_v3 import GetFullMarketQuoteResponseV3
 from upstox_client.models.get_gtt_order_response import GetGttOrderResponse
 from upstox_client.models.get_historical_candle_response import GetHistoricalCandleResponse
 from upstox_client.models.get_holdings_response import GetHoldingsResponse
@@ -147,6 +148,7 @@ from upstox_client.models.market_quote_option_greek_v3 import MarketQuoteOptionG
 from upstox_client.models.market_quote_symbol import MarketQuoteSymbol
 from upstox_client.models.market_quote_symbol_ltp import MarketQuoteSymbolLtp
 from upstox_client.models.market_quote_symbol_ltp_v3 import MarketQuoteSymbolLtpV3
+from upstox_client.models.market_quote_symbol_v3 import MarketQuoteSymbolV3
 from upstox_client.models.market_status_data import MarketStatusData
 from upstox_client.models.modify_order_data import ModifyOrderData
 from upstox_client.models.modify_order_request import ModifyOrderRequest
