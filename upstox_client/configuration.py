@@ -30,6 +30,9 @@ class TypeWithDefault(type):
     def __call__(cls, *args, **kwargs):
         if cls._default is None:
             cls._default = type.__call__(cls, *args, **kwargs)
+            return copy.copy(cls._default)
+        if args or kwargs:
+            return type.__call__(cls, *args, **kwargs)
         return copy.copy(cls._default)
 
     def set_default(cls, default):
