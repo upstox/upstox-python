@@ -36,6 +36,7 @@ Samples are grouped by API area. Each `.md` file contains one or more Python sni
 | [**market-information/**](market-information/) | Exchange status, market timings, market holidays, OI, change in OI, PCR, max pain, FII, and DII. |
 | [**smartlist/**](smartlist/) | Analytics-enriched smartlists for options, futures, and MTF stocks. |
 | [**ipo/**](ipo/) | IPO listing (by status/issue type), IPO details by id, and IPO orders — apply, list, fetch by order id and cancel. |
+| [**us-stocks/**](us-stocks/) | US stocks: place/modify/cancel orders, order book and details, charge estimate and margin, funds, holdings, and US market status, holidays and timings (UAT only for now). |
 | [**gtt-orders/**](gtt-orders/) | Place, modify, cancel, and get details for GTT (Good Till Triggered) orders. |
 | [**margins/**](margins/) | Margin details. |
 | [**charges/**](charges/) | Brokerage details. |
