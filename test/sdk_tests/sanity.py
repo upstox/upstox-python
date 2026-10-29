@@ -1433,11 +1433,8 @@ if RUN_DESTRUCTIVE_PAYOUT_TESTS:
 # ----------------------------------------------------------------------------
 # US Stocks APIs (UsStocks*Api, UsMarketHolidaysAndTimingsApi)
 # ----------------------------------------------------------------------------
-# US stocks endpoints are only live on UAT for now; switch both hosts once they reach prod.
 us_configuration = upstox_client.Configuration()
-us_configuration.access_token = getattr(data_token, "uat_access_token", data_token.access_token)
-us_configuration.host = "https://uat-api.upstox.com"
-us_configuration.order_host = "https://uat-api.upstox.com"
+us_configuration.access_token = data_token.access_token
 us_api_client = upstox_client.ApiClient(us_configuration)
 us_market_api_instance = upstox_client.UsMarketHolidaysAndTimingsApi(us_api_client)
 us_order_api_instance = upstox_client.UsStocksOrderApi(us_api_client)

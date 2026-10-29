@@ -4,16 +4,6 @@ Links to all US stocks examples in the `code/` folder. Endpoints are exposed on
 `UsStocksOrderApi`, `UsStocksChargesApi`, `UsStocksPortfolioApi`,
 `UsStocksFundsApi` and `UsMarketHolidaysAndTimingsApi`. Prices and amounts are in USD.
 
-> ⚠️ US stocks endpoints are currently available on UAT only. Until they reach
-> production, point both hosts at UAT:
->
-> ```python
-> configuration.host = 'https://uat-api.upstox.com'
-> configuration.order_host = 'https://uat-api.upstox.com'
-> ```
->
-> `order_host` is needed because place/modify/cancel requests are routed to it.
-
 ## 1. Place Order
 
 - 1.1 [Place a market order by quantity](code/place-us-order.md#place-a-market-order-by-quantity)

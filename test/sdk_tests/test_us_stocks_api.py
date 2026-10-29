@@ -2,14 +2,8 @@ import upstox_client
 import data_token
 from upstox_client.rest import ApiException
 
-# US stocks endpoints are only live on UAT for now; switch both hosts once they reach prod.
-UAT_HOST = "https://uat-api.upstox.com"
-
 configuration = upstox_client.Configuration()
-configuration.access_token = getattr(data_token, "uat_access_token", data_token.access_token)
-configuration.host = UAT_HOST
-# place/modify/cancel paths are routed to order_host by ApiClient
-configuration.order_host = UAT_HOST
+configuration.access_token = data_token.access_token
 
 api_client = upstox_client.ApiClient(configuration)
 
