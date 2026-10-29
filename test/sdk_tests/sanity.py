@@ -1508,7 +1508,7 @@ except ApiException as e:
 
 try:
     # Estimate US Order charges (nothing is placed); replace the key with a valid US instrument key
-    body = upstox_client.UsOrderEstimateRequest(quantity=1, instrument_key="{us_instrument_key}", transaction_type="BUY", order_type="MARKET")
+    body = upstox_client.UsOrderEstimateRequest(quantity=1, instrument_key="US_EQ|AAPL", transaction_type="BUY", order_type="MARKET")
     api_response = us_order_api_instance.estimate_us_order(body)
     if api_response.status != "success":
         print("error in estimate_us_order API")
@@ -1517,7 +1517,7 @@ except ApiException as e:
 
 try:
     # Calculate US Margin (nothing is placed)
-    body = upstox_client.UsMarginRequest(instruments=[upstox_client.UsOrderEstimateRequest(quantity=1, instrument_key="{us_instrument_key}", transaction_type="BUY", order_type="MARKET")])
+    body = upstox_client.UsMarginRequest(instruments=[upstox_client.UsOrderEstimateRequest(quantity=1, instrument_key="US_EQ|AAPL", transaction_type="BUY", order_type="MARKET")])
     api_response = upstox_client.UsStocksChargesApi(us_api_client).calculate_us_margin(body)
     if api_response.status != "success":
         print("error in calculate_us_margin API")

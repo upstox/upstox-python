@@ -13,7 +13,7 @@ api_instance = upstox_client.UsStocksOrderApi(upstox_client.ApiClient(configurat
 body = upstox_client.UsPlaceOrderRequest(
     quantity=1.5,
     validity='DAY',
-    instrument_key='{us_instrument_key}',
+    instrument_key='US_EQ|AAPL',
     transaction_type='BUY',
     order_type='MARKET'
 )
@@ -40,7 +40,7 @@ api_instance = upstox_client.UsStocksOrderApi(upstox_client.ApiClient(configurat
 body = upstox_client.UsPlaceOrderRequest(
     amount=50.0,
     validity='DAY',
-    instrument_key='{us_instrument_key}',
+    instrument_key='US_EQ|AAPL',
     transaction_type='BUY',
     order_type='MARKET'
 )
@@ -68,7 +68,7 @@ body = upstox_client.UsPlaceOrderRequest(
     price=150.25,
     validity='DAY',
     tag='my-us-order',
-    instrument_key='{us_instrument_key}',
+    instrument_key='US_EQ|AAPL',
     transaction_type='BUY',
     order_type='LIMIT'
 )

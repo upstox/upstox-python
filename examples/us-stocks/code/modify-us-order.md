@@ -15,7 +15,7 @@ body = upstox_client.UsModifyOrderRequest(
     quantity=3,
     price=149.5,
     validity='DAY',
-    instrument_key='{us_instrument_key}',
+    instrument_key='US_EQ|AAPL',
     transaction_type='BUY',
     order_type='LIMIT'
 )

@@ -14,7 +14,7 @@ configuration.order_host = UAT_HOST
 api_client = upstox_client.ApiClient(configuration)
 
 # Replace with a valid US instrument key before running
-us_instrument_key = "{us_instrument_key}"
+us_instrument_key = "US_EQ|AAPL"
 
 # ----------------------------------------------------------------------------
 # UsMarketHolidaysAndTimingsApi

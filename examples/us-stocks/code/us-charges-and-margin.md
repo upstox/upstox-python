@@ -12,7 +12,7 @@ api_instance = upstox_client.UsStocksOrderApi(upstox_client.ApiClient(configurat
 # Nothing is placed
 body = upstox_client.UsOrderEstimateRequest(
     quantity=1,
-    instrument_key='{us_instrument_key}',
+    instrument_key='US_EQ|AAPL',
     transaction_type='BUY',
     order_type='MARKET'
 )
@@ -39,7 +39,7 @@ api_instance = upstox_client.UsStocksOrderApi(upstox_client.ApiClient(configurat
 body = upstox_client.UsOrderEstimateRequest(
     quantity=0.5,
     price=150.0,
-    instrument_key='{us_instrument_key}',
+    instrument_key='US_EQ|AAPL',
     transaction_type='SELL',
     order_type='LIMIT'
 )
@@ -64,8 +64,8 @@ api_instance = upstox_client.UsStocksChargesApi(upstox_client.ApiClient(configur
 
 # Up to 20 orders; nothing is placed
 body = upstox_client.UsMarginRequest(instruments=[
-    upstox_client.UsOrderEstimateRequest(quantity=1, instrument_key='{us_instrument_key_1}', transaction_type='BUY', order_type='MARKET'),
-    upstox_client.UsOrderEstimateRequest(quantity=2, price=100.0, instrument_key='{us_instrument_key_2}', transaction_type='BUY', order_type='LIMIT'),
+    upstox_client.UsOrderEstimateRequest(quantity=1, instrument_key='US_EQ|AAPL', transaction_type='BUY', order_type='MARKET'),
+    upstox_client.UsOrderEstimateRequest(quantity=2, price=100.0, instrument_key='US_EQ|MSFT', transaction_type='BUY', order_type='LIMIT'),
 ])
 
 try:
