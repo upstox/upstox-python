@@ -1431,6 +1431,97 @@ if RUN_DESTRUCTIVE_PAYOUT_TESTS:
         print("Exception when calling UserApi payout write ops: %s\n" % e)
 
 # ----------------------------------------------------------------------------
+# US Stocks APIs (UsStocks*Api, UsMarketHolidaysAndTimingsApi)
+# ----------------------------------------------------------------------------
+us_configuration = upstox_client.Configuration()
+us_configuration.access_token = data_token.access_token
+us_api_client = upstox_client.ApiClient(us_configuration)
+us_market_api_instance = upstox_client.UsMarketHolidaysAndTimingsApi(us_api_client)
+us_order_api_instance = upstox_client.UsStocksOrderApi(us_api_client)
+
+try:
+    # Get US Market Status
+    api_response = us_market_api_instance.get_us_market_status()
+    if api_response.status != "success":
+        print("error in get_us_market_status API")
+except ApiException as e:
+    print("Exception when calling UsMarketHolidaysAndTimingsApi->get_us_market_status: %s\n" % e)
+
+try:
+    # Get US Holidays
+    api_response = us_market_api_instance.get_us_holidays()
+    if api_response.status != "success":
+        print("error in get_us_holidays API")
+except ApiException as e:
+    print("Exception when calling UsMarketHolidaysAndTimingsApi->get_us_holidays: %s\n" % e)
+
+try:
+    # Get US Holiday by date
+    api_response = us_market_api_instance.get_us_holiday("2026-11-26")
+    if api_response.status != "success":
+        print("error in get_us_holiday API")
+except ApiException as e:
+    print("Exception when calling UsMarketHolidaysAndTimingsApi->get_us_holiday: %s\n" % e)
+
+try:
+    # Get US Exchange Timings by date
+    api_response = us_market_api_instance.get_us_exchange_timings("2026-11-27")
+    if api_response.status != "success":
+        print("error in get_us_exchange_timings API")
+except ApiException as e:
+    print("Exception when calling UsMarketHolidaysAndTimingsApi->get_us_exchange_timings: %s\n" % e)
+
+try:
+    # Get US Funds
+    api_response = upstox_client.UsStocksFundsApi(us_api_client).get_us_funds()
+    if api_response.status != "success":
+        print("error in get_us_funds API")
+except ApiException as e:
+    print("Exception when calling UsStocksFundsApi->get_us_funds: %s\n" % e)
+
+try:
+    # Get US Holdings
+    api_response = upstox_client.UsStocksPortfolioApi(us_api_client).get_us_holdings()
+    if api_response.status != "success":
+        print("error in get_us_holdings API")
+except ApiException as e:
+    print("Exception when calling UsStocksPortfolioApi->get_us_holdings: %s\n" % e)
+
+try:
+    # Get US Order Book
+    api_response = us_order_api_instance.get_us_order_book()
+    if api_response.status != "success":
+        print("error in get_us_order_book API")
+except ApiException as e:
+    print("Exception when calling UsStocksOrderApi->get_us_order_book: %s\n" % e)
+
+try:
+    # Get US Order Details (in real usage, pass an order id from get_us_order_book)
+    api_response = us_order_api_instance.get_us_order_details("sample-us-order-id")
+    if api_response.status != "success":
+        print("error in get_us_order_details API")
+except ApiException as e:
+    print("Exception when calling UsStocksOrderApi->get_us_order_details: %s\n" % e)
+
+try:
+    # Estimate US Order charges (nothing is placed); replace the key with a valid US instrument key
+    body = upstox_client.UsOrderEstimateRequest(quantity=1, instrument_key="US_EQ|AAPL", transaction_type="BUY", order_type="MARKET")
+    api_response = us_order_api_instance.estimate_us_order(body)
+    if api_response.status != "success":
+        print("error in estimate_us_order API")
+except ApiException as e:
+    print("Exception when calling UsStocksOrderApi->estimate_us_order: %s\n" % e)
+
+try:
+    # Calculate US Margin (nothing is placed)
+    body = upstox_client.UsMarginRequest(instruments=[upstox_client.UsOrderEstimateRequest(quantity=1, instrument_key="US_EQ|AAPL", transaction_type="BUY", order_type="MARKET")])
+    api_response = upstox_client.UsStocksChargesApi(us_api_client).calculate_us_margin(body)
+    if api_response.status != "success":
+        print("error in calculate_us_margin API")
+except ApiException as e:
+    print("Exception when calling UsStocksChargesApi->calculate_us_margin: %s\n" % e)
+
+# ----------------------------------------------------------------------------
 # Model instantiation smoke tests (new models)
 # ----------------------------------------------------------------------------
 ipo_listing_data = upstox_client.IpoListingData(symbol="XYZ", status="open")
@@ -1536,6 +1627,53 @@ if payout_modes_data is None:
 payout_modes_response = upstox_client.PayoutModesResponse(status="success", data=payout_modes_data)
 if payout_modes_response.status != "success":
     print("error: PayoutModesResponse status field not set correctly")
+
+us_place_order_request = upstox_client.UsPlaceOrderRequest(amount=25.0, validity="DAY", instrument_key="K", transaction_type="BUY", order_type="MARKET")
+if us_place_order_request.amount != 25.0:
+    print("error: UsPlaceOrderRequest fields not set correctly")
+
+us_modify_order_request = upstox_client.UsModifyOrderRequest(quantity=2, price=10.5, validity="DAY", order_id="O1", instrument_key="K", transaction_type="SELL", order_type="LIMIT")
+if us_modify_order_request.order_id != "O1":
+    print("error: UsModifyOrderRequest fields not set correctly")
+
+us_margin_request = upstox_client.UsMarginRequest(instruments=[upstox_client.UsOrderEstimateRequest(quantity=1.25, instrument_key="K", transaction_type="BUY", order_type="MARKET")])
+if us_margin_request.instruments[0].quantity != 1.25:
+    print("error: UsMarginRequest fields not set correctly")
+
+us_order_response = upstox_client.UsOrderResponse(status="success", data=upstox_client.UsOrderData(order_id="O1"))
+if us_order_response.data.order_id != "O1":
+    print("error: UsOrderResponse fields not set correctly")
+
+us_order_estimate_response = upstox_client.UsOrderEstimateResponse(status="success", data=upstox_client.UsOrderEstimateData(total_charges=1.5, estimated_total=101.5))
+if us_order_estimate_response.data.estimated_total != 101.5:
+    print("error: UsOrderEstimateResponse fields not set correctly")
+
+us_order_book_data = upstox_client.UsOrderBookData(order_id="O1", status="open", quantity=1.5, fractionable=True)
+us_order_book_response = upstox_client.UsOrderBookResponse(status="success", data=[us_order_book_data])
+us_order_details_response = upstox_client.UsOrderDetailsResponse(status="success", data=us_order_book_data)
+if us_order_book_response.data[0].status != "open" or us_order_details_response.data.quantity != 1.5:
+    print("error: UsOrderBookResponse/UsOrderDetailsResponse fields not set correctly")
+
+us_margin_data = upstox_client.UsMarginData(margins=[upstox_client.UsOrderMargin(instrument_key="K", required_margin=101.2)], sufficient=True)
+us_margin_response = upstox_client.UsMarginResponse(status="success", data=us_margin_data)
+if us_margin_response.data.margins[0].required_margin != 101.2:
+    print("error: UsMarginResponse fields not set correctly")
+
+us_funds_response = upstox_client.UsFundsResponse(status="success", data=upstox_client.UsFundsData(cash=100.0, exchange_rate=88.5))
+if us_funds_response.data.exchange_rate != 88.5:
+    print("error: UsFundsResponse fields not set correctly")
+
+us_holdings_response = upstox_client.UsHoldingsResponse(status="success", data=[upstox_client.UsHoldingData(instrument_key="K", quantity=2.5)])
+if us_holdings_response.data[0].quantity != 2.5:
+    print("error: UsHoldingsResponse fields not set correctly")
+
+get_us_holiday_response = upstox_client.GetUsHolidayResponse(status="success", data=[upstox_client.UsHolidayData(_date="2026-11-26", holiday_type="TRADING_HOLIDAY")])
+if get_us_holiday_response.data[0]._date != "2026-11-26":
+    print("error: GetUsHolidayResponse fields not set correctly")
+
+get_us_exchange_timing_response = upstox_client.GetUsExchangeTimingResponse(status="success", data=[upstox_client.UsExchangeTimingData(exchange="US", start_time=1, end_time=2)])
+if get_us_exchange_timing_response.data[0].end_time != 2:
+    print("error: GetUsExchangeTimingResponse fields not set correctly")
 
 login_api_instance = upstox_client.LoginApi(upstox_client.ApiClient(configuration))
 try:
