@@ -21,7 +21,7 @@ import ssl
 import certifi
 # python 2 and python 3 compatibility library
 import six
-from six.moves.urllib.parse import urlencode
+from six.moves.urllib.parse import unquote, urlencode, urlparse, urlunparse
 
 try:
     import urllib3
@@ -30,6 +30,27 @@ except ImportError:
 
 
 logger = logging.getLogger(__name__)
+
+
+def _split_proxy_auth(proxy):
+    """Split credentials out of a proxy URL into proxy headers.
+
+    urllib3's ProxyManager does not send the user:password part of
+    proxy_url, so authenticated proxies answer 407. Returns the URL
+    without credentials and a Proxy-Authorization header, or the URL
+    unchanged and None when it has no credentials.
+    """
+    parsed = urlparse(proxy)
+    if parsed.username is None:
+        return proxy, None
+    host = parsed.hostname
+    if ':' in host:
+        host = '[%s]' % host  # IPv6 literal
+    if parsed.port:
+        host = '%s:%d' % (host, parsed.port)
+    auth = '%s:%s' % (unquote(parsed.username), unquote(parsed.password or ''))
+    return (urlunparse(parsed._replace(netloc=host)),
+            urllib3.make_headers(proxy_basic_auth=auth))
 
 
 class RESTResponse(io.IOBase):
@@ -83,6 +104,7 @@ class RESTClientObject(object):
 
         # https pool manager
         if configuration.proxy:
+            proxy_url, proxy_headers = _split_proxy_auth(configuration.proxy)
             self.pool_manager = urllib3.ProxyManager(
                 num_pools=pools_size,
                 maxsize=maxsize,
@@ -90,7 +112,8 @@ class RESTClientObject(object):
                 ca_certs=ca_certs,
                 cert_file=configuration.cert_file,
                 key_file=configuration.key_file,
-                proxy_url=configuration.proxy,
+                proxy_url=proxy_url,
+                proxy_headers=proxy_headers,
                 **addition_pool_args
             )
         else:
