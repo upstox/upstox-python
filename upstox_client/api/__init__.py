@@ -22,6 +22,11 @@ from upstox_client.api.order_api import OrderApi
 from upstox_client.api.portfolio_api import PortfolioApi
 from upstox_client.api.post_trade_api import PostTradeApi
 from upstox_client.api.trade_profit_and_loss_api import TradeProfitAndLossApi
+from upstox_client.api.us_market_holidays_and_timings_api import UsMarketHolidaysAndTimingsApi
+from upstox_client.api.us_stocks_charges_api import UsStocksChargesApi
+from upstox_client.api.us_stocks_funds_api import UsStocksFundsApi
+from upstox_client.api.us_stocks_order_api import UsStocksOrderApi
+from upstox_client.api.us_stocks_portfolio_api import UsStocksPortfolioApi
 from upstox_client.api.user_api import UserApi
 from upstox_client.api.websocket_api import WebsocketApi
 from upstox_client.api.order_controller_v_3_api import OrderApiV3
