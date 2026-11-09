@@ -1,3 +1,5 @@
+name: Security Check Scan
+
 on:
   workflow_dispatch: {}
   pull_request:
@@ -10,23 +12,34 @@ on:
   schedule:
     - cron: '21 11 * * *'
 
-name: Security Check Scan
-
 permissions:
   contents: read
-  pull-requests: write
+
+concurrency:
+  group: security-check-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  SEMGREP_VERSION: '1.182.1'
+  SEMGREP_RULES_REPO: https://github.com/semgrep/semgrep-rules.git
+  SEMGREP_RULES_SHA: 16b9e6d45f10649f6a531ec4838ed9924372c3bc
+  MIN_RULES: '200'
 
 jobs:
   guard_whitelist_expiry:
     if: ${{ github.event_name == 'pull_request' }}
     name: checking eta
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      WHITELIST_URL: ${{ secrets.WHITELIST_CALLBACK_URL }}
+      WHITELIST_KEY: ${{ secrets.sg_wh_api_key }}
     steps:
       - name: Download complete whitelist
         run: |
-          curl -s -X POST "${{ secrets.WHITELIST_CALLBACK_URL }}" \
+          curl -sS --retry 3 --retry-delay 2 --max-time 30 -X POST "$WHITELIST_URL" \
                -H "Content-Type: application/json" \
-               -H "X-API-KEY: ${{ secrets.sg_wh_api_key }}" \
+               -H "X-API-KEY: $WHITELIST_KEY" \
                -d '{"pr_url":""}' \
                -o all.json
 
@@ -47,120 +60,174 @@ jobs:
     if: ${{ github.event_name == 'pull_request' }}
     name: Run required verification
     needs: guard_whitelist_expiry
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    outputs:
+      scan_result: ${{ steps.scan.outputs.result || steps.preflight.outputs.result }}
+    env:
+      PR_URL: ${{ github.event.pull_request.html_url }}
+      BASE_REF: ${{ github.base_ref }}
+      WHITELIST_URL: ${{ secrets.WHITELIST_CALLBACK_URL }}
+      WHITELIST_KEY: ${{ secrets.sg_wh_api_key }}
     steps:
       - name: Check whitelist
         id: check_whitelist
         run: |
-          curl -s -X POST "${{ secrets.WHITELIST_CALLBACK_URL }}" \
+          curl -sS --retry 3 --retry-delay 2 --max-time 30 -X POST "$WHITELIST_URL" \
                -H "Content-Type: application/json" \
-               -H "X-API-KEY: ${{ secrets.sg_wh_api_key }}" \
-               -d '{"pr_url":"'"${{ github.event.pull_request.html_url }}"'"}' \
+               -H "X-API-KEY: $WHITELIST_KEY" \
+               -d "$(jq -n --arg pr "$PR_URL" '{pr_url: $pr}')" \
                -o response.json
 
-          echo "=== Raw response ==="
-          cat response.json || echo "response.json is empty"
-          echo "===================="
-
-          PR_URL="${{ github.event.pull_request.html_url }}"
           PR_CLEAN=$(echo "$PR_URL" | xargs)
 
           if jq -e --arg pr "$PR_CLEAN" '.exemptions[]? | select(.pr_url == $pr)' response.json > /dev/null 2>&1; then
-            echo "whitelisted=true" >> $GITHUB_OUTPUT
+            echo "whitelisted=true" >> "$GITHUB_OUTPUT"
             echo "✅ PR is whitelisted. Skipping scan."
-            exit 0
           else
-            echo "whitelisted=false" >> $GITHUB_OUTPUT
+            echo "whitelisted=false" >> "$GITHUB_OUTPUT"
             echo "🔍 PR not whitelisted. Proceeding to scan."
           fi
 
       - name: Checkout code
-        uses: actions/checkout@v3
+        if: ${{ steps.check_whitelist.outputs.whitelisted == 'false' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          fetch-depth: 2
+          fetch-depth: 0
+          persist-credentials: false
 
-      - name: Cache pip dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-semgrep
-          
+      - name: Fetch pinned Semgrep rules
+        if: ${{ steps.check_whitelist.outputs.whitelisted == 'false' }}
+        run: |
+          set -euo pipefail
+          rules_repo="$RUNNER_TEMP/semgrep-rules"
+          git init -q "$rules_repo"
+          git -C "$rules_repo" fetch -q --depth 1 "$SEMGREP_RULES_REPO" "$SEMGREP_RULES_SHA"
+          git -C "$rules_repo" checkout -q FETCH_HEAD
+          test "$(git -C "$rules_repo" rev-parse HEAD)" = "$SEMGREP_RULES_SHA"
+          echo "RULES_DIR=$rules_repo/generic/secrets" >> "$GITHUB_ENV"
+
       - name: Set up Python
-        uses: actions/setup-python@v4
+        if: ${{ steps.check_whitelist.outputs.whitelisted == 'false' }}
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
         with:
-          python-version: '3.x'
+          python-version: '3.12'
 
-      - name: Install security check
-        run: pip install semgrep
-
-      - name: Fix Git and fetch base branch
-        run: |
-          git config --global --add safe.directory $GITHUB_WORKSPACE
-          git fetch origin ${{ github.base_ref }}
-
-      - name: Run diff check
+      - name: Install Semgrep (pinned)
         if: ${{ steps.check_whitelist.outputs.whitelisted == 'false' }}
         run: |
-          echo "🚀 Running diff scan against origin/${{ github.base_ref }}"
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check --only-binary=:all: "semgrep==${SEMGREP_VERSION}"
+          test "$(semgrep --version)" = "$SEMGREP_VERSION"
+
+      - name: Verify scanner (rules load and a known fake secret is detected)
+        id: preflight
+        if: ${{ steps.check_whitelist.outputs.whitelisted == 'false' }}
+        run: |
+          set -u -o pipefail
+          set +e
+          fail() {
+            echo "result=engine_error" >> "$GITHUB_OUTPUT"
+            echo "::error title=Scanner self-check failed::$1"
+            exit 1
+          }
+
+          rule_count=$(grep -rhE '^\s*-\s+id:' --include='*.yaml' --exclude='*.test.yaml' "$RULES_DIR" | wc -l)
+          echo "Pinned rules found: $rule_count (minimum $MIN_RULES)"
+          [ "$rule_count" -ge "$MIN_RULES" ] || fail "only $rule_count rules found, expected at least $MIN_RULES"
+
+          canary_dir="$RUNNER_TEMP/canary"
+          mkdir -p "$canary_dir"
+          printf 'aws_access_key_id = %s%s\n' 'AKIA' 'IOSFODNN7EXAMPLE' > "$canary_dir/canary.txt"
+          semgrep scan --config "$RULES_DIR" --error --metrics=off --disable-version-check \
+            --output /dev/null --json-output "$RUNNER_TEMP/canary.json" "$canary_dir" \
+            > /dev/null 2> "$RUNNER_TEMP/canary.err"
+          rc=$?
+          detected=$(jq '.results | length' "$RUNNER_TEMP/canary.json" 2>/dev/null || echo 0)
+          if [ "$rc" -ne 1 ] || [ "$detected" -lt 1 ]; then
+            tail -n 40 "$RUNNER_TEMP/canary.err"
+            fail "known fake secret was not detected (exit=$rc, findings=$detected)"
+          fi
+          echo "Self-check passed: $rule_count rules, canary detected ($detected finding(s))."
+
+      - name: Run diff scan
+        id: scan
+        if: ${{ steps.check_whitelist.outputs.whitelisted == 'false' }}
+        run: |
+          set -u -o pipefail
+          set +e
+          echo "🚀 Diff scan against origin/$BASE_REF (semgrep $SEMGREP_VERSION, rules @ ${SEMGREP_RULES_SHA:0:12})"
           semgrep scan \
-            --config p/gitleaks \
-            --config p/secrets \
-            --baseline-commit origin/${{ github.base_ref }} \
-            --error
+            --config "$RULES_DIR" \
+            --baseline-commit "origin/$BASE_REF" \
+            --error --strict --metrics=off --disable-version-check \
+            --output /dev/null --json-output semgrep-results.json \
+            2> semgrep-stderr.log
+          rc=$?
+          cat semgrep-stderr.log
 
-      - name: Save JSON results
-        if: ${{ steps.check_whitelist.outputs.whitelisted == 'false' }}
-        run: |
-          semgrep scan \
-            --config p/gitleaks \
-            --config p/secrets \
-            --baseline-commit origin/${{ github.base_ref }} \
-            --json > semgrep-results.json
+          if [ "$rc" -eq 0 ]; then
+            result=clean
+          elif [ "$rc" -eq 1 ]; then
+            result=findings
+          else
+            result=engine_error
+          fi
+          echo "result=$result" >> "$GITHUB_OUTPUT"
 
-      - name: Dump results to logs
-        if: ${{ steps.check_whitelist.outputs.whitelisted == 'false' }}
-        run: cat semgrep-results.json
+          {
+            echo "### Security scan: \`$result\`"
+            echo "semgrep \`$SEMGREP_VERSION\`, rules \`${SEMGREP_RULES_SHA:0:12}\`, base \`origin/$BASE_REF\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$result" = "findings" ]; then
+            jq -r '.results[] | "::error file=\(.path),line=\(.start.line),title=Possible secret::\(.check_id | sub("^.*semgrep-rules\\."; ""))"' semgrep-results.json
+            jq -r '.results[] | "- `\(.check_id | sub("^.*semgrep-rules\\."; ""))` at `\(.path):\(.start.line)`"' semgrep-results.json >> "$GITHUB_STEP_SUMMARY"
+          elif [ "$result" = "engine_error" ]; then
+            echo "::error title=Scanner error::Semgrep exited with code $rc. This is a scanner failure, not a finding."
+          fi
+
+          [ "$rc" -eq 0 ]
 
   notify_blocked:
     needs: sec_checks
     if: ${{ always() && github.event_name == 'pull_request' && needs.sec_checks.result == 'failure' }}
     name: Notify if blocked
-    runs-on: ubuntu-latest
-
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      PR_URL: ${{ github.event.pull_request.html_url }}
+      REPO: ${{ github.repository }}
+      ACTOR: ${{ github.actor }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      SCAN_RESULT: ${{ needs.sec_checks.outputs.scan_result }}
     steps:
-      - name: Export Slack webhook (no-op)
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        run: echo "webhook ready"
-
       - name: Send Slack alert
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
-          PR_NUMBER=${{ github.event.pull_request.number }}
-          PR_URL=${{ github.event.pull_request.html_url }}
-          REPO=${{ github.repository }}
-          ACTOR=${{ github.actor }}
-
-          PAYLOAD=$(printf '{
-            "text": ":rotating_light: *Security check failed* <%s|PR #%s> in *%s* (triggered by *%s*).\nIf this is a false positive, run this command:\n\n`/github-whitelist-pr %s reason:\\"<reason>\\" eta:\\"YYYY-MM-DD\\" bug:\\"SEC-1234\\" tribe:\\"<t-tribe-name>\\"`"
-          }' "$PR_URL" "$PR_NUMBER" "$REPO" "$ACTOR" "$PR_URL")
-
-          curl -X POST -H 'Content-Type: application/json' \
-               --data "$PAYLOAD" \
+          set -euo pipefail
+          bt=$(printf '\140')
+          if [ "$SCAN_RESULT" = "findings" ]; then
+            text=$(printf ':rotating_light: *Security check failed* <%s|PR #%s> in *%s* (triggered by *%s*).\nIf this is a false positive, run this command:\n\n%s/github-whitelist-pr %s reason:"<reason>" eta:"YYYY-MM-DD" bug:"SEC-1234" tribe:"<t-tribe-name>"%s\nRun: %s' \
+              "$PR_URL" "$PR_NUMBER" "$REPO" "$ACTOR" "$bt" "$PR_URL" "$bt" "$RUN_URL")
+          else
+            text=$(printf ':warning: *Security scanner error (not a finding)* on <%s|PR #%s> in *%s* (triggered by *%s*).\nNo verdict was produced, so this is NOT a false positive. Please re-run once; if it fails again, escalate to Security and do not whitelist.\nResult: %s%s%s  Run: %s' \
+              "$PR_URL" "$PR_NUMBER" "$REPO" "$ACTOR" "$bt" "${SCAN_RESULT:-workflow_error}" "$bt" "$RUN_URL")
+          fi
+          curl -sS --fail --retry 3 --max-time 30 -X POST -H 'Content-Type: application/json' \
+               --data "$(jq -n --arg text "$text" '{text: $text}')" \
                "$SLACK_WEBHOOK_URL"
 
   approve:
     if: ${{ github.event_name == 'pull_request' && needs.sec_checks.result == 'success' }}
     needs: sec_checks
     name: Auto-approve if security check passes
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      PR_URL: ${{ github.event.pull_request.html_url }}
+      GH_TOKEN: ${{ secrets.PAT_SECURITYREVIEWUSER }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
       - name: Approve PR
-        run: gh pr review --approve "${{ github.event.pull_request.html_url }}"
-        env:
-          GH_TOKEN: ${{ secrets.PAT_SECURITYREVIEWUSER }}
-          GITHUB_TOKEN: ${{ secrets.PAT_SECURITYREVIEWUSER }}
+        run: gh pr review --approve "$PR_URL"
