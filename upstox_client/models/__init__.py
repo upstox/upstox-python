@@ -235,7 +235,6 @@ from upstox_client.models.us_holiday_data import UsHolidayData
 from upstox_client.models.us_margin_data import UsMarginData
 from upstox_client.models.us_margin_request import UsMarginRequest
 from upstox_client.models.us_margin_response import UsMarginResponse
-from upstox_client.models.us_modify_order_request import UsModifyOrderRequest
 from upstox_client.models.us_order_book_data import UsOrderBookData
 from upstox_client.models.us_order_book_response import UsOrderBookResponse
 from upstox_client.models.us_order_data import UsOrderData
