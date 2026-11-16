@@ -643,4 +643,7 @@ class ApiClient(object):
         return instance
 
     def __is_order_path(self, path):
+        # US stock orders are served by the main host, not HFT
+        if path.startswith("/v2/us/"):
+            return False
         return path.__contains__("/order/place") or path.__contains__("/order/modify") or path.__contains__("/order/cancel")
