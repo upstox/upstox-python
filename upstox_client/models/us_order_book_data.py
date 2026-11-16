@@ -30,7 +30,6 @@ class UsOrderBookData(object):
     swagger_types = {
         'name': 'str',
         'exchange': 'str',
-        'product': 'str',
         'validity': 'str',
         'price': 'float',
         'quantity': 'float',
@@ -57,7 +56,6 @@ class UsOrderBookData(object):
     attribute_map = {
         'name': 'name',
         'exchange': 'exchange',
-        'product': 'product',
         'validity': 'validity',
         'price': 'price',
         'quantity': 'quantity',
@@ -81,11 +79,10 @@ class UsOrderBookData(object):
         'is_amo': 'is_amo'
     }
 
-    def __init__(self, name=None, exchange=None, product=None, validity=None, price=None, quantity=None, amount=None, status=None, fractionable=None, variety=None, tag=None, order_id=None, instrument_key=None, trading_symbol=None, order_type=None, transaction_type=None, average_price=None, filled_quantity=None, pending_quantity=None, status_message=None, status_message_raw=None, order_timestamp=None, exchange_timestamp=None, is_amo=None):  # noqa: E501
+    def __init__(self, name=None, exchange=None, validity=None, price=None, quantity=None, amount=None, status=None, fractionable=None, variety=None, tag=None, order_id=None, instrument_key=None, trading_symbol=None, order_type=None, transaction_type=None, average_price=None, filled_quantity=None, pending_quantity=None, status_message=None, status_message_raw=None, order_timestamp=None, exchange_timestamp=None, is_amo=None):  # noqa: E501
         """UsOrderBookData - a model defined in Swagger"""  # noqa: E501
         self._name = None
         self._exchange = None
-        self._product = None
         self._validity = None
         self._price = None
         self._quantity = None
@@ -112,8 +109,6 @@ class UsOrderBookData(object):
             self.name = name
         if exchange is not None:
             self.exchange = exchange
-        if product is not None:
-            self.product = product
         if validity is not None:
             self.validity = validity
         if price is not None:
@@ -198,27 +193,6 @@ class UsOrderBookData(object):
         """
 
         self._exchange = exchange
-
-    @property
-    def product(self):
-        """Gets the product of this UsOrderBookData.  # noqa: E501
-
-
-        :return: The product of this UsOrderBookData.  # noqa: E501
-        :rtype: str
-        """
-        return self._product
-
-    @product.setter
-    def product(self, product):
-        """Sets the product of this UsOrderBookData.
-
-
-        :param product: The product of this UsOrderBookData.  # noqa: E501
-        :type: str
-        """
-
-        self._product = product
 
     @property
     def validity(self):

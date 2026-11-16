@@ -29,26 +29,21 @@ class UsHolidayData(object):
     """
     swagger_types = {
         '_date': 'str',
-        'description': 'str',
         'holiday_type': 'str'
     }
 
     attribute_map = {
         '_date': 'date',
-        'description': 'description',
         'holiday_type': 'holiday_type'
     }
 
-    def __init__(self, _date=None, description=None, holiday_type=None):  # noqa: E501
+    def __init__(self, _date=None, holiday_type=None):  # noqa: E501
         """UsHolidayData - a model defined in Swagger"""  # noqa: E501
         self.__date = None
-        self._description = None
         self._holiday_type = None
         self.discriminator = None
         if _date is not None:
             self._date = _date
-        if description is not None:
-            self.description = description
         if holiday_type is not None:
             self.holiday_type = holiday_type
 
@@ -72,27 +67,6 @@ class UsHolidayData(object):
         """
 
         self.__date = _date
-
-    @property
-    def description(self):
-        """Gets the description of this UsHolidayData.  # noqa: E501
-
-
-        :return: The description of this UsHolidayData.  # noqa: E501
-        :rtype: str
-        """
-        return self._description
-
-    @description.setter
-    def description(self, description):
-        """Sets the description of this UsHolidayData.
-
-
-        :param description: The description of this UsHolidayData.  # noqa: E501
-        :type: str
-        """
-
-        self._description = description
 
     @property
     def holiday_type(self):
