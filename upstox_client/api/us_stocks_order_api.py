@@ -229,13 +229,14 @@ class UsStocksOrderApi(object):
     def get_us_order_book(self, **kwargs):  # noqa: E501
         """Get US stocks order book  # noqa: E501
 
-        Returns the user's US stocks orders for the day, in every state.  # noqa: E501
+        Returns the user's US stocks orders for the day, in every state; optionally only those with a tag.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.get_us_order_book(async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
+        :param str tag: Return only orders placed with this tag; exact, case-sensitive match
         :return: UsOrderBookResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -250,19 +251,20 @@ class UsStocksOrderApi(object):
     def get_us_order_book_with_http_info(self, **kwargs):  # noqa: E501
         """Get US stocks order book  # noqa: E501
 
-        Returns the user's US stocks orders for the day, in every state.  # noqa: E501
+        Returns the user's US stocks orders for the day, in every state; optionally only those with a tag.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.get_us_order_book_with_http_info(async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
+        :param str tag: Return only orders placed with this tag; exact, case-sensitive match
         :return: UsOrderBookResponse
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = []  # noqa: E501
+        all_params = ['tag']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -283,6 +285,8 @@ class UsStocksOrderApi(object):
         path_params = {}
 
         query_params = []
+        if 'tag' in params:
+            query_params.append(('tag', params['tag']))  # noqa: E501
 
         header_params = {}
 
