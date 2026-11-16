@@ -81,10 +81,14 @@ except ApiException as e:
     print("Exception when calling UsStocksOrderApi->get_us_order_book with tag: %s\n" % e)
 
 try:
-    # In real usage, pass an order id from get_us_order_book
-    api_response = us_order_api.get_us_order_details("sample-us-order-id")
-    if api_response.status != "success":
-        print("error in UsStocksOrderApi->get_us_order_details")
+    # Use a real order id from the order book
+    us_orders = us_order_api.get_us_order_book().data or []
+    if us_orders:
+        api_response = us_order_api.get_us_order_details(us_orders[0].order_id)
+        if api_response.status != "success":
+            print("error in UsStocksOrderApi->get_us_order_details")
+    else:
+        print("get_us_order_details skipped: no US order found")
 except ApiException as e:
     print("Exception when calling UsStocksOrderApi->get_us_order_details: %s\n" % e)
 
