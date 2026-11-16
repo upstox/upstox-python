@@ -8,7 +8,7 @@ configuration.access_token = data_token.access_token
 api_client = upstox_client.ApiClient(configuration)
 
 # Replace with a valid US instrument key before running
-us_instrument_key = "US_EQ|AAPL"
+us_instrument_key = "US_EQ|COUR"
 
 # ----------------------------------------------------------------------------
 # UsMarketHolidaysAndTimingsApi
@@ -99,7 +99,7 @@ except ApiException as e:
 
 try:
     # Estimate charges for a limit sell of a fractional quantity
-    body = upstox_client.UsOrderEstimateRequest(quantity=0.5, price=150.0, instrument_key=us_instrument_key, transaction_type="SELL", order_type="LIMIT")
+    body = upstox_client.UsOrderEstimateRequest(quantity=0.5, price=4.0, instrument_key=us_instrument_key, transaction_type="SELL", order_type="LIMIT")
     api_response = us_order_api.estimate_us_order(body)
     if api_response.status != "success":
         print("error in UsStocksOrderApi->estimate_us_order with limit")
@@ -110,7 +110,7 @@ try:
     # Margin check for multiple orders; nothing is placed
     body = upstox_client.UsMarginRequest(instruments=[
         upstox_client.UsOrderEstimateRequest(quantity=1, instrument_key=us_instrument_key, transaction_type="BUY", order_type="MARKET"),
-        upstox_client.UsOrderEstimateRequest(quantity=2, price=100.0, instrument_key=us_instrument_key, transaction_type="BUY", order_type="LIMIT"),
+        upstox_client.UsOrderEstimateRequest(quantity=2, price=4.0, instrument_key=us_instrument_key, transaction_type="BUY", order_type="LIMIT"),
     ])
     api_response = upstox_client.UsStocksChargesApi(api_client).calculate_us_margin(body)
     if api_response.status != "success":
@@ -181,7 +181,7 @@ us_funds_response = upstox_client.UsFundsResponse(status="success", data=us_fund
 if us_funds_response.data.exchange_rate != 88.5:
     print("error: UsFundsResponse fields not set correctly")
 
-us_holding_data = upstox_client.UsHoldingData(instrument_key="K", trading_symbol="AAPL", quantity=2.5, average_price=150.0, pnl=12.5)
+us_holding_data = upstox_client.UsHoldingData(instrument_key="K", trading_symbol="COUR", quantity=2.5, average_price=150.0, pnl=12.5)
 us_holdings_response = upstox_client.UsHoldingsResponse(status="success", data=[us_holding_data])
 if us_holdings_response.data[0].quantity != 2.5:
     print("error: UsHoldingsResponse fields not set correctly")
