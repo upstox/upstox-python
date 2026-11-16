@@ -1632,10 +1632,6 @@ us_place_order_request = upstox_client.UsPlaceOrderRequest(amount=25.0, validity
 if us_place_order_request.amount != 25.0:
     print("error: UsPlaceOrderRequest fields not set correctly")
 
-us_modify_order_request = upstox_client.UsModifyOrderRequest(quantity=2, price=10.5, validity="DAY", order_id="O1", instrument_key="K", transaction_type="SELL", order_type="LIMIT")
-if us_modify_order_request.order_id != "O1":
-    print("error: UsModifyOrderRequest fields not set correctly")
-
 us_margin_request = upstox_client.UsMarginRequest(instruments=[upstox_client.UsOrderEstimateRequest(quantity=1.25, instrument_key="K", transaction_type="BUY", order_type="MARKET")])
 if us_margin_request.instruments[0].quantity != 1.25:
     print("error: UsMarginRequest fields not set correctly")

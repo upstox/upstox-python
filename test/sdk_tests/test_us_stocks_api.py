@@ -74,6 +74,13 @@ except ApiException as e:
     print("Exception when calling UsStocksOrderApi->get_us_order_book: %s\n" % e)
 
 try:
+    api_response = us_order_api.get_us_order_book(tag="sdk-test")
+    if api_response.status != "success":
+        print("error in UsStocksOrderApi->get_us_order_book with tag")
+except ApiException as e:
+    print("Exception when calling UsStocksOrderApi->get_us_order_book with tag: %s\n" % e)
+
+try:
     # In real usage, pass an order id from get_us_order_book
     api_response = us_order_api.get_us_order_details("sample-us-order-id")
     if api_response.status != "success":
@@ -111,7 +118,7 @@ try:
 except ApiException as e:
     print("Exception when calling UsStocksChargesApi->calculate_us_margin: %s\n" % e)
 
-# place/modify/cancel create real US orders. Disabled by default; set
+# place/cancel create real US orders. Disabled by default; set
 # RUN_DESTRUCTIVE_US_ORDER_TESTS = True to exercise them against a real account.
 RUN_DESTRUCTIVE_US_ORDER_TESTS = False
 if RUN_DESTRUCTIVE_US_ORDER_TESTS:
@@ -121,13 +128,8 @@ if RUN_DESTRUCTIVE_US_ORDER_TESTS:
         api_response = us_order_api.place_us_order(body)
         us_order_id = api_response.data.order_id
 
-        # Modify replaces the order, so use the new order id afterwards
-        modify_body = upstox_client.UsModifyOrderRequest(quantity=1, price=1.5, validity="DAY", order_id=us_order_id, instrument_key=us_instrument_key, transaction_type="BUY", order_type="LIMIT")
-        api_response = us_order_api.modify_us_order(modify_body)
-        us_order_id = api_response.data.order_id
-
         api_response = us_order_api.cancel_us_order(us_order_id)
-        print("us order place/modify/cancel cycle:", api_response.status)
+        print("us order place/cancel cycle:", api_response.status)
     except ApiException as e:
         print("Exception when calling UsStocksOrderApi order write ops: %s\n" % e)
 
@@ -137,10 +139,6 @@ if RUN_DESTRUCTIVE_US_ORDER_TESTS:
 us_place_order_request = upstox_client.UsPlaceOrderRequest(amount=25.0, validity="DAY", instrument_key="K", transaction_type="BUY", order_type="MARKET")
 if us_place_order_request.amount != 25.0 or us_place_order_request.quantity is not None:
     print("error: UsPlaceOrderRequest fields not set correctly")
-
-us_modify_order_request = upstox_client.UsModifyOrderRequest(quantity=2, price=10.5, validity="DAY", order_id="O1", instrument_key="K", transaction_type="SELL", order_type="LIMIT")
-if us_modify_order_request.order_id != "O1" or us_modify_order_request.price != 10.5:
-    print("error: UsModifyOrderRequest fields not set correctly")
 
 us_order_estimate_request = upstox_client.UsOrderEstimateRequest(quantity=1.25, instrument_key="K", transaction_type="BUY", order_type="MARKET")
 if us_order_estimate_request.quantity != 1.25:
@@ -188,7 +186,7 @@ us_holdings_response = upstox_client.UsHoldingsResponse(status="success", data=[
 if us_holdings_response.data[0].quantity != 2.5:
     print("error: UsHoldingsResponse fields not set correctly")
 
-us_holiday_data = upstox_client.UsHolidayData(_date="2026-11-26", description="Thanksgiving Day", holiday_type="TRADING_HOLIDAY")
+us_holiday_data = upstox_client.UsHolidayData(_date="2026-11-26", holiday_type="TRADING_HOLIDAY")
 get_us_holiday_response = upstox_client.GetUsHolidayResponse(status="success", data=[us_holiday_data])
 if get_us_holiday_response.data[0]._date != "2026-11-26":
     print("error: GetUsHolidayResponse fields not set correctly")
