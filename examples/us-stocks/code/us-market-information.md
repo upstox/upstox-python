@@ -30,7 +30,7 @@ api_instance = upstox_client.UsMarketHolidaysAndTimingsApi(upstox_client.ApiClie
 try:
     api_response = api_instance.get_us_holidays()
     for holiday in api_response.data:
-        print(holiday._date, holiday.description, holiday.holiday_type)
+        print(holiday._date, holiday.holiday_type)
 except ApiException as e:
     print("Exception when calling UsMarketHolidaysAndTimingsApi->get_us_holidays: %s\n" % e)
 ```

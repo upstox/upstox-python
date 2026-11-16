@@ -18,6 +18,26 @@ except ApiException as e:
     print("Exception when calling UsStocksOrderApi->get_us_order_book: %s\n" % e)
 ```
 
+## Get US order book filtered by tag
+
+```python
+import upstox_client
+from upstox_client.rest import ApiException
+
+configuration = upstox_client.Configuration()
+configuration.access_token = '{your_access_token}'
+
+api_instance = upstox_client.UsStocksOrderApi(upstox_client.ApiClient(configuration))
+
+try:
+    # Exact, case-sensitive match on the tag set when placing the order
+    api_response = api_instance.get_us_order_book(tag='my-us-order')
+    for order in api_response.data:
+        print(order.order_id, order.tag, order.status)
+except ApiException as e:
+    print("Exception when calling UsStocksOrderApi->get_us_order_book: %s\n" % e)
+```
+
 ## Get US order details by order id
 
 ```python
