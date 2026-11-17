@@ -30,20 +30,23 @@ class MarketStatusData(object):
     swagger_types = {
         'exchange': 'str',
         'status': 'str',
-        'last_updated': 'int'
+        'last_updated': 'int',
+        'cas_eligible_status': 'CasEligibleStatusData'
     }
 
     attribute_map = {
         'exchange': 'exchange',
         'status': 'status',
-        'last_updated': 'last_updated'
+        'last_updated': 'last_updated',
+        'cas_eligible_status': 'cas_eligible_status'
     }
 
-    def __init__(self, exchange=None, status=None, last_updated=None):  # noqa: E501
+    def __init__(self, exchange=None, status=None, last_updated=None, cas_eligible_status=None):  # noqa: E501
         """MarketStatusData - a model defined in Swagger"""  # noqa: E501
         self._exchange = None
         self._status = None
         self._last_updated = None
+        self._cas_eligible_status = None
         self.discriminator = None
         if exchange is not None:
             self.exchange = exchange
@@ -51,6 +54,8 @@ class MarketStatusData(object):
             self.status = status
         if last_updated is not None:
             self.last_updated = last_updated
+        if cas_eligible_status is not None:
+            self.cas_eligible_status = cas_eligible_status
 
     @property
     def exchange(self):
@@ -114,6 +119,27 @@ class MarketStatusData(object):
         """
 
         self._last_updated = last_updated
+
+    @property
+    def cas_eligible_status(self):
+        """Gets the cas_eligible_status of this MarketStatusData.  # noqa: E501
+
+
+        :return: The cas_eligible_status of this MarketStatusData.  # noqa: E501
+        :rtype: CasEligibleStatusData
+        """
+        return self._cas_eligible_status
+
+    @cas_eligible_status.setter
+    def cas_eligible_status(self, cas_eligible_status):
+        """Sets the cas_eligible_status of this MarketStatusData.
+
+
+        :param cas_eligible_status: The cas_eligible_status of this MarketStatusData.  # noqa: E501
+        :type: CasEligibleStatusData
+        """
+
+        self._cas_eligible_status = cas_eligible_status
 
     def to_dict(self):
         """Returns the model properties as a dict"""

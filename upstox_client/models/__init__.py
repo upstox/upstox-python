@@ -151,6 +151,7 @@ from upstox_client.models.market_quote_symbol import MarketQuoteSymbol
 from upstox_client.models.market_quote_symbol_ltp import MarketQuoteSymbolLtp
 from upstox_client.models.market_quote_symbol_ltp_v3 import MarketQuoteSymbolLtpV3
 from upstox_client.models.market_quote_symbol_v3 import MarketQuoteSymbolV3
+from upstox_client.models.cas_eligible_status_data import CasEligibleStatusData
 from upstox_client.models.market_status_data import MarketStatusData
 from upstox_client.models.modify_order_data import ModifyOrderData
 from upstox_client.models.modify_order_request import ModifyOrderRequest
