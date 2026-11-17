@@ -74,7 +74,7 @@ class ApiClient(object):
         # Set default User-Agent.
         self.user_agent = 'Swagger-Codegen/1.0.0/python'
         self.default_headers["X-Upstox-SDK-Language"] = "python"
-        self.default_headers["X-Upstox-SDK-Version"] = "2.30.0"
+        self.default_headers["X-Upstox-SDK-Version"] = "2.31.0"
 
     def __del__(self):
         try:
@@ -643,4 +643,7 @@ class ApiClient(object):
         return instance
 
     def __is_order_path(self, path):
+        # US stock orders are served by the main host, not HFT
+        if path.startswith("/v2/us/"):
+            return False
         return path.__contains__("/order/place") or path.__contains__("/order/modify") or path.__contains__("/order/cancel")
